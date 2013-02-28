@@ -1,0 +1,267 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Instance@纳谷概念云</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../../Content/bootstrap/js/assets/jquery-1.8.2.min.js" type="text/javascript"></script> 
+    <script src="../../Content/bootstrap/js/bootstrap.js" type="text/javascript"></script>
+    <script src="../../Content/bootstrap/js/assets/bootstrap-tab.js" type="text/javascript"></script>
+    <script src="../../Content/bootstrap/js/assets/bootstrap-button.js" type="text/javascript"></script>
+    <script src="../../Content/bootstrap/js/assets/bootstrap-dropdown.js" type="text/javascript"></script>
+    <script src="../../Content/bootstrap/js/assets/bootstrap-modal.js" type="text/javascript"></script>
+    <script src="../../Content/bootstrap/js/assets/bootstrap-transition.js" type="text/javascript"></script>
+    <script src="../../Content/bootstrap/js/assets/bootstrap-collapse.js" type="text/javascript"></script>
+    
+    <script src="http://code.jquery.com/ui/1.9.2/jquery-ui.js"></script>
+    <script src="../../Content/js/jquery.qrcode.min.js" type="text/javascript"></script>
+
+    <script src="js/class.js" type="text/javascript"></script>
+    <script src="../../Content/js/js-helper.js" type="text/javascript"></script>
+    <script src="../../Content/js/jquery-helper.js" type="text/javascript"></script>
+    <script src="../../Content/js/bootstrap-helper.js" type="text/javascript"></script>
+    <script src="../../Content/js/nagu-helper.js" type="text/javascript"></script>
+    <script type="text/javascript" src="http://qzonestyle.gtimg.cn/qzone/openapi/qc_loader.js" data-appid="100321920"  charset="utf-8"></script>
+    <script src="../../Content/js/apps-helper.js" type="text/javascript"></script>
+    <script src="js/instance.js" type="text/javascript"></script>
+    <link href="../../Content/bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css" />
+    <link href="../../Content/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css" />
+    <link href="css/style.css" rel="stylesheet" type="text/css" />
+
+    <style>
+    .ui-autocomplete {
+        max-height: 100px;
+        overflow-y: auto;
+        /* prevent horizontal scrollbar */
+        overflow-x: hidden;
+    }
+    /* IE 6 doesn't support max-height
+     * we use height instead, but this forces the menu to always be this tall
+     */
+    * html .ui-autocomplete {
+        height: 100px;
+    }
+    
+    .ui-autocomplete-loading {
+        background: white url('/Content/jqueryui/ui-anim_basic_16x16.gif') right center no-repeat;
+    }
+    </style>
+    
+
+      <script type="text/javascript">
+          host = "";
+          var request = getRequest();
+          var id = request["id"];
+          $(document).ready(function () {
+              curStype = MorphemeType.Concept;
+              showInstanceById(id).done(function () {
+                  QC.Login({
+                      btnId: "qqLoginBtn",
+                      scope: "all",
+                      size: "A_M"
+                  }, afterQCLogin)
+              });
+
+
+              $("#dlgAddValue").modal({
+                  backdrop: false,
+                  keyboard: false,
+                  show: false
+              });
+
+              $("#dlgCreateClass").modal({
+                  backdrop: false,
+                  keyboard: false,
+                  show: false
+              });
+
+              initConceptSearch($('#txtFn'), $('#txtConceptId'));
+
+          });
+      </script>
+</head>
+<body>
+
+    <div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container">
+          <!--<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>-->
+            <a class="brand" href="#">Class管理@纳谷概念云</a>
+
+            <span id="qqLoginBtn" ></span>
+
+            <span class="btn-toolbar logged hide" id="optPanel">
+                <!--<a class="btn btn-danger" data-toggle="modal" href="#dlgAddValue" onclick="$('#dlgAddValue').modal('toggle');">
+                    <i class="icon-plus icon-white"></i>
+                    添加属性值
+                </a>-->
+
+                <a class="btn btn-danger" data-toggle="modal" href="#dlgCreateClass" onclick="$('#dlgCreateClass').modal('toggle');">
+                    <i class="icon-plus icon-white"></i>
+                    创建新Class
+                </a>
+                
+            </span>
+
+            <div class="modal hide dlg-remote" id="dlgAddValue">
+                <div class="modal-header">
+                    <a class="close" data-dismiss="modal">×</a>
+                    <h3>标题</h3>
+                </div>
+                <div class="modal-body">
+                    <div class="hide alert alert-error">
+                        <strong>出错啦！</strong>
+                        <ul class="error-list">
+                        </ul>
+                    </div>
+
+
+                    <div class="accordion" id="accordion2">
+                        <div class="accordion-group">
+                          <div class="accordion-heading">
+                            <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseConcept">
+                              添加Concept作为属性值
+                            </a>
+                          </div>
+                          <div id="collapseConcept" class="accordion-body collapse" style="height: 0px;">
+                            <div class="accordion-inner">
+                                <label for="txtFn">Concept名称</label>
+                                <input id="txtFn" type="text" class="span3" placeholder="请输入关键字后等待搜索..." />
+                                <input id="txtConceptId" type="hidden" />
+                            </div>
+                          </div>
+                        </div>
+                        <div class="accordion-group">
+                          <div class="accordion-heading">
+                            <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseLiteral">
+                              添加文本作为属性值
+                            </a>
+                          </div>
+                          <div id="collapseLiteral" class="accordion-body collapse" style="height: 0px;">
+                            <div class="accordion-inner">
+                                <label for="txtValue">属性值</label>
+                                <input id="txtValue" type="text" class="span3" placeholder="输入文本作为属性值..." />
+                            </div>
+                          </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" onclick="addPropertyValue2();">确定</button>
+                    <a href="#" class="btn" data-dismiss="modal">取消</a>
+                </div>
+            </div>
+
+
+            <div class="modal hide" id="dlgSearchPersons">
+                <div class="modal-header">
+                    <a class="close" data-dismiss="modal">×</a>
+                    <h3>查找家族成员</h3>
+                </div>
+                <div class="modal-body">
+                    <input type="text" id="personpre" placeholder="输入要搜索的文字..." class="input-medium search-query">
+                    <button class="btn btn-primary" onclick="searchPersons();">提交</button>
+                    <a href="#" class="btn" data-dismiss="modal">取消</a>
+                    <ul id="personResult"></ul>
+                </div>
+                <div class="modal-footer">
+                    
+                </div>
+            </div>
+
+            <div class="modal hide" id="dlgCreateClass">
+                <div class="modal-header">
+                    <a class="close" data-dismiss="modal">×</a>
+                    <h3>创建新Class</h3>
+                </div>
+                <div class="modal-body">
+                    <div class="hide alert alert-error">
+                        <strong>出错啦！</strong>
+                        <ul class="error-list">
+                        </ul>
+                      </div>
+
+                    <form class="form-horizontal">
+
+                        <div class="control-group">
+                            <label for="tbClassName" class="control-label">Class名称</label>
+                            <div class="controls">
+                                <input type="text" id="tbClassName" placeholder="输入待创建的Class的名称"/>
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <label for="tbClassDesc" class="control-label">简介</label>
+                            <div class="controls">
+                                <input type="text" id="tbClassDesc" placeholder="输入待创建Class的相关简介"/>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <a href="#" class="btn" data-dismiss="modal">关闭</a>
+                    <button onclick="createClass();" class="btn btn-primary">创建</button>
+                </div>
+            </div>
+
+            <div class="modal hide" id="dlgSearchConcept">
+                <div class="modal-header">
+                    <a class="close" data-dismiss="modal">×</a>
+                    <h3>创建家族</h3>
+                </div>
+                <div class="modal-body">
+                    <label for="txtFamilyName">家族名称</label>
+                    <input id="Text1" type="text" class="span3" placeholder="请为将要创建的家族取一个名字..." />
+
+                    <label for="txtFamilyDesc">家族描述</label>
+                    <input id="Text2" type="text" class="span3" placeholder="请为将要创建的家族写一点简介..." />
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" onclick="createFamily();">提交</button>
+                    <a href="#" class="btn" data-dismiss="modal">取消</a>
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="span4">
+                <!--<h3>搜索家族</h3>
+                <form class="form-search">
+                    <input type="text" placeholder="输入要搜索的文字..." class="input-medium search-query">
+                </form>-->
+
+                <div id="myfamilies-panel" class="hide logged">
+                <h3>我的类型</h3>
+                <ul id="myclasses" class="nav nav-pills nav-stacked"></ul>
+                </div>
+                <h3>全部类型</h3>
+                <ul id="classes" class="nav nav-pills nav-stacked"></ul>
+                <h3>用手机扫一扫</h3>
+                <div id="qrcode" class="hidden-phone"></div>
+            </div>
+            <div class="span8">
+                <h3>基本信息· · · · · ·</h3>
+                <dl class="" id="classInfo"></dl>
+                <div id="infoFromType"></div>
+                <h3 class="logged hide">更多操作· · · · · ·</h3>
+                <button class="btn hide logged nagu-said-status-toggler">loading...</button>
+            </div>
+        </div>
+
+        <footer class="footer"> 
+        <p class="pull-right"><a href="#">回到顶端</a></p>
+        <p>本系统是由na57开发的测试系统，所有数据目前只作为测试使用。</p>
+        <p>系统所有数据均存储于nagu.cc概念云系统中，所有数据通过RDF三元组的形式进行组织。</p>
+      </footer>
+    </div>
+
+    
+</body>
+</html>
