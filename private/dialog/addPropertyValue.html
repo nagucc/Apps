@@ -1,0 +1,82 @@
+﻿<div class="modal hide" id="dlgAddPropertyValue">
+    <div class="modal-header">
+        <a class="close" data-dismiss="modal">×</a>
+        <h3>标题</h3>
+    </div>
+    <div class="modal-body">
+        <div class="hide alert alert-error">
+            <strong>出错啦！</strong>
+            <ul class="error-list">
+            </ul>
+        </div>
+
+
+        <div class="accordion" id="accordion2">
+            <div class="accordion-group">
+                <div class="accordion-heading">
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseConcept">
+                    添加Concept作为属性值
+                </a>
+                </div>
+                <div id="collapseConcept" class="accordion-body collapse" style="height: 0px;">
+                <div class="accordion-inner">
+                    <label for="txtFn">Concept名称</label>
+                    <input id="txtFn" type="text" class="span3" placeholder="请输入关键字后等待搜索..." />
+                    <input id="txtConceptId" type="hidden" />
+                </div>
+                </div>
+            </div>
+            <div class="accordion-group">
+                <div class="accordion-heading">
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseLiteral">
+                    添加文本作为属性值
+                </a>
+                </div>
+                <div id="collapseLiteral" class="accordion-body collapse" style="height: 0px;">
+                <div class="accordion-inner">
+                    <label for="txtValue">属性值</label>
+                    <input id="txtValue" type="text" class="span3" placeholder="输入文本作为属性值..." />
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" onclick="addPropertyValue2();">确定</button>
+        <a href="#" class="btn" data-dismiss="modal">取消</a>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $("#dlgAddPropertyValue").modal({
+        backdrop: false,
+        keyboard: false,
+        show: false
+    });
+    initConceptSearch($('#txtFn'), $('#txtConceptId'));
+
+    function addPropertyValue2() {
+        var onPropertyValueAdded = null;
+        var ulError = $("#dlgAddPropertyValue ul.error-list").empty();
+        // 如果属性值是Concept：
+        if ($('#collapseConcept').hasClass('in')) {
+            var fn = $('#txtFn').val();
+            var conceptId = $('#txtConceptId').val();
+            if (fn == "") {
+                ulError.append(newLi().append("请输入关键字并选择Concept"));
+                $('#dlgAddPropertyValue .alert-error').show();
+                return;
+            }
+            addConceptPropertyValue(curSubject, curStype, $('#dlgAddPropertyValue').attr('propertyId'), fn, conceptId, onPropertyValueAdded);
+        }
+        else { // 属性值是文本：
+            var val = $('#txtValue').val();
+            if (val == "") {
+                ulError.append(newLi().append("请输入属性值"));
+                $('#dlgAddPropertyValue .alert-error').show();
+                return;
+            }
+            createStatement(curSubject, curStype, $('#dlgAddPropertyValue').attr('propertyId'), val, MorphemeType.Literal).done(onPropertyValueAdded);
+        }
+    }
+</script>

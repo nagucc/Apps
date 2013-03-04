@@ -19,6 +19,16 @@ function afterQCLogin(reqData, opts) {
             if (data.Status == "OK") {
                 console.log("创建用户成功");
                 curUserId = data.UserId;
+
+                // 初始化对话框
+                addTypeDialog = new AddTypeDialog(
+                {
+                    onTypeAdded: function (fs) { alert("ddddd"); },
+                    appId: data.UserId
+                });
+                addTypeDialog.init();
+
+
                 $(".logged").show("slow", function () {
                     var ss = new SaidStatus(0);
                     ss.initAllSpan();

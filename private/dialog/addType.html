@@ -23,7 +23,7 @@
                 </div>
                 <div class="modal-footer">
                     <a href="#" class="btn" data-dismiss="modal">关闭</a>
-                    <button onclick="addType();" class="btn btn-primary">确定</button>
+                    <button onclick="addType123();" class="btn btn-primary">确定</button>
                 </div>
             </div>
 
@@ -33,5 +33,35 @@
                       keyboard: false,
                       show: false
                   });
-                initConceptSearch($('#tbTypeName'), $('#tbTypeId'));
+                  initConceptSearch($('#tbTypeName'), $('#tbTypeId'));
+
+                  function addType123() {
+                      //1. 数据验证
+                      var alert = $("div#dlgAddType div.alert");
+                      alert.hide();
+
+                      ulError = $("div#dlgAddType ul.error-list").empty();
+                      var hasError = false;
+                      var type = $("#tbTypeId").val();
+
+                      if (type === undefined || type == "") {
+                          hasError = true;
+                          ulError.append(newLi().append("还未选中类型"));
+                      }
+                      if (hasError) {
+                          alert.show();
+                          return;
+                      }
+
+                      //2. 完成类型添加
+                      var subjectId = $('#dlgAddType').attr('subjectId');
+                      var stype = $('#dlgAddType').attr('stype');
+                      var appId = $('#dlgAddType').attr('appId');
+                      var cm = new ConceptManager();
+                      cm.addRdfType(subjectId, type, { appId: appId }).done(function (fs) {
+                          $("div#dlgAddType input").val("");
+                          AddTypeDialog.prototype.onTypeAdded();
+                          $("div#dlgAddType").modal('toggle');
+                      });
+                  }
             </script>

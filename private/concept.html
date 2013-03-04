@@ -50,6 +50,7 @@
 
       <script type="text/javascript">
           host = "";
+          var addTypeDialog;
           $(document).ready(function () {
               QC.Login({
                   btnId: "qqLoginBtn",
@@ -70,12 +71,7 @@
                   show: false
               });
 
-              $.get('./dialog/addType.html').done(function (html) {
-                  $('.container').append(html);
-                  
-              });
-
-              //initConceptSearch($('#txtFn'), $('#txtConceptId'));
+              
 
           });
       </script>
@@ -208,7 +204,7 @@
                 <div id="infoFromType"></div>
                 <h3 class="logged hide">更多操作· · · · · ·</h3>
                 <button class="btn hide logged nagu-said-status-toggler">loading...</button>
-                <button class="btn hide logged" onclick="$('#dlgAddType').modal('toggle');">添加类型</button>
+                <button class="btn hide logged" onclick="addTypeDialog.toggle($('#myConcepts li.active a').attr('conceptId'), Nagu.MType.Concept);">添加类型</button>
             </div>
         </div>
 
