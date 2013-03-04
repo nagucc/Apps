@@ -50,6 +50,7 @@ function conceptBtn_onClick() {
     $('.concept-list-item').removeClass('active');
     $(this).closest("li").addClass("active");
     $('#conceptInfo').conceptShow($(this).attr('ConceptId'));
+    $('#infoFromType').conceptInfoFromTypes($(this).attr('ConceptId'), { appId: curUserId });
 //    $('.nagu-said-status-toggler').attr('StatementId', $(this).closest("li").attr('StatementId'));
 //    var ssb = new SaidStatusButton($(this).closest("li").attr('StatementId'));
 
@@ -108,7 +109,7 @@ function createConcept() {
             console.log("添加PrivateObject成功");
             $("div#dlgCreateConcept input").val("");
 
-            var li = newLi().attr("statementId", fs.StatementId).attr("ConceptId", fs.Subject.ConceptId).addClass("concept-list-item");
+            var li = newLi().attr("statementId", fs.StatementId).addClass("concept-list-item");
             $('#myConcepts').prepend(li);
             renderMorpheme2(fs.Subject, li).done(function (c) {
                 var icon = StarIcon().addClass('nagu-said-status').attr('StatementId', li.attr('statementId'));

@@ -70,7 +70,12 @@
                   show: false
               });
 
-              initConceptSearch($('#txtFn'), $('#txtConceptId'));
+              $.get('./dialog/addType.html').done(function (html) {
+                  $('.container').append(html);
+                  
+              });
+
+              //initConceptSearch($('#txtFn'), $('#txtConceptId'));
 
           });
       </script>
@@ -177,6 +182,8 @@
                 </div>
             </div>
 
+
+
         </div>
       </div>
     </div>
@@ -197,10 +204,11 @@
             </div>
             <div class="span8">
                 <h3>基本信息· · · · · ·</h3>
-                <div id="conceptInfo"></div>
+                <dl id="conceptInfo" class="dl-horizontal"></dl>
                 <div id="infoFromType"></div>
                 <h3 class="logged hide">更多操作· · · · · ·</h3>
                 <button class="btn hide logged nagu-said-status-toggler">loading...</button>
+                <button class="btn hide logged" onclick="$('#dlgAddType').modal('toggle');">添加类型</button>
             </div>
         </div>
 
