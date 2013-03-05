@@ -1,4 +1,4 @@
-﻿<div class="modal hide" id="dlgAddPropertyValue">
+﻿<div class="modal hide" id="{dlgAddPropertyValue}">
     <div class="modal-header">
         <a class="close" data-dismiss="modal">×</a>
         <h3>标题</h3>
@@ -20,9 +20,9 @@
                 </div>
                 <div id="collapseConcept" class="accordion-body collapse" style="height: 0px;">
                 <div class="accordion-inner">
-                    <label for="txtFn">Concept名称</label>
-                    <input id="txtFn" type="text" class="span3" placeholder="请输入关键字后等待搜索..." />
-                    <input id="txtConceptId" type="hidden" />
+                    <label for="{txtFn}">Concept名称</label>
+                    <input id="{txtFn}" type="text" class="span3" placeholder="请输入关键字后等待搜索..." />
+                    <input id="{txtFn}_id" type="hidden" />
                 </div>
                 </div>
             </div>
@@ -34,49 +34,55 @@
                 </div>
                 <div id="collapseLiteral" class="accordion-body collapse" style="height: 0px;">
                 <div class="accordion-inner">
-                    <label for="txtValue">属性值</label>
-                    <input id="txtValue" type="text" class="span3" placeholder="输入文本作为属性值..." />
+                    <label for="{txtValue}">属性值</label>
+                    <input id="{txtValue}" type="text" class="span3" placeholder="输入文本作为属性值..." />
                 </div>
                 </div>
             </div>
         </div>
     </div>
     <div class="modal-footer">
-        <button class="btn btn-primary" onclick="addPropertyValue2();">确定</button>
+        <button class="btn btn-primary" onclick="addPropertyValue34532532453245325();">确定</button>
         <a href="#" class="btn" data-dismiss="modal">取消</a>
     </div>
 </div>
 
 <script type="text/javascript">
-    $("#dlgAddPropertyValue").modal({
+    $("#{dlgAddPropertyValue}").modal({
         backdrop: false,
         keyboard: false,
         show: false
     });
-    initConceptSearch($('#txtFn'), $('#txtConceptId'));
+    initConceptSearch($('#{txtFn}'), $('#{txtFn}_id'));
 
-    function addPropertyValue2() {
+    function addPropertyValue34532532453245325() {
         var onPropertyValueAdded = null;
-        var ulError = $("#dlgAddPropertyValue ul.error-list").empty();
+        var subject = $('#{dlgAddPropertyValue}').attr('subjectId');
+        var stype = $('#{dlgAddPropertyValue}').attr('stype');
+        var predicateId = $('#{dlgAddPropertyValue}').attr('predicateId');
+
+        var ulError = $("#{dlgAddPropertyValue} ul.error-list").empty();
         // 如果属性值是Concept：
         if ($('#collapseConcept').hasClass('in')) {
-            var fn = $('#txtFn').val();
-            var conceptId = $('#txtConceptId').val();
+            var fn = $('#{txtFn}').val();
+            var conceptId = $('#{txtFn}_id').val();
             if (fn == "") {
                 ulError.append(newLi().append("请输入关键字并选择Concept"));
-                $('#dlgAddPropertyValue .alert-error').show();
+                $('#{dlgAddPropertyValue} .alert-error').show();
                 return;
             }
-            addConceptPropertyValue(curSubject, curStype, $('#dlgAddPropertyValue').attr('propertyId'), fn, conceptId, onPropertyValueAdded);
+            var cm = new ConceptManager();
+            cm.addConceptPropertyValue(subject, stype, predicateId, fn, conceptId);
         }
         else { // 属性值是文本：
-            var val = $('#txtValue').val();
+            var val = $('#{txtValue}').val();
             if (val == "") {
                 ulError.append(newLi().append("请输入属性值"));
-                $('#dlgAddPropertyValue .alert-error').show();
+                $('#{dlgAddPropertyValue} .alert-error').show();
                 return;
             }
-            createStatement(curSubject, curStype, $('#dlgAddPropertyValue').attr('propertyId'), val, MorphemeType.Literal).done(onPropertyValueAdded);
+            var sm = new StatementManager();
+            sm.create(subject, stype, predicateId, val, Nagu.MType.Literal);
         }
     }
 </script>

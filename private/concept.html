@@ -50,28 +50,13 @@
 
       <script type="text/javascript">
           host = "";
-          var addTypeDialog;
+          var addTypeDialog, addValueDialog, createConceptDialog;
           $(document).ready(function () {
               QC.Login({
                   btnId: "qqLoginBtn",
                   scope: "all",
                   size: "A_M"
               }, afterQCLogin)
-
-
-              $("#dlgAddValue").modal({
-                  backdrop: false,
-                  keyboard: false,
-                  show: false
-              });
-
-              $("#dlgCreateConcept").modal({
-                  backdrop: false,
-                  keyboard: false,
-                  show: false
-              });
-
-              
 
           });
       </script>
@@ -86,100 +71,12 @@
             <span id="qqLoginBtn" ></span>
 
             <span class="btn-toolbar logged hide">
-                <a class="btn btn-danger" data-toggle="modal" href="#dlgCreateConcept" onclick="$('#dlgCreateConcept').modal('toggle');">
+                <a class="btn btn-danger" data-toggle="modal" onclick="createConceptDialog.toggle();">
                     <i class="icon-plus icon-white"></i>
                     创建新Concept
                 </a>
                 
             </span>
-
-            <div class="modal hide dlg-remote" id="dlgAddValue">
-                <div class="modal-header">
-                    <a class="close" data-dismiss="modal">×</a>
-                    <h3>标题</h3>
-                </div>
-                <div class="modal-body">
-                    <div class="hide alert alert-error">
-                        <strong>出错啦！</strong>
-                        <ul class="error-list">
-                        </ul>
-                    </div>
-
-
-                    <div class="accordion" id="accordion2">
-                        <div class="accordion-group">
-                          <div class="accordion-heading">
-                            <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseConcept">
-                              添加Concept作为属性值
-                            </a>
-                          </div>
-                          <div id="collapseConcept" class="accordion-body collapse" style="height: 0px;">
-                            <div class="accordion-inner">
-                                <label for="txtFn">Concept名称</label>
-                                <input id="txtFn" type="text" class="span3" placeholder="请输入关键字后等待搜索..." />
-                                <input id="txtConceptId" type="hidden" />
-                            </div>
-                          </div>
-                        </div>
-                        <div class="accordion-group">
-                          <div class="accordion-heading">
-                            <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseLiteral">
-                              添加文本作为属性值
-                            </a>
-                          </div>
-                          <div id="collapseLiteral" class="accordion-body collapse" style="height: 0px;">
-                            <div class="accordion-inner">
-                                <label for="txtValue">属性值</label>
-                                <input id="txtValue" type="text" class="span3" placeholder="输入文本作为属性值..." />
-                            </div>
-                          </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-primary" onclick="addPropertyValue2();">确定</button>
-                    <a href="#" class="btn" data-dismiss="modal">取消</a>
-                </div>
-            </div>
-
-
-            <div class="modal hide" id="dlgCreateConcept">
-                <div class="modal-header">
-                    <a class="close" data-dismiss="modal">×</a>
-                    <h3>创建新Concep</h3>
-                </div>
-                <div class="modal-body">
-                    <div class="hide alert alert-error">
-                        <strong>出错啦！</strong>
-                        <ul class="error-list">
-                        </ul>
-                      </div>
-
-                    <form class="form-horizontal">
-
-                        <div class="control-group">
-                            <label for="tbConceptName" class="control-label">名称</label>
-                            <div class="controls">
-                                <input type="text" id="tbConceptName" placeholder="输入待创建的Concept的名称"/>
-                            </div>
-                        </div>
-
-                        <div class="control-group">
-                            <label for="tbConceptDesc" class="control-label">简介</label>
-                            <div class="controls">
-                                <input type="text" id="tbConceptDesc" placeholder="输入待创建Concept的相关简介"/>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <a href="#" class="btn" data-dismiss="modal">关闭</a>
-                    <button onclick="createConcept();" class="btn btn-primary">创建</button>
-                </div>
-            </div>
-
-
-
         </div>
       </div>
     </div>
@@ -199,9 +96,6 @@
                 <div id="qrcode" class="hidden-phone"></div>
             </div>
             <div class="span8">
-                <h3>基本信息· · · · · ·</h3>
-                <dl id="conceptInfo" class="dl-horizontal"></dl>
-                <div id="infoFromType"></div>
                 <h3 class="logged hide">更多操作· · · · · ·</h3>
                 <button class="btn hide logged nagu-said-status-toggler">loading...</button>
                 <button class="btn hide logged" onclick="addTypeDialog.toggle($('#myConcepts li.active a').attr('conceptId'), Nagu.MType.Concept);">添加类型</button>

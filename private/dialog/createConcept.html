@@ -1,0 +1,93 @@
+﻿<div class="modal hide" id="dlgCreateConcept">
+    <div class="modal-header">
+        <a class="close" data-dismiss="modal">×</a>
+        <h3>创建新Concept</h3>
+    </div>
+    <div class="modal-body">
+        <div class="hide alert alert-error">
+            <strong>出错啦！</strong>
+            <ul class="error-list">
+            </ul>
+            </div>
+
+        <form class="form-horizontal">
+
+            <div class="control-group">
+                <label for="tbConceptName" class="control-label">名称</label>
+                <div class="controls">
+                    <input type="text" id="tbConceptName" placeholder="输入待创建的Concept的名称"/>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label for="tbConceptDesc" class="control-label">简介</label>
+                <div class="controls">
+                    <input type="text" id="tbConceptDesc" placeholder="输入待创建Concept的相关简介"/>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <a href="#" class="btn" data-dismiss="modal">关闭</a>
+        <button onclick="createConceptetrewgasdgret();" class="btn btn-primary">创建</button>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+
+    $("#dlgCreateConcept").modal({
+        backdrop: false,
+        keyboard: false,
+        show: false
+    });
+
+    function createConceptetrewgasdgret() {
+        //1. 数据验证
+        var alert = $("div#dlgCreateConcept div.alert");
+        alert.hide();
+
+        ulError = $("div#dlgCreateConcept ul.error-list").empty();
+        var hasError = false;
+
+        var id = $("div#dlgCreateConcept").attr("conceptId");
+        var appId = $("div#dlgCreateConcept").attr("appId");
+        var fn = $("#tbConceptName").val();
+        var desc = $("#tbConceptDesc").val();
+
+        var hasId = (id !== undefined && id != "")
+        var emptyFn = (fn === undefined || fn == "");
+        var emptyDesc = (desc === undefined || desc == "");
+
+        if(hasId){
+            if (emptyFn && emptyDesc) {
+                hasError = true;
+                ulError.append(newLi().append("更新Concept时, \"名称\"和\"简介\"不能同时为空"));
+            }
+        }
+        else
+        {
+            if (emptyFn) {
+                hasError = true;
+                ulError.append(newLi().append("\"名称\"不能为空"));
+            }
+            if (emptyFn) {
+                hasError = true;
+                ulError.append(newLi().append("\"简介\"不能为空"));
+            }
+        }
+        if (hasError) {
+            alert.show();
+            return;
+        }
+
+        //2. 完成Class创建
+        var cm = new ConceptManager();
+        cm.create(fn, desc, { id: id, appId: appId }).done(function (c) {
+            console.log("添加Concept成功");
+            $("div#dlgCreateConcept input").val("");
+            CreateConceptDialog.prototype.OnAdded(c);
+            $("div#dlgCreateConcept").modal('toggle');
+        });
+    }
+</script>

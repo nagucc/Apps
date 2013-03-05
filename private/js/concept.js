@@ -28,6 +28,22 @@ function afterQCLogin(reqData, opts) {
                 });
                 addTypeDialog.init();
 
+                addTypeDialog = new AddPropertyValueDialog(
+                {
+                    appId: data.UserId
+                });
+                addTypeDialog.init();
+
+                createConceptDialog = new CreateConceptDialog(
+                {
+                    appId: data.UserId,
+                    onAdded: function (concept) {
+                        var cdp = new ConceptDetailPanel(concept.ConceptId);
+                        cdp.show($('.span8'));
+                    }
+                });
+                //createConceptDialog.init();
+
 
                 $(".logged").show("slow", function () {
                     var ss = new SaidStatus(0);
@@ -59,26 +75,33 @@ function afterQCLogin(reqData, opts) {
 function conceptBtn_onClick() {
     $('.concept-list-item').removeClass('active');
     $(this).closest("li").addClass("active");
-    $('#conceptInfo').conceptShow($(this).attr('ConceptId'));
-    $('#infoFromType').conceptInfoFromTypes($(this).attr('ConceptId'), { appId: curUserId });
-//    $('.nagu-said-status-toggler').attr('StatementId', $(this).closest("li").attr('StatementId'));
-//    var ssb = new SaidStatusButton($(this).closest("li").attr('StatementId'));
 
-//    // 获取Concept的所有rdf:type：
-//    findBySP($(this).attr('ConceptId'), MorphemeType.Concept, Nagu.Concepts.RdfType).done(function (fss) {
-//        $('#infoFromType').empty();
-//        $.each(fss, function (i, fs) {
-//            var cm = new ConceptManager();
-//            cm.get(fs.Object.ConceptId).done(function (type) {
-//                $('#infoFromType').append($('<h3></h3>').text(type.FriendlyNames[0] + '· · · · · ·'));
-//                var dl = $('<dl></dl>');
-//                renderPropertyValues(dl, curSubject, MorphemeType.Concept, type.ConceptId, onShowValueAsStatement);
-//                $('#infoFromType').append(dl);
-//            });
+    var cdp = new ConceptDetailPanel($(this).attr('ConceptId'),
+    {
+        renderFnValues: function (ph, fns, concept) {
+            var dd = newDd();
+            var ul = newTag('ul', { class: 'nav nav-pills nav-stacked' });
+            ph.append(dd.append(ul));
 
-//        });
+            for (var i = 0; i < fns.length; i++) {
+                var menuId = 'menu' + Math.round(Math.random() * 10000000000000);
+                var li = newTag('li', { class: 'dropdown', id: menuId });
+                ul.append(li);
 
-//    });
+                var a = newTag('a', { class: 'dropdown-toggle', text: fns[i] }).attr('href', '#' + menuId).attr('data-toggle', 'dropdown');
+                a.append(newTag('b', { class: 'caret' }));
+
+                var ul2 = newTag('ul', { class: 'dropdown-menu' });
+                var li2 = newTag('li').append(newA().text('A1'));
+                var li3 = newTag('li').append(newA().text('A2'));
+                ul2.append(li2).append(li3);
+
+                li.append(a).append(ul2);
+            }
+            $('.dropdown-toggle').dropdown()
+        }
+    });
+    cdp.show($('.span8'));
 }
 
 
