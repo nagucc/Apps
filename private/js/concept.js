@@ -24,18 +24,11 @@ function afterQCLogin(reqData, opts) {
                 // 初始化对话框
                 addTypeDialog = new AddTypeDialog(
                 {
-                    onTypeAdded: function (fs) {
-                        
-                    },
+                    onTypeAdded: addTypeDialog_onTypeAdded,
                     appId: data.UserId
                 });
-                addTypeDialog.init();
 
-                addValueDialog = new AddPropertyValueDialog(
-                {
-                    appId: data.UserId
-                });
-                addValueDialog.init();
+                addValueDialog = new AddPropertyValueDialog( { appId: data.UserId });
 
                 createConceptDialog = new CreateConceptDialog(
                 {
@@ -194,46 +187,41 @@ function createConceptDialog_onAdded(concept) {
     }
 }
 
-//function createConcept() {
-//    //1. 数据验证
-//    var alert = $("div#dlgCreateConcept div.alert");
-//    alert.hide();
 
-//    ulError = $("div#dlgCreateConcept ul.error-list").empty();
-//    var hasError = false;
-//    var fn = $("#tbConceptName").val();
-//    var desc = $("#tbConceptDesc").val();
 
-//    if (fn === undefined || fn == "") {
-//        hasError = true;
-//        ulError.append(newLi().append("\"名称\"不能为空"));
-//    }
-//    if (desc === undefined || desc == "") {
-//        hasError = true;
-//        ulError.append(newLi().append("\"简介\"不能为空"));
-//    }
-//    if (hasError) {
-//        alert.show();
-//        return;
-//    }
 
-//    //2. 完成Class创建
-//    var cm = new ConceptManager();
-//    cm.create(fn, desc).done(function (c) {
-//        console.log("添加Concept成功");
-//        cm.addRdfType(c.ConceptId, Nagu.Concepts.PrivateObject, { appId: curUserId }).done(function (fs) {
-//            console.log("添加PrivateObject成功");
-//            $("div#dlgCreateConcept input").val("");
 
-//            var li = newLi().attr("statementId", fs.StatementId).addClass("concept-list-item");
-//            $('#myConcepts').prepend(li);
-//            renderMorpheme2(fs.Subject, li).done(function (c) {
-//                var icon = StarIcon().addClass('nagu-said-status').attr('StatementId', li.attr('statementId'));
-//                li.find('a').prepend(newSpan().addClass('logged').append(icon));
-//                li.find('a').attr('ConceptId', c.ConceptId).click(conceptBtn_onClick);
-//                li.find('a').click();
-//            });
-//            $("div#dlgCreateConcept").modal('toggle');
-//        });
-//    });
-//}
+function conceptDetailPanel_renderPropertyAndValues(placeHolder, propertyId, values, subjectId) {
+    var dt = newDt("dt_" + propertyId);
+    placeHolder.append(dt);
+
+    var cm = new ConceptManager();
+    // 显示属性:
+    cm.get(propertyId).done(function (p) {
+        dt.append(newA().text(p.FriendlyNames[0]).click(function () {
+            addValueDialog.toggle(subjectId, Nagu.MType.Concept, p.ConceptId,
+                    {
+                        h3: '为属性“' + p.FriendlyNames[0] + '”添加属性值'
+                    });
+        }));
+    });
+    // 显示Value
+    var dd = newDd();
+    placeHolder.append(dd);
+    if (values.length == 0) { dd.text('无属性值'); return; }
+
+    var ul = newTag('ul', { class: 'nav nav-pills nav-stacked' });
+    dd.append(ul);
+    $.each(values, function (i, v) {
+        var li = newTag('li', { class: 'dropdown', id: 'value_' + randomInt() });
+        ul.append(li);
+        renderStatement(v, li);
+    });
+}
+
+
+function addTypeDialog_onTypeAdded(fs) {
+    var sm = new StatementManager();
+    sm.flush('', '', Nagu.Concepts.RdfType, Nagu.Concepts.PrivateObject, curUserId);
+    $('#myConcepts li.active').find('a').click();
+}
