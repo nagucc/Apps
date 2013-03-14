@@ -39,8 +39,31 @@ function afterQCLogin(reqData, opts) {
                 {
                     appId: data.UserId,
                     onAdded: function (concept) {
-                        var cdp = new ConceptDetailPanel(concept.ConceptId);
-                        cdp.show($('.span8'));
+                        // 1. 检查左边列表是否有此concept,没有则显示
+                        var cItem = $.grep($('#myConcepts li'), function (li) {
+                            return $(li).attr('ConceptId') == concept.ConceptId;
+                        });
+                        if (cItem.length) {
+                            cItem.click();
+                        } else {
+                            // 添加PrivateClass类型
+                            var cm = new ConceptManager();
+                            cm.addRdfType(concept.ConceptId, Nagu.Concepts.PrivateObject, { appId: curUserId }).done(function (fs) {
+                                var li = newLi().attr("statementId", fs.StatementId).attr("ConceptId", concept.ConceptId);
+                                $('#myConcepts').prepend(li);
+
+                                // 在页面左边以胶囊按钮的方式展示实例列表
+                                renderMorpheme2(concept, li).done(function (c) {
+                                    var ss = new SaidStatus(li.attr('statementId'));
+                                    li.find('a').prepend(ss.getSpan());
+                                    li.find('a').attr('ConceptId', c.ConceptId).click(conceptBtn_onClick);
+                                    li.addClass("concept-list-item");
+                                });
+                                li.find('a').click();
+                            });
+                        }
+                        // 2. 通过左边item的click显示右边详细信息
+
                     }
                 });
 
@@ -56,6 +79,9 @@ function afterQCLogin(reqData, opts) {
                         {
                             clearBefore: true,
                             renderItem: function (fss, li) {
+                                // 在li上添加ConceptId 属性
+                                li.attr("ConceptId", fss.Subject.ConceptId);
+
                                 // 在页面左边以胶囊按钮的方式展示实例列表
                                 return renderMorpheme2(fss.Subject, li).done(function (c) {
                                     var ss = new SaidStatus(li.attr('statementId'));
