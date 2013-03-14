@@ -72,7 +72,12 @@
                 return;
             }
             var cm = new ConceptManager();
-            cm.addConceptPropertyValue(subject, stype, predicateId, fn, conceptId);
+            cm.addConceptPropertyValue(subject, stype, predicateId, fn, conceptId).done(function (fs) {
+                $('#{txtFn}').val('');
+                $('#{txtFn}_id').val('');
+                $('#{dlgAddPropertyValue}').modal('hide');
+                AddPropertyValueDialog.added(fs);
+            });
         }
         else { // 属性值是文本：
             var val = $('#{txtValue}').val();
@@ -82,7 +87,11 @@
                 return;
             }
             var sm = new StatementManager();
-            sm.create(subject, stype, predicateId, val, Nagu.MType.Literal);
+            sm.create(subject, stype, predicateId, val, Nagu.MType.Literal).done(function (fs) {
+                $('#{txtValue}').val('');
+                $('#{dlgAddPropertyValue}').modal('hide');
+                AddPropertyValueDialog.added(fs);
+            });
         }
     }
 </script>

@@ -28,7 +28,10 @@ function afterQCLogin(reqData, opts) {
                     appId: data.UserId
                 });
 
-                addValueDialog = new AddPropertyValueDialog( { appId: data.UserId });
+                addValueDialog = new AddPropertyValueDialog({
+                    appId: data.UserId,
+                    added: addPropertyValueDialog_added
+                });
 
                 createConceptDialog = new CreateConceptDialog(
                 {
@@ -49,6 +52,7 @@ function afterQCLogin(reqData, opts) {
                             clearBefore: true,
                             renderItem: statementList_renderItem
                         });
+                    $('#myConcepts li.active').find('a').click();
                 });
 
             }
@@ -65,6 +69,7 @@ function conceptBtn_onClick() {
     {
         renderTitle: conceptDetailPanel_renderTitle,
         renderValues: conceptDetailPanel_renderValues,
+        renderPropertyAndValues: conceptDetailPanel_renderPropertyAndValues,
         appId : curUserId
     });
     cdp.show($('#concept_detail'));
@@ -201,7 +206,7 @@ function conceptDetailPanel_renderPropertyAndValues(placeHolder, propertyId, val
         dt.append(newA().text(p.FriendlyNames[0]).click(function () {
             addValueDialog.toggle(subjectId, Nagu.MType.Concept, p.ConceptId,
                     {
-                        h3: '为属性“' + p.FriendlyNames[0] + '”添加属性值'
+                        h3: '为属性“' + p.FriendlyNames[0] + '”添加属性值' 
                     });
         }));
     });
@@ -222,6 +227,15 @@ function conceptDetailPanel_renderPropertyAndValues(placeHolder, propertyId, val
 
 function addTypeDialog_onTypeAdded(fs) {
     var sm = new StatementManager();
-    sm.flush('', '', Nagu.Concepts.RdfType, Nagu.Concepts.PrivateObject, curUserId);
+    // 刷新缓存,重新findBySP
+    sm.flush('', fs.Subject.ConceptId, Nagu.Concepts.RdfType, '', curUserId);
+    $('#myConcepts li.active').find('a').click();
+}
+
+
+function addPropertyValueDialog_added(fs) {
+    var sm = new StatementManager();
+    // 刷新缓存,重新findBySP
+    sm.flush('', fs.Subject.ConceptId, Nagu.Concepts.RdfType, '', curUserId);
     $('#myConcepts li.active').find('a').click();
 }
