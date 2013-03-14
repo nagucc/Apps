@@ -49,8 +49,7 @@
     
 
       <script type="text/javascript">
-          host = "";
-          var addTypeDialog, addValueDialog, createConceptDialog;
+          
           $(document).ready(function () {
               QC.Login({
                   btnId: "qqLoginBtn",
@@ -71,7 +70,7 @@
             <span id="qqLoginBtn" ></span>
 
             <span class="btn-toolbar logged hide">
-                <a class="btn btn-danger" data-toggle="modal" onclick="createConceptDialog.toggle();">
+                <a class="btn btn-danger" data-toggle="modal" onclick="createConceptDialog.toggle('', {h3:'创建新Concept'});">
                     <i class="icon-plus icon-white"></i>
                     创建新Concept
                 </a>

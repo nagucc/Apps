@@ -1,5 +1,6 @@
 ﻿var curUserId;
-
+var host = "";
+var addTypeDialog, addValueDialog, createConceptDialog;
 /********************************************************************************************************************************/
 // 当QQ登录成功之后：
 function afterQCLogin(reqData, opts) {
@@ -28,7 +29,7 @@ function afterQCLogin(reqData, opts) {
                 });
                 addTypeDialog.init();
 
-                addTypeDialog = new AddPropertyValueDialog(
+                addValueDialog = new AddPropertyValueDialog(
                 {
                     appId: data.UserId
                 });
@@ -42,7 +43,6 @@ function afterQCLogin(reqData, opts) {
                         cdp.show($('.span8'));
                     }
                 });
-                //createConceptDialog.init();
 
 
                 $(".logged").show("slow", function () {
@@ -72,34 +72,79 @@ function afterQCLogin(reqData, opts) {
     });
 }
 
+
+
+
+
+
+
 function conceptBtn_onClick() {
     $('.concept-list-item').removeClass('active');
     $(this).closest("li").addClass("active");
 
+    // 显示Concept的详细信息
     var cdp = new ConceptDetailPanel($(this).attr('ConceptId'),
     {
-        renderFnValues: function (ph, fns, concept) {
-            var dd = newDd();
-            var ul = newTag('ul', { class: 'nav nav-pills nav-stacked' });
-            ph.append(dd.append(ul));
+        renderTitle: function (ph, title, concept) {
+            var btn = newA().text(title).click(function () {
+                createConceptDialog.toggle(concept.ConceptId, { h3: '为"' + concept.FriendlyNames[0] + '"添加新的名称或简介' });
+            });
+            ph.append(btn);
+        },
+        renderValues: function (ph, values, valueFss) {
+        var dd = newDd();
+        var ul = newTag('ul', { class: 'nav nav-pills nav-stacked' });
+        ph.append(dd.append(ul));
 
-            for (var i = 0; i < fns.length; i++) {
-                var menuId = 'menu' + Math.round(Math.random() * 10000000000000);
-                var li = newTag('li', { class: 'dropdown', id: menuId });
-                ul.append(li);
 
-                var a = newTag('a', { class: 'dropdown-toggle', text: fns[i] }).attr('href', '#' + menuId).attr('data-toggle', 'dropdown');
-                a.append(newTag('b', { class: 'caret' }));
 
-                var ul2 = newTag('ul', { class: 'dropdown-menu' });
-                var li2 = newTag('li').append(newA().text('A1'));
-                var li3 = newTag('li').append(newA().text('A2'));
-                ul2.append(li2).append(li3);
+        for (var i = 0; i < values.length; i++) {
+            var menuId = 'menu' + Math.round(Math.random() * 10000000000000);
+            var li = newTag('li', { class: 'dropdown', id: menuId });
+            ul.append(li);
 
-                li.append(a).append(ul2);
-            }
-            $('.dropdown-toggle').dropdown()
+            var a = newTag('a', { class: 'dropdown-toggle', text: values[i] });
+            a.attr('href', '#' + menuId).attr('data-toggle', 'dropdown');
+            a.append(newTag('b', { class: 'caret' }));
+
+            var ul2 = newTag('ul', { class: 'dropdown-menu' });
+            var m1 = newA().text('添加/删除星标').click(function () {
+                var a = $(this);
+                var sm = new SayManager();
+                if (a.text() == '添加星标') {
+                    sm.say(a.attr('statementId')).done(function () {
+                        a.text('删除星标');
+                    }).fail(function () { alert('fail'); a.text('添加星标'); });
+                } else {
+                    sm.dontSay(a.attr('statementId')).done(function (data) {
+                        if (data.SaidCount == 0) {
+                            $('#' + a.attr('menuId')).remove();
+                        } else {
+                            a.text('添加星标');
+                        }
+                    }).fail(function () { alert('fail'); a.text('删除星标'); });
+                }
+            });
+            m1.attr('id', 'say_' + valueFss[i].StatementId);
+            m1.attr('statementId', valueFss[i].StatementId);
+            m1.attr('menuId', menuId);
+            var saym = new SayManager();
+            saym.status(valueFss[i].StatementId).done(function (data) {
+                var a = $('#say_' + data.ObjectFsId);
+                if (data.HasSaid) {
+                    a.text('删除星标');
+                } else {
+                    a.text('添加星标');
+                }
+            }).fail(function () { alert('get status failed') });
+            var li1 = newTag('li').append(m1);
+            var li3 = newTag('li').append(newA().text('A2'));
+            ul2.append(li1).append(li3);
+
+            li.append(a).append(ul2);
         }
+        $('.dropdown-toggle').dropdown()
+    }
     });
     cdp.show($('.span8'));
 }

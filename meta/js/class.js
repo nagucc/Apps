@@ -8,7 +8,7 @@ function showClasses2() {
 
     // 在左侧显示所有class
     var sm = new StatementManager();
-    sm.findByPO(NaguConcepts.RdfType, NaguConcepts.OwlClass, MorphemeType.Concept).done(function (fss) {
+    sm.findByPO(Nagu.Concepts.RdfType, Nagu.Concepts.OwlClass, Nagu.MType.Concept).done(function (fss) {
         var resolvedDeferred = 0;
         var limit = Math.min(fss.length, 10);
         $.each(fss.slice(0,limit), function (i, fs) {
@@ -32,25 +32,6 @@ function showClasses2() {
         var btn = $('#btnMoreClass');
         btn.attr('startIndex', limit);
 
-        //        $.each(fss, function (i, fs) {
-        //            // 生成显示框架：li > a
-        //            var li = newLi().attr("statementId", fs.StatementId).attr("ConceptId", fs.Subject.ConceptId).addClass("concept-list-item");
-
-
-        //            $("#classes").append(li);
-
-        //            if (request["id"] === undefined && i == 0) curClassId = fs.Subject.ConceptId;
-        //            if (request["id"] == fs.Subject.ConceptId) curClassId = fs.Subject.ConceptId;
-
-        //            // 在页面左边以胶囊按钮的方式展示家族列表
-        //            renderMorpheme2(fs.Subject, li).done(function (c) {
-        //                var ss = new SaidStatus(li.attr('statementId'));
-        //                li.find('a').prepend(ss.getSpan());
-        //                li.find('a').attr('ConceptId', c.ConceptId).click(conceptBtn_onClick);
-        //                if (curClassId == c.ConceptId) li.find('a').click();
-        //                if (++resolvedDeferred == fss.length) dtd.resolve();
-        //            });
-        //        });
     }).fail(function () { alert("showClasse2出错啦！"); dtd.reject(); });
     return dtd.promise();
 }
