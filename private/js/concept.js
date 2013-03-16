@@ -69,8 +69,8 @@ function conceptBtn_onClick() {
     {
         renderTitle: conceptDetailPanel_renderTitle,
         renderValues: conceptDetailPanel_renderValues,
-        renderPropertyAndValues: conceptDetailPanel_renderPropertyAndValues,
-        appId : curUserId
+        appId: curUserId,
+        renderProperty: conceptDetailPanel_renderProperty
     });
     cdp.show($('#concept_detail'));
 }
@@ -99,11 +99,55 @@ function conceptDetailPanel_renderTitle(ph, title, concept) {
 
 
 function conceptDetailPanel_renderValues(ph, values, valueFss) {
+    var defaults = {
+        renderMenu: function (placeHolder, menuId, valueFs) {
+            var ul2 = newTag('ul', { class: 'dropdown-menu' });
+            placeHolder.append(ul2);
+
+            var li1 = newTag('li');
+            var li2 = newTag('li').append(newA().text('A2'));
+            ul2.append(li1).append(li2);
+
+            var m1 = newA().attr('id', 'say_' + valueFs.StatementId);
+            m1.attr('statementId', valueFs.StatementId).attr('menuId', menuId);
+            li1.append(m1);
+
+            m1.text('添加/删除星标').click(function () {
+                var a = $(this);
+                var sm = new SayManager();
+                if (a.text() == '添加星标') {
+                    sm.say(a.attr('statementId')).done(function () {
+                        a.text('删除星标');
+                    }).fail(function () { alert('fail'); a.text('添加星标'); });
+                } else {
+                    sm.dontSay(a.attr('statementId')).done(function (data) {
+                        if (data.SaidCount == 0) {
+                            $('#' + a.attr('menuId')).remove();
+                        } else {
+                            a.text('添加星标');
+                        }
+                    }).fail(function () { alert('fail'); a.text('删除星标'); });
+                }
+            });
+
+            var saym = new SayManager();
+            saym.status(valueFs.StatementId).done(function (data) {
+                var a = $('#say_' + data.ObjectFsId);
+                if (data.HasSaid) {
+                    a.text('删除星标');
+                } else {
+                    a.text('添加星标');
+                }
+            }).fail(function () { alert('get status failed') });
+        }
+    };
+
+
     var dd = newDd();
     var ul = newTag('ul', { class: 'nav nav-pills nav-stacked' });
     ph.append(dd.append(ul));
     for (var i = 0; i < values.length; i++) {
-        var menuId = 'menu' + Math.round(Math.random() * 10000000000000);
+        var menuId = 'menu' + randomInt();
         var li = newTag('li', { class: 'dropdown', id: menuId });
         ul.append(li);
 
@@ -111,41 +155,8 @@ function conceptDetailPanel_renderValues(ph, values, valueFss) {
         a.attr('href', '#' + menuId).attr('data-toggle', 'dropdown');
         a.append(newTag('b', { class: 'caret' }));
 
-        var ul2 = newTag('ul', { class: 'dropdown-menu' });
-        var m1 = newA().text('添加/删除星标').click(function () {
-            var a = $(this);
-            var sm = new SayManager();
-            if (a.text() == '添加星标') {
-                sm.say(a.attr('statementId')).done(function () {
-                    a.text('删除星标');
-                }).fail(function () { alert('fail'); a.text('添加星标'); });
-            } else {
-                sm.dontSay(a.attr('statementId')).done(function (data) {
-                    if (data.SaidCount == 0) {
-                        $('#' + a.attr('menuId')).remove();
-                    } else {
-                        a.text('添加星标');
-                    }
-                }).fail(function () { alert('fail'); a.text('删除星标'); });
-            }
-        });
-        m1.attr('id', 'say_' + valueFss[i].StatementId);
-        m1.attr('statementId', valueFss[i].StatementId);
-        m1.attr('menuId', menuId);
-        var saym = new SayManager();
-        saym.status(valueFss[i].StatementId).done(function (data) {
-            var a = $('#say_' + data.ObjectFsId);
-            if (data.HasSaid) {
-                a.text('删除星标');
-            } else {
-                a.text('添加星标');
-            }
-        }).fail(function () { alert('get status failed') });
-        var li1 = newTag('li').append(m1);
-        var li3 = newTag('li').append(newA().text('A2'));
-        ul2.append(li1).append(li3);
-
-        li.append(a).append(ul2);
+        li.append(a);
+        defaults.renderMenu(li, menuId, valueFss[i]);
     }
     $('.dropdown-toggle').dropdown();
 }
@@ -196,31 +207,30 @@ function createConceptDialog_onAdded(concept) {
 
 
 
-function conceptDetailPanel_renderPropertyAndValues(placeHolder, propertyId, values, subjectId) {
-    var dt = newDt("dt_" + propertyId);
-    placeHolder.append(dt);
 
-    var cm = new ConceptManager();
-    // 显示属性:
-    cm.get(propertyId).done(function (p) {
-        dt.append(newA().text(p.FriendlyNames[0]).click(function () {
-            addValueDialog.toggle(subjectId, Nagu.MType.Concept, p.ConceptId,
-                    {
-                        h3: '为属性“' + p.FriendlyNames[0] + '”添加属性值' 
-                    });
-        }));
-    });
-    // 显示Value
-    var dd = newDd();
-    placeHolder.append(dd);
-    if (values.length == 0) { dd.text('无属性值'); return; }
+
+function conceptDetailPanel_renderPropertyValues(placeHolder, propertyId, values, subjectId) {
+    if (values.length == 0) { placeHolder.text('无属性值'); return; }
 
     var ul = newTag('ul', { class: 'nav nav-pills nav-stacked' });
-    dd.append(ul);
+    placeHolder.append(ul);
     $.each(values, function (i, v) {
         var li = newTag('li', { class: 'dropdown', id: 'value_' + randomInt() });
         ul.append(li);
         renderStatement(v, li);
+    });
+}
+
+function conceptDetailPanel_renderProperty(placeHolder, propertyId, subjectId) {
+    var cm = new ConceptManager();
+    // 显示属性:
+    cm.get(propertyId).done(function (p) {
+        placeHolder.append(newA().text(p.FriendlyNames[0]).click(function () {
+            addValueDialog.toggle(subjectId, Nagu.MType.Concept, p.ConceptId,
+                    {
+                        h3: '为属性“' + p.FriendlyNames[0] + '”添加属性值'
+                    });
+        }));
     });
 }
 
