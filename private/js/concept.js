@@ -221,7 +221,6 @@ function conceptDetailPanel_renderPropertyValues(placeHolder, propertyId, values
             var li1 = newTag('li');
             var li2 = newTag('li').append(newA().text('A2'));
             ul2.append(li1).append(li2);
-
             var m1 = newA().attr('id', 'say_' + valueFs.StatementId);
             m1.attr('statementId', valueFs.StatementId).attr('menuId', menuId);
             li1.append(m1);
