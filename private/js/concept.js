@@ -70,7 +70,8 @@ function conceptBtn_onClick() {
         renderTitle: conceptDetailPanel_renderTitle,
         renderValues: conceptDetailPanel_renderValues,
         appId: curUserId,
-        renderProperty: conceptDetailPanel_renderProperty
+        renderProperty: conceptDetailPanel_renderProperty,
+        renderPropertyValues: conceptDetailPanel_renderPropertyValues
     });
     cdp.show($('#concept_detail'));
 }
@@ -100,6 +101,7 @@ function conceptDetailPanel_renderTitle(ph, title, concept) {
 
 function conceptDetailPanel_renderValues(ph, values, valueFss) {
     var defaults = {
+        // 生成菜单
         renderMenu: function (placeHolder, menuId, valueFs) {
             var ul2 = newTag('ul', { class: 'dropdown-menu' });
             placeHolder.append(ul2);
@@ -210,14 +212,72 @@ function createConceptDialog_onAdded(concept) {
 
 
 function conceptDetailPanel_renderPropertyValues(placeHolder, propertyId, values, subjectId) {
-    if (values.length == 0) { placeHolder.text('无属性值'); return; }
+    var defaults = {
+        // 生成菜单
+        renderMenu: function (placeHolder, menuId, valueFs) {
+            var ul2 = newTag('ul', { class: 'dropdown-menu' });
+            placeHolder.append(ul2);
 
-    var ul = newTag('ul', { class: 'nav nav-pills nav-stacked' });
+            var li1 = newTag('li');
+            var li2 = newTag('li').append(newA().text('A2'));
+            ul2.append(li1).append(li2);
+
+            var m1 = newA().attr('id', 'say_' + valueFs.StatementId);
+            m1.attr('statementId', valueFs.StatementId).attr('menuId', menuId);
+            li1.append(m1);
+
+            m1.text('添加/删除星标').click(function () {
+                var a = $(this);
+                var sm = new SayManager();
+                if (a.text() == '添加星标') {
+                    sm.say(a.attr('statementId')).done(function () {
+                        a.text('删除星标');
+                    }).fail(function () { alert('fail'); a.text('添加星标'); });
+                } else {
+                    sm.dontSay(a.attr('statementId')).done(function (data) {
+                        if (data.SaidCount == 0) {
+                            $('#' + a.attr('menuId')).remove();
+                        } else {
+                            a.text('添加星标');
+                        }
+                    }).fail(function () { alert('fail'); a.text('删除星标'); });
+                }
+            });
+
+            var saym = new SayManager();
+            saym.status(valueFs.StatementId).done(function (data) {
+                var a = $('#say_' + data.ObjectFsId);
+                if (data.HasSaid) {
+                    a.text('删除星标');
+                } else {
+                    a.text('添加星标');
+                }
+            }).fail(function () { alert('get status failed') });
+        }
+    };
+
+
+    if (values.length == 0) { placeHolder.text('无属性值'); return; }
+    var ul = newTag('ul', { class: 'nav nav-pills' });
     placeHolder.append(ul);
     $.each(values, function (i, v) {
-        var li = newTag('li', { class: 'dropdown', id: 'value_' + randomInt() });
+        var menuId = 'menu' + randomInt();
+        var li = newTag('li', { class: 'dropdown', id: menuId });
         ul.append(li);
-        renderStatement(v, li);
+
+        var a = newA().addClass('dropdown-toggle');
+        a.attr('href', '#' + menuId).attr('data-toggle', 'dropdown');
+        
+        li.append(a);
+        if(v.Object.Value) a.text(v.Object.Value);
+        else {
+            var cm = new ConceptManager();
+            cm.get(v.Object.ConceptId).done(function(c){
+                a.text(c.FriendlyNames[0]);
+            });
+        }
+        defaults.renderMenu(li,menuId,v);
+
     });
 }
 
