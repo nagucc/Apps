@@ -105,43 +105,9 @@ function conceptDetailPanel_renderValues(ph, values, valueFss) {
         renderMenu: function (placeHolder, menuId, valueFs) {
             var ul2 = newTag('ul', { class: 'dropdown-menu' });
             placeHolder.append(ul2);
-
-            var li1 = newTag('li');
-            var li2 = newTag('li').append(newA().text('A2'));
-            ul2.append(li1).append(li2);
-
-            var m1 = newA().attr('id', 'say_' + valueFs.StatementId);
-            m1.attr('statementId', valueFs.StatementId).attr('menuId', menuId);
-            li1.append(m1);
-
-            m1.text('添加/删除星标').click(function () {
-                var a = $(this);
-                var sm = new SayManager();
-                if (a.text() == '添加星标') {
-                    sm.say(a.attr('statementId')).done(function () {
-                        a.text('删除星标');
-                    }).fail(function () { alert('fail'); a.text('添加星标'); });
-                } else {
-                    sm.dontSay(a.attr('statementId')).done(function (data) {
-                        if (data.SaidCount == 0) {
-                            $('#' + a.attr('menuId')).remove();
-                        } else {
-                            a.text('添加星标');
-                        }
-                    }).fail(function () { alert('fail'); a.text('删除星标'); });
-                }
-            });
-
-            var saym = new SayManager();
-            saym.status(valueFs.StatementId).done(function (data) {
-                var a = $('#say_' + data.ObjectFsId);
-                if (data.HasSaid) {
-                    a.text('删除星标');
-                } else {
-                    a.text('添加星标');
-                }
-            }).fail(function () { alert('get status failed') });
-        }
+            this.renderSaidMenuItem(ul2, valueFs);
+        },
+        renderSaidMenuItem: conceptDetailPanel_renderSaidMenuItem
     };
 
 
@@ -206,8 +172,42 @@ function createConceptDialog_onAdded(concept) {
 }
 
 
+function conceptDetailPanel_renderSaidMenuItem(placeHolder, statement){
+    var li = newLi();
+    placeHolder.append(li);
 
+    var m1 = newA().attr('id', 'say_' + statement.StatementId);
+    m1.attr('statementId', statement.StatementId);
+    li.append(m1);
 
+    m1.text('添加/删除星标').click(function () {
+        var a = $(this);
+        var sm = new SayManager();
+        if (a.text() == '添加星标') {
+            sm.say(a.attr('statementId')).done(function () {
+                a.text('删除星标');
+            }).fail(function () { alert('fail'); a.text('添加星标'); });
+        } else {
+            sm.dontSay(a.attr('statementId')).done(function (data) {
+                if (data.SaidCount == 0) {
+                    $('#' + a.attr('menuId')).remove();
+                } else {
+                    a.text('添加星标');
+                }
+            }).fail(function () { alert('fail'); a.text('删除星标'); });
+        }
+    });
+
+    var saym = new SayManager();
+    saym.status(statement.StatementId).done(function (data) {
+        var a = $('#say_' + data.ObjectFsId);
+        if (data.HasSaid) {
+            a.text('删除星标');
+        } else {
+            a.text('添加星标');
+        }
+    }).fail(function () { alert('get status failed') });
+}
 
 
 
@@ -217,42 +217,9 @@ function conceptDetailPanel_renderPropertyValues(placeHolder, propertyId, values
         renderMenu: function (placeHolder, menuId, valueFs) {
             var ul2 = newTag('ul', { class: 'dropdown-menu' });
             placeHolder.append(ul2);
-
-            var li1 = newTag('li');
-            var li2 = newTag('li').append(newA().text('A2'));
-            ul2.append(li1).append(li2);
-            var m1 = newA().attr('id', 'say_' + valueFs.StatementId);
-            m1.attr('statementId', valueFs.StatementId).attr('menuId', menuId);
-            li1.append(m1);
-
-            m1.text('添加/删除星标').click(function () {
-                var a = $(this);
-                var sm = new SayManager();
-                if (a.text() == '添加星标') {
-                    sm.say(a.attr('statementId')).done(function () {
-                        a.text('删除星标');
-                    }).fail(function () { alert('fail'); a.text('添加星标'); });
-                } else {
-                    sm.dontSay(a.attr('statementId')).done(function (data) {
-                        if (data.SaidCount == 0) {
-                            $('#' + a.attr('menuId')).remove();
-                        } else {
-                            a.text('添加星标');
-                        }
-                    }).fail(function () { alert('fail'); a.text('删除星标'); });
-                }
-            });
-
-            var saym = new SayManager();
-            saym.status(valueFs.StatementId).done(function (data) {
-                var a = $('#say_' + data.ObjectFsId);
-                if (data.HasSaid) {
-                    a.text('删除星标');
-                } else {
-                    a.text('添加星标');
-                }
-            }).fail(function () { alert('get status failed') });
-        }
+            this.renderSaidMenuItem(ul2, valueFs);
+        },
+        renderSaidMenuItem: conceptDetailPanel_renderSaidMenuItem
     };
 
 
