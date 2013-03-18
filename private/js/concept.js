@@ -50,7 +50,8 @@ function afterQCLogin(reqData, opts) {
                     $('#myConcepts').statementList(fss,
                         {
                             clearBefore: true,
-                            renderItem: statementList_renderItem
+                            renderItem: statementList_renderItem,
+                            pageSize: 4
                         });
                     $('#myConcepts li.active').find('a').click();
                 });
@@ -100,31 +101,23 @@ function conceptDetailPanel_renderTitle(ph, title, concept) {
 
 
 function conceptDetailPanel_renderValues(ph, values, valueFss) {
-    var defaults = {
-        // 生成菜单
-        renderMenu: function (placeHolder, menuId, valueFs) {
-            var ul2 = newTag('ul', { class: 'dropdown-menu' });
-            placeHolder.append(ul2);
-            this.renderSaidMenuItem(ul2, valueFs);
-        },
-        renderSaidMenuItem: conceptDetailPanel_renderSaidMenuItem
-    };
-
-
     var dd = newDd();
-    var ul = newTag('ul', { class: 'nav nav-pills nav-stacked' });
+    var ul = newTag('ul', { class: 'nav nav-pills ' });
     ph.append(dd.append(ul));
+
+    // 为每一个名称或描述值生成下拉菜单:
     for (var i = 0; i < values.length; i++) {
-        var menuId = 'menu' + randomInt();
-        var li = newTag('li', { class: 'dropdown', id: menuId });
-        ul.append(li);
+        var menuItems = new Array();
+        menuItems.push(getSaidMenuItem(valueFss[i], function () {
+            var cm = new ConceptManager();
+            cm.flush($('#myConcepts li.active').attr('conceptId'));
+            $('#myConcepts li.active').find('a').click();
+        }));
 
-        var a = newTag('a', { class: 'dropdown-toggle', text: values[i] });
-        a.attr('href', '#' + menuId).attr('data-toggle', 'dropdown');
-        a.append(newTag('b', { class: 'caret' }));
-
-        li.append(a);
-        defaults.renderMenu(li, menuId, valueFss[i]);
+        var menu = new Menu(menuItems, {
+            text: values[i]
+        });
+        menu.appendTo(ul);
     }
     $('.dropdown-toggle').dropdown();
 }
@@ -136,8 +129,8 @@ function statementList_renderItem(fss, li) {
 
     // 在页面左边以胶囊按钮的方式展示实例列表
     return renderMorpheme2(fss.Subject, li).done(function (c) {
-        var ss = new SaidStatus(li.attr('statementId'));
-        li.find('a').prepend(ss.getSpan());
+        //var ss = new SaidStatus(li.attr('statementId'));
+        //li.find('a').prepend(ss.getSpan());
         li.find('a').attr('ConceptId', c.ConceptId).click(conceptBtn_onClick);
         li.addClass("concept-list-item");
     });
@@ -150,7 +143,7 @@ function createConceptDialog_onAdded(concept) {
         return $(li).attr('ConceptId') == concept.ConceptId;
     });
     if (cItem.length) {
-        cItem.click();
+        $(cItem).find('a').click();
     } else {
         // 添加PrivateClass类型
         var cm = new ConceptManager();
@@ -172,78 +165,67 @@ function createConceptDialog_onAdded(concept) {
 }
 
 
-function conceptDetailPanel_renderSaidMenuItem(placeHolder, statement){
-    var li = newLi();
-    placeHolder.append(li);
-
-    var m1 = newA().attr('id', 'say_' + statement.StatementId);
-    m1.attr('statementId', statement.StatementId);
-    li.append(m1);
-
-    m1.text('添加/删除星标').click(function () {
-        var a = $(this);
-        var sm = new SayManager();
-        if (a.text() == '添加星标') {
-            sm.say(a.attr('statementId')).done(function () {
-                a.text('删除星标');
-            }).fail(function () { alert('fail'); a.text('添加星标'); });
-        } else {
-            sm.dontSay(a.attr('statementId')).done(function (data) {
-                if (data.SaidCount == 0) {
-                    $('#' + a.attr('menuId')).remove();
+//返回一个MenuItem对象,用于删除或添加星标
+function getSaidMenuItem(statement, changed) {
+    return new MenuItem({
+        text: '添加/删除星标',
+        click: function () {
+            var a = $(this);
+            var sm = new SayManager();
+            if (a.text() == '添加星标') {
+                sm.say(a.attr('statementId')).done(function () {
+                    a.text('删除星标');
+                }).fail(function () { alert('fail'); a.text('添加星标'); });
+            } else {
+                sm.dontSay(a.attr('statementId')).done(function (data) {
+                    if (data.SaidCount == 0) {
+                        $('#' + a.attr('menuId')).remove();
+                    } else {
+                        a.text('添加星标');
+                    }
+                }).fail(function () { alert('fail'); a.text('删除星标'); });
+            }
+            if (changed !== undefined) changed();
+        },
+        appended: function (li, a) {
+            a.attr('statementId', statement.StatementId);
+            var saym = new SayManager();
+            saym.status(statement.StatementId).done(function (data) {
+                if (data.HasSaid) {
+                    a.text('删除星标');
                 } else {
                     a.text('添加星标');
                 }
-            }).fail(function () { alert('fail'); a.text('删除星标'); });
+            }).fail(function () { alert('get status failed') });
         }
     });
-
-    var saym = new SayManager();
-    saym.status(statement.StatementId).done(function (data) {
-        var a = $('#say_' + data.ObjectFsId);
-        if (data.HasSaid) {
-            a.text('删除星标');
-        } else {
-            a.text('添加星标');
-        }
-    }).fail(function () { alert('get status failed') });
 }
 
-
-
 function conceptDetailPanel_renderPropertyValues(placeHolder, propertyId, values, subjectId) {
-    var defaults = {
-        // 生成菜单
-        renderMenu: function (placeHolder, menuId, valueFs) {
-            var ul2 = newTag('ul', { class: 'dropdown-menu' });
-            placeHolder.append(ul2);
-            this.renderSaidMenuItem(ul2, valueFs);
-        },
-        renderSaidMenuItem: conceptDetailPanel_renderSaidMenuItem
-    };
-
-
     if (values.length == 0) { placeHolder.text('无属性值'); return; }
     var ul = newTag('ul', { class: 'nav nav-pills' });
     placeHolder.append(ul);
     $.each(values, function (i, v) {
-        var menuId = 'menu' + randomInt();
-        var li = newTag('li', { class: 'dropdown', id: menuId });
-        ul.append(li);
 
-        var a = newA().addClass('dropdown-toggle');
-        a.attr('href', '#' + menuId).attr('data-toggle', 'dropdown');
-        
-        li.append(a);
-        if(v.Object.Value) a.text(v.Object.Value);
-        else {
-            var cm = new ConceptManager();
-            cm.get(v.Object.ConceptId).done(function(c){
-                a.text(c.FriendlyNames[0]);
-            });
-        }
-        defaults.renderMenu(li,menuId,v);
+        // 为每一个属性值生产一个下拉菜单:
+        var meunItems = new Array();
+        meunItems.push(getSaidMenuItem(v, function () {
+            // 刷新缓存
+            PvsFromBaseClass[subjectId] = undefined;
+            $('#myConcepts li.active').find('a').click();
+        }));
 
+        var menu = new Menu(meunItems, {
+            appended: function (li, a, ul) {
+                var cm = new ConceptManager();
+
+                if (v.Object.Value) a.text(v.Object.Value);
+                else cm.get(v.Object.ConceptId).done(function (c) {
+                    a.text(c.FriendlyNames[0]);
+                });
+            }
+        });
+        menu.appendTo(ul);
     });
 }
 
@@ -270,8 +252,7 @@ function addTypeDialog_onTypeAdded(fs) {
 
 
 function addPropertyValueDialog_added(fs) {
-    var sm = new StatementManager();
-    // 刷新缓存,重新findBySP
-    sm.flush('', fs.Subject.ConceptId, Nagu.Concepts.RdfType, '', curUserId);
+    // 刷新缓存
+    PvsFromBaseClass[fs.Subject.ConceptId] = undefined;
     $('#myConcepts li.active').find('a').click();
 }
