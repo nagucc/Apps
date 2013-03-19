@@ -5,36 +5,25 @@ function getFamilies2() {
 
     var dtd = $.Deferred();
     var resolvedDeferred = 0;   // 记录已经resolve的Deferred对象的数量
+
     // 获取所有家族
     var fm = new FamilyManager();
     fm.all().done(function (fss) {
-        $.each(fss, function (i, fs) {
-
-            // 生成显示框架：li#family_xxx > a
-            var li = newLi().attr("statementId", fs.StatementId).attr("ConceptId", fs.Subject.ConceptId).addClass("concept-list-item");
-            $("#families").append(li);
-
-
-
-            // 初始化 families 缓存：
-            if (FamilyManager.Cache[fs.Subject.ConceptId] === undefined) FamilyManager.Cache[fs.Subject.ConceptId] = [];
-            FamilyManager.Cache[fs.Subject.ConceptId]["rdf:type"] = fs;
-
-            if (request["id"] === undefined && i == 0) curFamilyId = fs.Subject.ConceptId;
-            if (request["id"] == fs.Subject.ConceptId) curFamilyId = fs.Subject.ConceptId;
-
-            renderMorpheme2(fs.Subject, li).done(function (c) {
-                var icon = StarEmptyIcon().addClass('nagu-said-status').attr('StatementId', li.attr('statementId'));
-                li.find('a').prepend(newSpan().addClass('logged hide').append(icon));
-                li.find('a').attr('ConceptId', c.ConceptId).click(familyBtn_onClick);
-
-                if (++resolvedDeferred == fss.length) dtd.resolve();
-                if (curFamilyId == c.ConceptId) li.find('a').click();
-
-                // 初始化“创建家族成员”对话框中的下拉列表
-                var selJiazu = $("#sJiazu");
-                selJiazu.append($("<option></option>").val(c.ConceptId).append(c.FriendlyNames[0]));
-            });
+        $('#families').statementList(fss, {
+            renderItem: function (fs, li) {
+                li.addClass('concept-list-item');
+                return li.appendMorpheme(fs.Subject).done(function (c) {
+                    // 初始化“创建家族成员”对话框中的下拉列表
+                    $("#sJiazu").append($("<option/>").val(c.ConceptId).text(c.FriendlyNames[0]));
+                    li.find('a').click(familyBtn_onClick);
+                });
+            }
+        }).done(function (fss) {
+            if (request['id'] === undefined)
+                $('#families li:first a').click();
+            else {
+                $('#families li a[conceptId="' + request['id'] + '"]').click();
+            }
         });
     });
     return dtd.promise();
@@ -115,7 +104,12 @@ function familyBtn_onClick() {
         if ($('.nagu-said-status-toggler').text() == '加注星标') $('.concept-list-item.active').prependTo($('#myfamilies'));
         else $('.concept-list-item.active').prependTo($('#families'));
     });
-    $("dt#dateCreated").next("dd").text(formatJSONDate(FamilyManager.Cache[fid]["rdf:type"].DateCreated, "yyyy-MM-dd hh:mm:ss"));
+    
+    // 在右侧显示创建时间
+    var sm = new StatementManager();
+    sm.get($(this).closest('li').attr('statementId')).done(function (fs) {
+        $("dt#dateCreated").next("dd").text(formatJSONDate(fs.DateCreated, "yyyy-MM-dd hh:mm:ss"));
+    });
     $("#qrcode").empty().qrcode({ text: "http://nagu.cc/apps/jiapu/index.html?id=" + fid });
 }
 

@@ -3,40 +3,24 @@
 function FamilyManager() { }
 FamilyManager.JiazuType = "796fb149-fd45-48af-92da-6a5aad1b1cbf";
 
-// 用于缓存家族数据：
-/*
-FamilyManager.Cache[familyId]["persons"] : 家族所有成员列表；
-FamilyManager.Cache[familyId]["Concept"] : 家族Concept信息；
-*/
-FamilyManager.Cache = new Array();
-
 FamilyManager.prototype.all = function () {
-    return findByPO(NaguConcepts.RdfType, FamilyManager.JiazuType, MorphemeType.Concept);
+    var sm = new StatementManager();
+    return sm.findByPO(Nagu.Concepts.RdfType, FamilyManager.JiazuType, Nagu.MType.Concept);
 };
-FamilyManager.prototype.members = function(familyId) {
-    var dtd = $.Deferred();
-    if(FamilyManager.Cache[familyId] === undefined) FamilyManager.Cache[familyId] = [];
-    if (FamilyManager.Cache[familyId]["persons"] === undefined) {
-        findByPO(Person.Properties.SuoZaiJiaZu, familyId, MorphemeType.Concept).done(function (data) {
-            
-            FamilyManager.Cache[familyId]["persons"] = data; // 缓存家族成员列表
-            dtd.resolve(FamilyManager.Cache[familyId]["persons"]);
-        });
-    } else {
-        dtd.resolve(FamilyManager.Cache[familyId]["persons"]);
-    }
-    return dtd.promise();
+FamilyManager.prototype.members = function (familyId) {
+    var sm = new StatementManager();
+    return sm.findByPO(Person.Properties.SuoZaiJiaZu, familyId, Nagu.MType.Concept);
 };
 FamilyManager.prototype.create = function (fn, desc) {
     var dtd = $.Deferred();
+    var cm = new ConceptManager();
+
     // 创建指定家族的Concept
-    createConcept(fn, desc).done(function (concept) {
+    cm.create(fn, desc).done(function (concept) {
         console.log("创建家族Concept成功");
-        FamilyManager.Cache[concept.ConceptId] = [];
         // 添加“家族”类型：
-        addRdfType(concept.ConceptId, MorphemeType.Concept, FamilyManager.JiazuType).done(function (fs) {
+        cm.addRdfType(concept.ConceptId, Nagu.MType.Concept, FamilyManager.JiazuType).done(function (fs) {
             console.log("添加家族 RdfType 成功");
-            FamilyManager.Cache[concept.ConceptId]["rdf:type"] = fs;
             dtd.resolve(concept, fs);
             // 添加say状态：
             var sm = new SayManager();
@@ -45,6 +29,10 @@ FamilyManager.prototype.create = function (fn, desc) {
     }).fail(function () { alert("FamilyManager.create失败"); dtd.reject(); });
     return dtd.promise();
 };
+
+FamilyManager.prototype.get = function (familyId) {
+    var sm = new StatementManager();
+}
 
 
 /********************************************************************************************************************************/
