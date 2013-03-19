@@ -55,39 +55,48 @@ Person.GenderType = {
 成员信息缓存
 Person.Cache[personId]["children"]: 家族成员的子女列表
 ********************************************************/
-Person.Cache = new Array();
+//Person.Cache = new Array();
 
 
-Person.prototype.get = function () { return getConcept(this.personId); };
-Person.prototype.father = function () { return findBySP(this.personId, MorphemeType.Concept, Person.Properties.HasFather); };
+Person.prototype.get = function () {
+    var cm = new ConceptManager();
+    return cm.get(this.personId);
+};
+
+Person.prototype.father = function () {
+    var sm = new StatementManager();
+    return sm.findBySP(this.personId, Nagu.MType.Concept, Person.Properties.HasFather);
+};
 
 /********************************************
 获取家族成员的子女信息
 *********************************************/
 Person.prototype.children = function () {
     var personId = this.personId;
+    var sm = new StatementManager();
+    sm.findBySP(this.personId, Nagu.MType.Concept, Person.Properties.Gender).done(function (fss) {
+        
+        if (fss.length && fss[0].Object.ConceptId == Person.GenderType.Female)
+            return sm.findByPO(Person.Properties.HasMother, personId, Nagu.MType.Concept);
+        else
+            return sm.findByPO(Person.Properties.HasFather, personId, Nagu.MType.Concept);
+    });
+};
+Person.prototype.create = function (fn, desc) {
     var dtd = $.Deferred();
-    findBySP(this.personId, MorphemeType.Concept, Person.Properties.Gender).done(function (fss) {
-        if (fss.length && fss[0].Object.ConceptId == Person.GenderType.Female) {
-            findByPO(Person.Properties.HasMother, personId, MorphemeType.Concept).done(function (children) { dtd.resolve(children); });
-        } else {
-            findByPO(Person.Properties.HasFather, personId, MorphemeType.Concept).done(function (children) { dtd.resolve(children); });
-        }
+
+    var cm = new ConceptManager();
+    cm.create(fn, desc).done(function (person) {
+        cm.addRdfType(person.ConceptId, Nagu.MType.Concept, Person.JiazuChengyuanType).done(function (typeFs) {
+            dtd.resovle(person, typeFs);
+        });
     });
     return dtd.promise();
 };
-Person.prototype.create = function (fn, desc) {
-var dtd = $.Deferred();
-createConcept(fn, desc).done(function (person) {
-addRdfType(person.ConceptId, MorphemeType.Concept, Person.JiazuChengyuanType).done(function (typeFs) {
-dtd.resovle(person, typeFs);
-});
-});
-return dtd.promise();
-};
+
 Person.prototype.memberProperties = function () {
-return propertyValuesFormBaseClass(this.personId, MorphemeType.Concept, Person.JiazuChengyuanType)
-}
+    return propertyValuesFormBaseClass(this.personId, MorphemeType.Concept, Person.JiazuChengyuanType)
+};
 
 
 
