@@ -1,4 +1,4 @@
-﻿var dlgCreateFamily;
+﻿var dlgCreateFamily, dlgCreatePerson;
 
 
 
@@ -32,9 +32,12 @@ function getFamilies2() {
 
     // 初始化对话框:
     dlgCreateFamily = new CreateConceptDialog(
-                {
-                    onAdded: dlgCreateFamily_onAdded
-                });
+    {
+        onAdded: dlgCreateFamily_onAdded
+    });
+    dlgCreatePerson = new CreatePersonDialog({
+        added: dlgCreatePerson_added
+    });
 
     return dtd.promise();
 }
@@ -114,6 +117,8 @@ function familyBtn_onClick() {
     $('.concept-list-item').removeClass('active');
     $(this).closest("li").addClass("active");
     var fid = $(this).attr("conceptId");
+
+
 
     var fm = new FamilyManager();
     fm.members(fid).done(function (memberFss) {
@@ -327,58 +332,6 @@ function afterQCLogin(reqData, opts) {
 }
 
 
-function createPerson() {
-    $("div#dlgCreatePerson div.alert").hide();
-    ulError = $("div#dlgCreatePerson ul.error-list").empty();
-    var hasError = false;
-    var jiazu = $("#sJiazu").val();
-    var fn = $("#tbPersonName").val();
-    var desc = $("#tbPersonDesc").val();
-    var birthYear = $("#tbBirthYear").val();
-    var gender = $("#sGender").val();
-    var fatherId = $("#tbFatherId").val();
-    var motherId = $("#tbMotherId").val();
-
-    if (jiazu == "") {
-        hasError = true;
-        ulError.append(newLi().append("请选出待创建成员所在的家族"));
-    }
-    if (fn == "") {
-        hasError = true;
-        ulError.append(newLi().append("\"姓名\"不能为空"));
-    }
-    if (desc == "") {
-        hasError = true;
-        ulError.append(newLi().append("\"简介\"不能为空"));
-    }
-    if (hasError) {
-        $("div#dlgCreatePerson div.alert").show();
-        return;
-    }
-    var pm = new Person();
-    pm.create(fn, desc).done(function (fs, typeFs) {
-        $("div#dlgCreatePerson input").val("");
-        createStatement(person.ConceptId, MorphemeType.Concept, Person.Properties.SuoZaiJiaZu, jiazu, MorphemeType.Concept).done(function () {
-            console.log("添加成员所在家族成功");
-        });
-        createStatement(person.ConceptId, MorphemeType.Concept, Person.Properties.Gender, gender, MorphemeType.Concept).done(function () {
-            console.log("添加成员性别成功");
-        });
-        if (birthYear != "") {
-            createStatement(person.ConceptId, MorphemeType.Concept, Person.Properties.BirthYear, birthYear, MorphemeType.Literal);
-        }
-        if (fatherId != "") {
-            createStatement(person.ConceptId, MorphemeType.Concept, Person.Properties.HasFather, fatherId, MorphemeType.Concept);
-        }
-        if (motherId != "") {
-            createStatement(person.ConceptId, MorphemeType.Concept, Person.Properties.HasMother, motherId, MorphemeType.Concept);
-        }
-
-        $('.concept-list-item[ConceptId="' + jiazu + '"]').find('a').click();
-    });
-}
-
-
 
 /********************************************************************************************************************************/
 function searchPersons() {
@@ -445,7 +398,7 @@ function members_statementList_renderItem(statement, li) {
         menuItems.push(miGen);
 
         var menuId = 'menu' + randomInt();
-        li.addClass('dropdown').attr('id', menuId).menu(menuItems, {
+        li.addClass('dropdown').attr('id', menuId).conceptMenu(menuItems, {
             text: person.FriendlyNames[0]
         });
     });
@@ -476,6 +429,21 @@ function dlgCreateFamily_onAdded(family) {
             }).done(function () {
                 $('#families li:first a').click();
             });
+        });
+    });
+}
+
+function dlgCreatePerson_added(person) {
+    var fm = new FamilyManager();
+    var fid = $('#families > li.active a').attr('conceptId');
+    fm.members(fid, { reflesh: true }).done(function (memberFss) {
+        // 显示当前家族基本信息
+        $("dt#dtPersonCount").next("dd").text(memberFss.length);
+
+        $('#gen20 > ul').statementList(memberFss, {
+            clearBefore: true,
+            pageSize: 5,
+            renderItem: members_statementList_renderItem
         });
     });
 }

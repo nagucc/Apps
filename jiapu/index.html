@@ -34,33 +34,16 @@
     <link href="../../Content/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css" />
     
-    <style>
-    .ui-autocomplete {
-        max-height: 100px;
-        overflow-y: auto;
-        /* prevent horizontal scrollbar */
-        overflow-x: hidden;
-    }
-    /* IE 6 doesn't support max-height
-     * we use height instead, but this forces the menu to always be this tall
-     */
-    * html .ui-autocomplete {
-        height: 100px;
-    }
-    
-    .ui-autocomplete-loading {
-        background: white url('/Content/jqueryui/ui-anim_basic_16x16.gif') right center no-repeat;
-    }
-    </style>
+
     
 
       <script type="text/javascript">
           $(document).ready(function () {
-              $("#dlgCreatePerson").modal({
-                  backdrop: false,
-                  keyboard: false,
-                  show: false
-              });
+//              $("#dlgCreatePerson").modal({
+//                  backdrop: false,
+//                  keyboard: false,
+//                  show: false
+//              });
 
               $("#dlgSearchPersons").modal({
                   backdrop: false,
@@ -77,8 +60,7 @@
               });
 
 
-              initConceptSearch($("#tbFather"), $("#tbFatherId"));
-              initConceptSearch($("#tbMother"), $("#tbMotherId"));
+              
           });
       </script>
 </head>
@@ -92,10 +74,6 @@
             <span id="qqLoginBtn" ></span>
 
             <span class="btn-toolbar hide logged" id="optPanel">
-                <a class="btn btn-danger" data-toggle="modal" href="#dlgCreatePerson" onclick="$('#dlgCreatePerson').modal('toggle');">
-                    <i class="icon-plus icon-white"></i>
-                    创建成员
-                </a>
 
                 <a class="btn btn-danger" onclick="dlgCreateFamily.toggle('',{h3:'创建新家族'});">
                     <i class="icon-plus icon-white"></i>
@@ -126,80 +104,6 @@
                 </div>
             </div>
 
-            <div class="modal hide" id="dlgCreatePerson">
-                <div class="modal-header">
-                    <a class="close" data-dismiss="modal">×</a>
-                    <h3>创建家族成员</h3>
-                </div>
-                <div class="modal-body">
-                    <div class="hide alert alert-error">
-                        <strong>出错啦！</strong>
-                        <ul class="error-list">
-                        </ul>
-                      </div>
-
-                    <form class="form-horizontal">
-                        <div class="control-group">
-                            <label for="sJiazu" class="control-label">所在家族</label>
-                            <div class="controls">
-                                <select id="sJiazu"><option value="">选择待创建的成员所属的家族</option></select>
-                            </div>
-                        </div>
-
-                        <div class="control-group">
-                            <label for="tbPersonName" class="control-label">姓名</label>
-                            <div class="controls">
-                                <input type="text" id="tbPersonName" placeholder="输入待创建的成员的姓名"/>
-                            </div>
-                        </div>
-
-                        <div class="control-group">
-                            <label for="tbPersonDesc" class="control-label">简介</label>
-                            <div class="controls">
-                                <input type="text" id="tbPersonDesc" placeholder="输入待创建成员的相关简介"/>
-                            </div>
-                        </div>
-
-                        <div class="control-group">
-                            <label for="tbBirthYear" class="control-label">出生年份</label>
-                            <div class="controls">
-                                <input type="text" id="tbBirthYear" placeholder="输入待创建成员的出生年份，如1923"/>
-                            </div>
-                        </div>
-
-                        <div class="control-group">
-                            <label for="sGender" class="control-label">性别</label>
-                            <div class="controls">
-                                <select id="sGender">
-                                    <option value="96dd894c-a6da-4562-b9e9-f85fcca96463" selected="selected">男</option>
-                                    <option value="abcc829a-0a02-412b-9dc4-3ed259b1894a">女</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="control-group">
-                            <label for="tbFather" class="control-label">父亲</label>
-                            <div class="controls">
-                                <input type="text" id="tbFather" placeholder="输入关键字，等待并选择"/>
-                                <input type="hidden" id="tbFatherId" />
-                            </div>
-                        </div>
-
-                        <div class="control-group">
-                            <label for="tbMother" class="control-label">母亲</label>
-                            <div class="controls">
-                                <input type="text" id="tbMother" placeholder="输入关键字，等待并选择"/>
-                                <input type="hidden" id="tbMotherId" />
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <a href="#" class="btn" data-dismiss="modal">关闭</a>
-                    <button onclick="createPerson();" class="btn btn-primary">创建</button>
-                </div>
-            </div>
-
             <div class="modal hide" id="dlgSearchConcept">
                 <div class="modal-header">
                     <a class="close" data-dismiss="modal">×</a>
@@ -224,10 +128,6 @@
     <div class="container">
         <div class="row">
             <div class="span4">
-                <!--<h3>搜索家族</h3>
-                <form class="form-search">
-                    <input type="text" placeholder="输入要搜索的文字..." class="input-medium search-query">
-                </form>-->
 
                 <div id="myfamilies-panel" class="hide logged">
                 <h3>我的家族</h3>
@@ -257,9 +157,12 @@
                             <ul class='nav nav-pills'></ul>
                         </li>
                     </ol>
-                    <!--<button id="btnSaidFamily" class="btn hide logged">loading...</button>-->
                     <h3 class="logged hide">更多操作· · · · · ·</h3>
                     <button class="btn hide logged nagu-said-status-toggler">loading...</button>
+                    <a class="btn hide logged" onclick="dlgCreatePerson.toggle($('#families > li.active a').attr('conceptId'));">
+                        <i class="icon-plus"></i>
+                        创建成员
+                    </a>
                         
                 </div>
             </div>

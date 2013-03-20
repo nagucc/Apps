@@ -20,8 +20,11 @@ FamilyManager.prototype.all = function (options) {
 
     return sm.findByPO(Nagu.Concepts.RdfType, FamilyManager.JiazuType, Nagu.MType.Concept);
 };
-FamilyManager.prototype.members = function (familyId) {
+FamilyManager.prototype.members = function (familyId, options) {
+    this.opts = $.extend(this.opts, options);
+
     var sm = new StatementManager();
+    if (this.opts.reflesh) sm.flush('', '', Person.Properties.SuoZaiJiaZu, familyId);
     return sm.findByPO(Person.Properties.SuoZaiJiaZu, familyId, Nagu.MType.Concept);
 };
 FamilyManager.prototype.create = function (fn, desc) {
@@ -44,7 +47,8 @@ FamilyManager.prototype.create = function (fn, desc) {
 };
 
 FamilyManager.prototype.get = function (familyId) {
-    var sm = new StatementManager();
+    var cm = new ConceptManager();
+    return cm.get(familyId);
 }
 
 
@@ -100,8 +104,8 @@ Person.prototype.create = function (fn, desc) {
 
     var cm = new ConceptManager();
     cm.create(fn, desc).done(function (person) {
-        cm.addRdfType(person.ConceptId, Nagu.MType.Concept, Person.JiazuChengyuanType).done(function (typeFs) {
-            dtd.resovle(person, typeFs);
+        cm.addRdfType(person.ConceptId, Person.JiazuChengyuanType).done(function (typeFs) {
+            dtd.resolve(person, typeFs);
         });
     });
     return dtd.promise();
@@ -168,4 +172,63 @@ function renderPersonBtnMenu(menu, personId) {
 
     // 分隔符
     menu.append(newLi().addClass("divider"));
+}
+
+
+/******* CreatePersonDialog 类 ******************************************************************************************************************/
+
+function CreatePersonDialog(options) {
+    var defaults = {
+        host: "",
+        appId: "00000000-0000-0000-0000-000000000000",
+        templateUrl: "/Apps/jiapu/dialog/createPerson.html",
+        dialogId: "dlgCreatePerson_" + randomInt(),
+        autoInit: true,
+        h3: '创建新家族成员',
+        added: function (concept) { consle.log('new concept::::::::::' + concept.FriendlyNames[0]); }
+
+    };
+    // Extend our default options with those provided.    
+    this.opts = $.extend(defaults, options);
+    CreatePersonDialog.prototype.added = this.opts.added;
+    if (this.opts.autoInit) this.init();
+};
+
+CreatePersonDialog.prototype.added = function (person) { };
+
+
+CreatePersonDialog.prototype.init = function () {
+    var dialogId = this.opts.dialogId;
+    return $.get(this.opts.templateUrl).done(function (html) {
+        html = html.replace(/{dlgCreatePerson}/g, dialogId);
+        $('body').append(html);
+    });
+};
+
+CreatePersonDialog.prototype.toggle = function (familyId, personId, options) {
+    // Extend our default options with those provided.
+    this.opts = $.extend(this.opts, options);
+
+    var div = $('#' + this.opts.dialogId);
+    div.find('.alert').hide();
+    div.attr('personId', personId);
+    div.attr('appId', this.opts.appId);
+
+    if (familyId === undefined) {
+        alert('未指定家族ID');
+        return false;
+    }
+    div.attr('familyId', familyId);
+
+    var fm = new FamilyManager();
+    fm.get(familyId).done(function (family) {
+        div.find('#tbFamilyName').val(family.FriendlyNames[0]);
+    });
+
+    div.find('h3').text(this.opts.h3);
+    div.modal('toggle');
+};
+
+CreatePersonDialog.prototype.hide = function () {
+    $('#' + this.opts.dialogId).modal('hide');
 }
