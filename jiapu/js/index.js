@@ -1,10 +1,11 @@
-﻿/********************************************************************************************************************************/
+﻿var dlgCreateFamily;
+
+
+
+/********************************************************************************************************************************/
 // 获取家族列表
 function getFamilies2() {
-    var request = getRequest();
-
     var dtd = $.Deferred();
-    var resolvedDeferred = 0;   // 记录已经resolve的Deferred对象的数量
 
     // 获取所有家族
     var fm = new FamilyManager();
@@ -19,13 +20,22 @@ function getFamilies2() {
                 });
             }
         }).done(function (fss) {
+            var request = getRequest();
             if (request['id'] === undefined)
                 $('#families li:first a').click();
             else {
                 $('#families li a[conceptId="' + request['id'] + '"]').click();
             }
+            dtd.resolve();
         });
     });
+
+    // 初始化对话框:
+    dlgCreateFamily = new CreateConceptDialog(
+                {
+                    onAdded: dlgCreateFamily_onAdded
+                });
+
     return dtd.promise();
 }
 
@@ -49,6 +59,13 @@ function showPagedPersons(familyId, start, size) {
         // 显示当前家族基本信息
         $("dt#dtPersonCount").next("dd").text(memberFss.length);
 
+        $('#gen20 ul').statementList(memberFss, {
+            clearBefore: start == 0,
+            pageSize: size,
+            startIndex: start,
+            renderItem: members_statementList_renderItem
+        });
+
         // 逐个显示家族成员按钮：
         for (var i = start; i < start + size; i++) {
             var moreBtnGroup = $("div#morePersons");
@@ -58,13 +75,15 @@ function showPagedPersons(familyId, start, size) {
                 break;
             }
 
+            var personId = memberFss[i].Subject.ConceptId;
             // 如果该家族成员以及被显示，则跳过：
-            if ($("#btnGroup_" + memberFss[i].Subject.ConceptId).size()) {
+            if ($("#btnGroup_" + personId).size()) {
                 size++;
                 continue;
             }
 
             // 否则，在more按钮之前显示家族成员按钮：
+
             moreBtnGroup.before(newBtnGroup("btnGroup_" + memberFss[i].Subject.ConceptId).attr("statementId", memberFss[i].StatementId));
 
             var pm = new Person(memberFss[i].Subject.ConceptId);
@@ -94,11 +113,23 @@ function showPagedPersons(familyId, start, size) {
 function familyBtn_onClick() {
     $('.concept-list-item').removeClass('active');
     $(this).closest("li").addClass("active");
-    var fid = $(this).attr("conceptId")
+    var fid = $(this).attr("conceptId");
 
-    $("ol#genTree > li").not($("ol#genTree > li#gen0")).remove();
-    $("li#gen0 > div").not("li#gen0 > div#morePersons").remove();
-    showPagedPersons(fid, 0, 5);
+    var fm = new FamilyManager();
+    fm.members(fid).done(function (memberFss) {
+        // 显示当前家族基本信息
+        $("dt#dtPersonCount").next("dd").text(memberFss.length);
+
+        $('#gen20 > ul').statementList(memberFss, {
+            clearBefore: true,
+            pageSize: 5,
+            renderItem: members_statementList_renderItem
+        });
+    });
+
+//    $("ol#genTree > li").not($("ol#genTree > li#gen0")).remove();
+//    $("li#gen0 > div").not("li#gen0 > div#morePersons").remove();
+    //showPagedPersons(fid, 0, 5);
     $('.nagu-said-status-toggler').attr('StatementId', $(this).closest("li").attr('StatementId'));
     initBtnSaidStatus(function () {
         if ($('.nagu-said-status-toggler').text() == '加注星标') $('.concept-list-item.active').prependTo($('#myfamilies'));
@@ -257,7 +288,7 @@ function afterQCLogin(reqData, opts) {
     // 获取用户信息并显示：
     QC.api("get_user_info").success(function (s) {
         var span = $("#qqLoginBtn");
-
+        //alert('dd');
         var spanF = newSpan().append(newImg(s.data.figureurl));
         var spanN = newSpan().text(s.data.nickname);
         var spanL = newSpan().append(newA("#").text("退出").click(function () {
@@ -293,26 +324,6 @@ function afterQCLogin(reqData, opts) {
         });
     });
     return dtd.promise();
-}
-
-// 创建新家族
-function createFamily() {
-    var fn = $("#txtFamilyName").val();
-    if (fn == "") { return; }
-    var desc = $("#txtFamilyDesc").val();
-
-    // 创建指定家族的Concept
-    var fm = new FamilyManager();
-    fm.create(fn, desc).done(function (family, typeFs) {
-        // 在左侧显示新增加的家族的按钮，并激活按钮：
-        var icon = StarIcon().addClass('nagu-said-status').attr('StatementId', typeFs.StatementId);
-        var familyBtn = newA().attr("ConceptId", family.ConceptId).text(family.FriendlyNames[0]).click(familyBtn_onClick);
-        familyBtn.prepend(newSpan().addClass('logged').append(icon));
-
-        $("#myfamilies").prepend(newLi().attr("statementId", typeFs.StatementId).addClass("concept-list-item").append(familyBtn));
-        familyBtn.click();
-    });
-    $("#dlgCreateFamily").hide();
 }
 
 
@@ -385,4 +396,86 @@ function searchPersons() {
     });
 }
 
-/********************************************************************************************************************************/
+/******** 各种回调函数 ************************************************************************************************************************/
+
+function members_statementList_renderItem(statement, li) {
+    var personId;
+    if (statement.Predicate.ConceptId == Nagu.Concepts.RdfType
+            || statement.Predicate.ConceptId == Person.Properties.SuoZaiJiaZu)
+        personId = statement.Subject.ConceptId;
+    else personId = statement.Object.ConceptId;
+
+    var cm = new ConceptManager();
+    cm.get(personId).done(function (person) {
+        // 下拉菜单
+        // “详细信息”菜单
+        var miDetail = new MenuItem({
+            appended: function (li, a) {
+                a.attr('href', 'person.html?id=' + personId);
+            },
+            text: '详细信息'
+        });
+
+        // “显示家族关系”菜单
+        var miGen = new MenuItem({
+            text: '显示家族关系',
+            appended: function (li, a) {
+                a.click(function () {
+                    // 显示"父亲"
+                    var genLi = li.closest('.gen-li').prev();
+                    var pm = new Person(personId);
+                    pm.father().done(function (data) {
+                        // 存在“父亲”，而且li不存在，则创建li节点
+                        if (data.length && !genLi.size()) {
+                            var newli = newLi().attr("id", "gen" + randomInt()).addClass("gen-li");
+                            genLi = li.closest('.gen-li').before(newli).prev();
+                            genLi.append(newTag('ul', { class: 'nav nav-pills' }));
+                        }
+                        genLi.find('ul').statementList(data, {
+                            renderItem: members_statementList_renderItem
+                        });
+                    });
+                    $(this).remove();
+                });
+            }
+        });
+
+        var menuItems = new Array();
+        menuItems.push(miDetail);
+        menuItems.push(miGen);
+
+        var menuId = 'menu' + randomInt();
+        li.addClass('dropdown').attr('id', menuId).menu(menuItems, {
+            text: person.FriendlyNames[0]
+        });
+    });
+}
+
+
+
+function dlgCreateFamily_onAdded(family) {
+    // 1. 添加必要的rdf:type信息
+    var cm = new ConceptManager();
+    cm.addRdfType(family.ConceptId, FamilyManager.JiazuType).done(function (fs) {
+        console.log('添加rdf:type "家族成员" 成功');
+
+        // 2. 刷新左侧列表
+        // 2.1 获取所有家族
+        var fm = new FamilyManager();
+        fm.all({ reflesh: true }).done(function (fss) {
+            $('#families').statementList(fss, {
+                clearBefore: true,
+                renderItem: function (fs, li) {
+                    li.addClass('concept-list-item');
+                    return li.appendMorpheme(fs.Subject).done(function (c) {
+                        // 初始化“创建家族成员”对话框中的下拉列表
+                        $("#sJiazu").append($("<option/>").val(c.ConceptId).text(c.FriendlyNames[0]));
+                        li.find('a').click(familyBtn_onClick);
+                    });
+                }
+            }).done(function () {
+                $('#families li:first a').click();
+            });
+        });
+    });
+}

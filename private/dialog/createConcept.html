@@ -84,7 +84,7 @@
         //2. 完成Class创建
         var cm = new ConceptManager();
         cm.create(fn, desc, { id: id, appId: appId }).done(function (c) {
-            console.log("添加Concept成功");
+            console.log("CreateConceptDialog::添加Concept成功");
             $("div#dlgCreateConcept input").val("");
             CreateConceptDialog.prototype.OnAdded(c);
             $("div#dlgCreateConcept").modal('toggle');

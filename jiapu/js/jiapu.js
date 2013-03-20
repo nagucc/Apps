@@ -1,10 +1,23 @@
 ﻿var host = ""
 
-function FamilyManager() { }
+function FamilyManager(options) {
+    var defaults = {
+        reflesh: false // 是否每次读取数据都强制刷新缓存.
+    };
+    // Extend our default options with those provided.    
+    this.opts = $.extend(defaults, options);
+}
 FamilyManager.JiazuType = "796fb149-fd45-48af-92da-6a5aad1b1cbf";
 
-FamilyManager.prototype.all = function () {
+FamilyManager.prototype.all = function (options) {
+    this.opts = $.extend(this.opts, options);
+
     var sm = new StatementManager();
+    if (this.opts.reflesh) { // 如果需要强制刷新,则先清空缓存数据.
+        console.log('清空Family.all缓存');
+        sm.flush('', '', Nagu.Concepts.RdfType, FamilyManager.JiazuType);
+    }
+
     return sm.findByPO(Nagu.Concepts.RdfType, FamilyManager.JiazuType, Nagu.MType.Concept);
 };
 FamilyManager.prototype.members = function (familyId) {
@@ -74,7 +87,7 @@ Person.prototype.father = function () {
 Person.prototype.children = function () {
     var personId = this.personId;
     var sm = new StatementManager();
-    sm.findBySP(this.personId, Nagu.MType.Concept, Person.Properties.Gender).done(function (fss) {
+    return sm.findBySP(this.personId, Nagu.MType.Concept, Person.Properties.Gender).done(function (fss) {
         
         if (fss.length && fss[0].Object.ConceptId == Person.GenderType.Female)
             return sm.findByPO(Person.Properties.HasMother, personId, Nagu.MType.Concept);
@@ -95,7 +108,7 @@ Person.prototype.create = function (fn, desc) {
 };
 
 Person.prototype.memberProperties = function () {
-    return propertyValuesFormBaseClass(this.personId, MorphemeType.Concept, Person.JiazuChengyuanType)
+    return propertyValuesFormBaseClass(this.personId, Nagu.MType.Concept, Person.JiazuChengyuanType)
 };
 
 
@@ -130,18 +143,29 @@ function renderPersonBtnGroup2(btngroup, name, personId, onMenuCreating) {
 }
 
 function renderPersonBtnMenu(menu, personId) {
-    // “星标状态”菜单
-
     // “详细信息”菜单
-    menu.append(newLi().append(newA("person.html?id=" + personId).text("详细信息")));
+    var miDetail = new MenuItem({
+        appended: function (li, a) {
+            a.attr('href', 'person.html?id=' + personId);
+        },
+        text: '详细信息'
+    });
+
+    // “显示家族关系”菜单
+    var miGen = new MenuItem({
+        text: '显示家族关系',
+        appended: function (li, a) {
+            a.click(function () {
+                showFather(personId, menu.closest("li").attr("id"));
+                showChildren(personId, menu.closest("li").attr("id"));
+                $(this).remove();
+            });
+        }
+    });
+
+    miDetail.appendTo(menu);
+    miGen.appendTo(menu);
 
     // 分隔符
     menu.append(newLi().addClass("divider"));
-
-    // “显示家族关系”菜单
-    menu.append(newLi().append(newA().text("显示家族关系").attr("id", "showGenBtn_" + personId).click(function () {
-        showFather(personId, menu.closest("li").attr("id"));
-        showChildren(personId, menu.closest("li").attr("id"));
-        $("a#showGenBtn_" + personId).remove();
-    })));
 }
