@@ -1,5 +1,5 @@
-﻿var dlgCreateFamily, dlgCreatePerson;
-
+﻿var dlgCreateFamily, dlgCreatePerson, createConceptDialog, cdp;
+function currentFamily(){ return $('#families li.active a').attr('conceptId'); }
 
 
 /********************************************************************************************************************************/
@@ -38,6 +38,7 @@ function getFamilies2() {
     dlgCreatePerson = new CreatePersonDialog({
         added: dlgCreatePerson_added
     });
+    createConceptDialog = new CreateConceptDialog();
 
     return dtd.promise();
 }
@@ -48,64 +49,7 @@ function getFamilies2() {
 /********************************************************************************************************************************/
 
 
-/********************************************************************************************************************************/
-
-function showPagedPersons(familyId, start, size) {
-
-    //test
-    //pagedByPO(suozaijiazu, familyId, CONCEPT, 0, 10);
-
-    $("ol#genTree a").removeClass("btn-success");
-
-    var fm = new FamilyManager();
-    fm.members(familyId).done(function (memberFss) {
-        // 显示当前家族基本信息
-        $("dt#dtPersonCount").next("dd").text(memberFss.length);
-
-        $('#gen20 ul').statementList(memberFss, {
-            clearBefore: start == 0,
-            pageSize: size,
-            startIndex: start,
-            renderItem: members_statementList_renderItem
-        });
-
-        // 逐个显示家族成员按钮：
-        for (var i = start; i < start + size; i++) {
-            var moreBtnGroup = $("div#morePersons");
-            moreBtnGroup.show();
-            if (i >= memberFss.length) {
-                moreBtnGroup.hide();
-                break;
-            }
-
-            var personId = memberFss[i].Subject.ConceptId;
-            // 如果该家族成员以及被显示，则跳过：
-            if ($("#btnGroup_" + personId).size()) {
-                size++;
-                continue;
-            }
-
-            // 否则，在more按钮之前显示家族成员按钮：
-
-            moreBtnGroup.before(newBtnGroup("btnGroup_" + memberFss[i].Subject.ConceptId).attr("statementId", memberFss[i].StatementId));
-
-            var pm = new Person(memberFss[i].Subject.ConceptId);
-            pm.get().done(function (person) {
-                var btngroup = $("#btnGroup_" + person.ConceptId);
-                renderPersonBtnGroup2(btngroup, person.FriendlyNames[0], person.ConceptId);
-                btngroup.children("a").addClass("btn-success");
-                $(".dropdown-toggle").dropdown();
-            });
-
-            var moreBtn = $("div#morePersons button");
-            moreBtn.unbind();
-            moreBtn.click(function () {
-                showPagedPersons(familyId, start + 5, 5);
-            });
-        }
-    });
-}
-
+/********************************************************************************************************************************
 
 
 
@@ -132,9 +76,15 @@ function familyBtn_onClick() {
         });
     });
 
-//    $("ol#genTree > li").not($("ol#genTree > li#gen0")).remove();
-//    $("li#gen0 > div").not("li#gen0 > div#morePersons").remove();
-    //showPagedPersons(fid, 0, 5);
+    if (QC.Login.check()) {
+        cdp = new ConceptDetailPanel(fid, {
+            renderTitle: conceptDetailPanel_renderTitle,
+            renderValues: conceptDetailPanel_renderValues
+        });
+    } else cdp = new ConceptDetailPanel(fid);
+    cdp.show($('#family_detail'));
+
+
     $('.nagu-said-status-toggler').attr('StatementId', $(this).closest("li").attr('StatementId'));
     initBtnSaidStatus(function () {
         if ($('.nagu-said-status-toggler').text() == '加注星标') $('.concept-list-item.active').prependTo($('#myfamilies'));
@@ -154,132 +104,13 @@ function familyBtn_onClick() {
 /********************************************************************************************************************************/
 
 
-
-
-
-
-
-
-/********************************************************************************************************************************/
-
-
-
-
-
-
-/*****************************************************************************************************************************/
-
-
-
-// 显示“父亲”
-function showFather(personId, curLi) {
-    $("ol#genTree a").removeClass("btn-success");
-    $("#btnGroup_" + personId).children("a").addClass("btn-success");
-
-    var li = $("#" + curLi).prev();
-
-    var pm = new Person(personId);
-    pm.father().done(function (data) {
-        // 存在“父亲”，而且li不存在，则创建li节点
-        if (data.length > 0 && !li.size()) {
-            var newli = newLi().attr("id", "gen" + Math.round(Math.random() * 100000)).addClass("btn-toolbar");
-            li = $("#" + curLi).before(newli).prev();
-        }
-        $.each(data, function (i, fatherFs) {
-            if ($("#btnGroup_" + fatherFs.Object.ConceptId).size()) {
-                $("#btnGroup_" + fatherFs.Object.ConceptId).remove();
-            }
-            var father = new Person(fatherFs.Object.ConceptId);
-            father.get().done(function (data2) {
-                var btngroup = renderPersonBtnGroup(data2.FriendlyNames[0], data2.ConceptId);
-
-                btngroup.children("a").addClass("btn-success");
-
-                if (li.attr("id") == "gen0") {
-                    var moreBtnGroup = $("#morePersons");
-                    moreBtnGroup.before(btngroup);
-                }
-                else
-                    li.append(btngroup);
-
-                $(".dropdown-toggle").dropdown();
-            });
-        });
-    });
-}
-
-// 显示“后代”
-function showChildren(personId, curLi) {
-    $("ol#genTree a").removeClass("btn-success");
-    $("#btnGroup_" + personId).children("a").addClass("btn-success");
-
-    var li = $("#" + curLi).next();
-    console.log("li.id:" + li.attr("id"));
-
-    var pm = new Person(personId);
-    pm.children().done(function (data) {
-        // 存在“后代”，而且li不存在，则创建li节点
-        if (data.length > 0 && !li.size()) {
-            var newli = newLi().attr("id", "gen" + Math.round(Math.random() * 100000)).addClass("btn-toolbar");
-            li = $("#" + curLi).after(newli).next();
-        }
-        $.each(data, function (i, childFs) {
-            if ($("#btnGroup_" + childFs.Subject.ConceptId).size()) {
-                $("#btnGroup_" + childFs.Subject.ConceptId).remove();
-            }
-
-            // 逐一显示每个后代：
-            var child = new Person(childFs.Subject.ConceptId);
-            child.get().done(function (data2) {
-                var btngroup = renderPersonBtnGroup(data2.FriendlyNames[0], data2.ConceptId);
-
-                btngroup.children("a").addClass("btn-success");
-                if (li.attr("id") == "gen0") {
-                    var moreBtnGroup = $("#morePersons");
-                    moreBtnGroup.before(btngroup);
-                }
-                else
-                    li.append(btngroup);
-
-                $(".dropdown-toggle").dropdown();
-            });
-        });
-    });
-}
-
-function renderPersonBtnGroup(name, personId, onMenuCreating) {
-    // 生成按钮
-    var button = newABtn(name).prepend(UserIcon());
-    button.addClass("dropdown-toggle").attr("data-toggle", "dropdown");
-
-    // 下拉菜单
-    var dmenu;
-    if (onMenuCreating == null) {
-        dmenu = newDropdownMenu(function (menu) {
-            renderPersonBtnMenu(menu, personId);
-        });
-    }
-    else {
-        dmenu = newDropdownMenu(function (menu) {
-            onMenuCreating(menu, personId);
-        });
-    }
-
-
-    // 生成 btn-group
-    var btngroup = newBtnGroup().attr("id", "btnGroup_" + personId);
-    btngroup.append(button).append(dmenu);
-
-    return btngroup;
-
-
-}
-
 function QQLogout() {
     QC.Login.signOut();
     $(".logged").hide("slow", function () {
         $("#myfamilies li").prependTo("#families");
     });
+    cdp = new ConceptDetailPanel($('families li.active a').attr('conceptId'));
+    cdp.show($('#family_detail'));
 }
 
 
@@ -315,6 +146,15 @@ function afterQCLogin(reqData, opts) {
                 else $('.concept-list-item.active').prependTo($('#families'));
             });
         });
+
+        // 重新显示右侧信息
+        cdp = new ConceptDetailPanel($('#families li.active a').attr('conceptId'), {
+            renderTitle: conceptDetailPanel_renderTitle,
+            renderValues: conceptDetailPanel_renderValues
+        });
+        cdp.show($('#family_detail'));
+
+
         span.empty();
         span.append(spanF).append(spanN).append(spanL);
     });
@@ -352,11 +192,33 @@ function searchPersons() {
 /******** 各种回调函数 ************************************************************************************************************************/
 
 function members_statementList_renderItem(statement, li) {
+    // 显示家族树成员的算法见 #1
     var personId;
-    if (statement.Predicate.ConceptId == Nagu.Concepts.RdfType
-            || statement.Predicate.ConceptId == Person.Properties.SuoZaiJiaZu)
+
+    // 当前显示右侧家族成员列表
+    if (statement.Predicate.ConceptId == Person.Properties.SuoZaiJiaZu)
         personId = statement.Subject.ConceptId;
-    else personId = statement.Object.ConceptId;
+    else {
+        // 当前显示父亲或子女列表
+        personId = statement.Object.ConceptId;
+    }
+
+
+
+    // 若当前世代节点是"gen20",则不显示其它世代已经存在的成员.
+    if (li.parent().parent().attr('id') == 'gen20') {
+        if ($('#genTree2 li[personId="' + personId + '"]').size()) {
+            li.remove();
+            return;
+        }
+    }
+
+    // 删除家族树中已经存在的成员节点
+    $($.grep($('#genTree2 li'), function (li) {
+        return $(li).attr('personId') == personId;
+    })).remove();
+    li.attr('personId', personId);
+
 
     var cm = new ConceptManager();
     cm.get(personId).done(function (person) {
@@ -374,17 +236,32 @@ function members_statementList_renderItem(statement, li) {
             text: '显示家族关系',
             appended: function (li, a) {
                 a.click(function () {
-                    // 显示"父亲"
+                    // 1. 显示"父亲"
+
+                    // 获取世代容器
                     var genLi = li.closest('.gen-li').prev();
                     var pm = new Person(personId);
                     pm.father().done(function (data) {
-                        // 存在“父亲”，而且li不存在，则创建li节点
+                        // 存在“父亲”，而且世代容器不存在，则创建世代容器
                         if (data.length && !genLi.size()) {
                             var newli = newLi().attr("id", "gen" + randomInt()).addClass("gen-li");
                             genLi = li.closest('.gen-li').before(newli).prev();
                             genLi.append(newTag('ul', { class: 'nav nav-pills' }));
                         }
-                        genLi.find('ul').statementList(data, {
+                        genLi.find('ul.nav').statementList(data, {
+                            renderItem: members_statementList_renderItem
+                        });
+                    });
+
+                    // 2. 显示子女
+                    pm.children().done(function (children) {
+                        // 如果世代容器不存在，则创建世代容器
+                        if (children.length && !genLi.size()) {
+                            var newli = newLi().attr("id", "gen" + randomInt()).addClass("gen-li");
+                            genLi = li.closest('.gen-li').before(newli).prev();
+                            genLi.append(newTag('ul', { class: 'nav nav-pills' }));
+                        }
+                        genLi.find('ul.nav').statementList(data, {
                             renderItem: members_statementList_renderItem
                         });
                     });
@@ -393,13 +270,13 @@ function members_statementList_renderItem(statement, li) {
             }
         });
 
-        var menuItems = new Array();
-        menuItems.push(miDetail);
-        menuItems.push(miGen);
 
         var menuId = 'menu' + randomInt();
-        li.addClass('dropdown').attr('id', menuId).conceptMenu(menuItems, {
-            text: person.FriendlyNames[0]
+        li.addClass('dropdown').attr('id', menuId).conceptMenu([miDetail, miGen], {
+            text: person.FriendlyNames[0],
+            rendered: function (ph, toggler, ul) {
+                toggler.prepend(Icon('icon-user'));
+            }
         });
     });
 }
@@ -445,5 +322,71 @@ function dlgCreatePerson_added(person) {
             pageSize: 5,
             renderItem: members_statementList_renderItem
         });
+    });
+}
+
+
+function conceptDetailPanel_renderTitle(ph, title, concept) {
+    var btn = newA().text(title).click(function () {
+        createConceptDialog.toggle(concept.ConceptId, { h3: '为"' + concept.FriendlyNames[0] + '"添加新的名称或简介' });
+    });
+    ph.append(btn);
+}
+
+function conceptDetailPanel_renderValues(ph, values, valueFss) {
+    var dd = newDd();
+    var ul = newTag('ul', { class: 'nav nav-pills ' });
+    ph.append(dd.append(ul));
+
+    // 为每一个名称或描述值生成下拉菜单:
+    for (var i = 0; i < values.length; i++) {
+        var miSaidStatus = getSaidMenuItem(valueFss[i], function () {
+            var cm = new ConceptManager();
+            cm.flush($('#families li.active a').attr('conceptId'));
+            $('#families li.active').find('a').click();
+        });
+
+
+        var menu = new Menu([miSaidStatus], {
+            text: values[i]
+        });
+        menu.appendTo(ul);
+    }
+    $('.dropdown-toggle').dropdown();
+}
+
+//返回一个MenuItem对象,用于删除或添加星标
+function getSaidMenuItem(statement, changed) {
+    return new MenuItem({
+        text: '添加/删除星标',
+        click: function () {
+            var a = $(this);
+            var sm = new SayManager();
+            if (a.text() == '添加星标') {
+                sm.say(a.attr('statementId')).done(function () {
+                    a.text('删除星标');
+                }).fail(function () { alert('fail'); a.text('添加星标'); });
+            } else {
+                sm.dontSay(a.attr('statementId')).done(function (data) {
+                    if (data.SaidCount == 0) {
+                        $('#' + a.attr('menuId')).remove();
+                    } else {
+                        a.text('添加星标');
+                    }
+                }).fail(function () { alert('fail'); a.text('删除星标'); });
+            }
+            if (changed !== undefined) changed();
+        },
+        appended: function (li, a) {
+            a.attr('statementId', statement.StatementId);
+            var saym = new SayManager();
+            saym.status(statement.StatementId).done(function (data) {
+                if (data.HasSaid) {
+                    a.text('删除星标');
+                } else {
+                    a.text('添加星标');
+                }
+            }).fail(function () { alert('get status failed') });
+        }
     });
 }
