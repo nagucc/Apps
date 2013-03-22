@@ -1,5 +1,5 @@
-﻿var dlgCreateFamily, dlgCreatePerson, createConceptDialog, cdp;
-function currentFamily(){ return $('#families li.active a').attr('conceptId'); }
+﻿var dlgCreateFamily, dlgCreatePerson, cdp, addValueDialog;
+function currentFamily(){ return $('.family-list li.active a').attr('conceptId'); }
 
 
 /********************************************************************************************************************************/
@@ -14,8 +14,6 @@ function getFamilies2() {
             renderItem: function (fs, li) {
                 li.addClass('concept-list-item');
                 return li.appendMorpheme(fs.Subject).done(function (c) {
-                    // 初始化“创建家族成员”对话框中的下拉列表
-                    $("#sJiazu").append($("<option/>").val(c.ConceptId).text(c.FriendlyNames[0]));
                     li.find('a').click(familyBtn_onClick);
                 });
             }
@@ -38,7 +36,10 @@ function getFamilies2() {
     dlgCreatePerson = new CreatePersonDialog({
         added: dlgCreatePerson_added
     });
-    createConceptDialog = new CreateConceptDialog();
+
+    addValueDialog = new AddPropertyValueDialog({
+        added: addPropertyValueDialog_added
+    });
 
     return dtd.promise();
 }
@@ -67,8 +68,6 @@ function familyBtn_onClick() {
     var fm = new FamilyManager();
     fm.members(fid).done(function (memberFss) {
         // 显示当前家族基本信息
-        $("dt#dtPersonCount").next("dd").text(memberFss.length);
-
         $('#gen20 > ul').statementList(memberFss, {
             clearBefore: true,
             pageSize: 5,
@@ -79,7 +78,9 @@ function familyBtn_onClick() {
     if (QC.Login.check()) {
         cdp = new ConceptDetailPanel(fid, {
             renderTitle: conceptDetailPanel_renderTitle,
-            renderValues: conceptDetailPanel_renderValues
+            renderValues: conceptDetailPanel_renderValues,
+            renderProperty: conceptDetailPanel_renderProperty,
+            renderPropertyValues: conceptDetailPanel_renderPropertyValues
         });
     } else cdp = new ConceptDetailPanel(fid);
     cdp.show($('#family_detail'));
@@ -90,12 +91,7 @@ function familyBtn_onClick() {
         if ($('.nagu-said-status-toggler').text() == '加注星标') $('.concept-list-item.active').prependTo($('#myfamilies'));
         else $('.concept-list-item.active').prependTo($('#families'));
     });
-    
-    // 在右侧显示创建时间
-    var sm = new StatementManager();
-    sm.get($(this).closest('li').attr('statementId')).done(function (fs) {
-        $("dt#dateCreated").next("dd").text(formatJSONDate(fs.DateCreated, "yyyy-MM-dd hh:mm:ss"));
-    });
+
     $("#qrcode").empty().qrcode({ text: "http://nagu.cc/apps/jiapu/index.html?id=" + fid });
 }
 
@@ -148,9 +144,11 @@ function afterQCLogin(reqData, opts) {
         });
 
         // 重新显示右侧信息
-        cdp = new ConceptDetailPanel($('#families li.active a').attr('conceptId'), {
+        cdp = new ConceptDetailPanel(currentFamily(), {
             renderTitle: conceptDetailPanel_renderTitle,
-            renderValues: conceptDetailPanel_renderValues
+            renderValues: conceptDetailPanel_renderValues,
+            renderProperty: conceptDetailPanel_renderProperty,
+            renderPropertyValues: conceptDetailPanel_renderPropertyValues
         });
         cdp.show($('#family_detail'));
 
@@ -298,8 +296,6 @@ function dlgCreateFamily_onAdded(family) {
                 renderItem: function (fs, li) {
                     li.addClass('concept-list-item');
                     return li.appendMorpheme(fs.Subject).done(function (c) {
-                        // 初始化“创建家族成员”对话框中的下拉列表
-                        $("#sJiazu").append($("<option/>").val(c.ConceptId).text(c.FriendlyNames[0]));
                         li.find('a').click(familyBtn_onClick);
                     });
                 }
@@ -328,7 +324,7 @@ function dlgCreatePerson_added(person) {
 
 function conceptDetailPanel_renderTitle(ph, title, concept) {
     var btn = newA().text(title).click(function () {
-        createConceptDialog.toggle(concept.ConceptId, { h3: '为"' + concept.FriendlyNames[0] + '"添加新的名称或简介' });
+        dlgCreateFamily.toggle(concept.ConceptId, { h3: '为"' + concept.FriendlyNames[0] + '"添加新的名称或简介' });
     });
     ph.append(btn);
 }
@@ -342,7 +338,7 @@ function conceptDetailPanel_renderValues(ph, values, valueFss) {
     for (var i = 0; i < values.length; i++) {
         var miSaidStatus = getSaidMenuItem(valueFss[i], function () {
             var cm = new ConceptManager();
-            cm.flush($('#families li.active a').attr('conceptId'));
+            cm.flush(currentFamily());
             $('#families li.active').find('a').click();
         });
 
@@ -389,4 +385,53 @@ function getSaidMenuItem(statement, changed) {
             }).fail(function () { alert('get status failed') });
         }
     });
+}
+
+
+function conceptDetailPanel_renderProperty(placeHolder, propertyId, subjectId) {
+    var cm = new ConceptManager();
+    // 显示属性:
+    cm.get(propertyId).done(function (p) {
+        placeHolder.append(newA().text(p.FriendlyNames[0]).click(function () {
+            addValueDialog.toggle(subjectId, Nagu.MType.Concept, p.ConceptId,
+                    {
+                        h3: '为属性“' + p.FriendlyNames[0] + '”添加属性值'
+                    });
+        }));
+    });
+}
+
+
+function conceptDetailPanel_renderPropertyValues(placeHolder, propertyId, values, subjectId) {
+    if (values.length == 0) { placeHolder.text('无属性值'); return; }
+    var ul = newTag('ul', { class: 'nav nav-pills' });
+    placeHolder.append(ul);
+    $.each(values, function (i, v) {
+
+        // 为每一个属性值生产一个下拉菜单:
+        var meunItems = new Array();
+        meunItems.push(getSaidMenuItem(v, function () {
+            // 刷新缓存
+            PvsFromBaseClass[subjectId] = undefined;
+            $('#families li.active').find('a').click();
+        }));
+
+        var menu = new Menu(meunItems, {
+            appended: function (li, a, ul) {
+                var cm = new ConceptManager();
+
+                if (v.Object.Value) a.text(v.Object.Value);
+                else cm.get(v.Object.ConceptId).done(function (c) {
+                    a.text(c.FriendlyNames[0]);
+                });
+            }
+        });
+        menu.appendTo(ul);
+    });
+}
+
+function addPropertyValueDialog_added(fs) {
+    // 刷新缓存
+    PvsFromBaseClass[fs.Subject.ConceptId] = undefined;
+    $('.family-list li.active a').click();
 }
