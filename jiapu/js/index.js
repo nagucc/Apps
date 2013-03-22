@@ -60,9 +60,16 @@ function getFamilies2() {
 // 定义左边按钮的OnClick事件
 function familyBtn_onClick() {
     $('.concept-list-item').removeClass('active');
+
+    // 为防止出现异步错误,此处必须声明一个变量
+    // 不能直接使用$('.family-list .active a'))取当前值.
+    var a = $(this);
+
     $(this).closest("li").addClass("active");
     var fid = $(this).attr("conceptId");
 
+    var text = a.text();
+    a.text(text+'(数据加载中...)');
 
 
     var fm = new FamilyManager();
@@ -73,6 +80,7 @@ function familyBtn_onClick() {
             pageSize: 5,
             renderItem: members_statementList_renderItem
         });
+        a.text(text);
     });
 
     if (QC.Login.check()) {
@@ -216,7 +224,7 @@ function members_statementList_renderItem(statement, li) {
         return $(li).attr('personId') == personId;
     })).remove();
     li.attr('personId', personId);
-
+    li.append(loadingImg());
 
     var cm = new ConceptManager();
     cm.get(personId).done(function (person) {
@@ -270,7 +278,7 @@ function members_statementList_renderItem(statement, li) {
 
 
         var menuId = 'menu' + randomInt();
-        li.addClass('dropdown').attr('id', menuId).conceptMenu([miDetail, miGen], {
+        li.empty().addClass('dropdown').attr('id', menuId).conceptMenu([miDetail, miGen], {
             text: person.FriendlyNames[0],
             rendered: function (ph, toggler, ul) {
                 toggler.prepend(Icon('icon-user'));
