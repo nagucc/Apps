@@ -85,9 +85,13 @@
         var cm = new ConceptManager();
         cm.create(fn, desc, { id: id, appId: appId }).done(function (c) {
             console.log("CreateConceptDialog::添加Concept成功");
+            // 将所有输入控件清空
             $("div#dlgCreateConcept input").val("");
+
+            // 执行回调函数
+            console.log("CreateConceptDialog::执行回调函数OnAdded:::c.conceptId:"+c.ConceptId);
             CreateConceptDialog.prototype.OnAdded(c);
-            $("div#dlgCreateConcept").modal('toggle');
+            $("div#dlgCreateConcept").modal('hide');
         });
     }
 </script>
