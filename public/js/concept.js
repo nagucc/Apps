@@ -1,12 +1,11 @@
 ﻿var curUserId;
 var host = "";
-var addTypeDialog, addValueDialog, createConceptDialog;
+var addTypeDialog, addValueDialog, createConceptDialog, cdp;
 
 // 全局变量
 var CM, SM, N;
 var renderValues;
 
-//var curConcept = getRequest()['id'];
 
 $(document).ready(function () {
     // 全局变量
@@ -14,20 +13,22 @@ $(document).ready(function () {
     SM = new StatementManager();
     N = Nagu;
 
+    // 用于显示Concept详细信息的回调函数.
     renderValues = ConceptDetailPanel.getFunction_renderRichValues(function () {
         CM.flush(getRequest()['id']);
-        $('div.nagu-concept-detail').conceptShow(getRequest()['id'], {
-            renderTitle: ConceptDetailPanel.getFunction_RenderRichTitle(createConceptDialog),
-            renderValues: renderValues
-        });
+        cdp.showDetail();
+        //        $('div.nagu-concept-detail').conceptShow(getRequest()['id'], {
+        //            renderTitle: ConceptDetailPanel.getFunction_RenderRichTitle(createConceptDialog),
+        //            renderValues: renderValues
+        //        });
     });
 
     getConcept().done(function () {
-                          QC.Login({
-                              btnId: "qqLoginBtn",
-                              scope: "all",
-                              size: "A_M"
-                          }, afterQCLogin);
+        //        QC.Login({
+        //            btnId: "qqLoginBtn",
+        //            scope: "all",
+        //            size: "A_M"
+        //        }, afterQCLogin);
     });
 });
 
