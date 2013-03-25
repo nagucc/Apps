@@ -17,10 +17,6 @@ $(document).ready(function () {
     renderValues = ConceptDetailPanel.getFunction_renderRichValues(function () {
         CM.flush(getRequest()['id']);
         cdp.showDetail();
-        //        $('div.nagu-concept-detail').conceptShow(getRequest()['id'], {
-        //            renderTitle: ConceptDetailPanel.getFunction_RenderRichTitle(createConceptDialog),
-        //            renderValues: renderValues
-        //        });
     });
 
     getConcept().done(function () {
@@ -151,6 +147,6 @@ function addTypeDialog_onTypeAdded(fs) {
 function addPropertyValueDialog_added(fs) {
     // 刷新缓存
     PvsFromBaseClass[fs.Subject.ConceptId] = undefined;
-    $('#myConcepts li.active').find('a').click();
+    cdp.showFromTypes();
 }
 
