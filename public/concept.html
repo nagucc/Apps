@@ -3,38 +3,12 @@
 <head>
     <title>Concept详情@纳谷概念云</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="../../Content/bootstrap/js/assets/jquery-1.8.2.min.js" type="text/javascript"></script> 
-    <script src="../../Content/bootstrap/js/bootstrap.js" type="text/javascript"></script>
-    <script src="../../Content/bootstrap/js/assets/bootstrap-tab.js" type="text/javascript"></script>
-    <script src="../../Content/bootstrap/js/assets/bootstrap-button.js" type="text/javascript"></script>
-    <script src="../../Content/bootstrap/js/assets/bootstrap-dropdown.js" type="text/javascript"></script>
-    <script src="../../Content/bootstrap/js/assets/bootstrap-modal.js" type="text/javascript"></script>
-    <script src="../../Content/bootstrap/js/assets/bootstrap-transition.js" type="text/javascript"></script>
-    <script src="../../Content/bootstrap/js/assets/bootstrap-collapse.js" type="text/javascript"></script>
-    
-    <script src="http://code.jquery.com/ui/1.9.2/jquery-ui.js"></script>
-    <script src="../../Content/js/jquery.qrcode.min.js" type="text/javascript"></script>
-
-    <script src="js/concept.js" type="text/javascript"></script>
-    <script src="../../Content/js/js-helper.js" type="text/javascript"></script>
-    <script src="../../Content/js/jquery-helper.js" type="text/javascript"></script>
-    <script src="../../Content/js/bootstrap-helper.js" type="text/javascript"></script>
-    <script src="../../Content/js/nagu-helper.js" type="text/javascript"></script>
-    <script src="../../Content/js/apps-helper.js" type="text/javascript"></script>
-    <script src="../../Content/js/bootstarp-dropdownmenu.js" type="text/javascript"></script>
-
-
-    <script type="text/javascript" src="http://qzonestyle.gtimg.cn/qzone/openapi/qc_loader.js" data-appid="100321920"  charset="utf-8"></script>
-    
-
     <link href="../../Content/bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css" />
     <link href="../../Content/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css" />
     <link href="css/style.css" rel="stylesheet" type="text/css" />
-
 </head>
 <body>
-
     <div class="navbar navbar-fixed-top">
     <div class="navbar-inner">
         <div class="container">
@@ -42,12 +16,11 @@
 
             <span id="qqLoginBtn" ></span>
 
-            <span class="btn-toolbar logged hide">
-                <a class="btn btn-danger" data-toggle="modal" onclick="createConceptDialog.toggle('', {h3:'创建新Concept'});">
+            <span class="btn-toolbar logged ">
+                <a class="btn btn-info" data-toggle="modal" onclick="createConceptDialog.toggle('', {h3:'创建新Concept', onAdded:createConceptDialog_onCreated});">
                     <i class="icon-plus icon-white"></i>
                     创建新Concept
                 </a>
-                
             </span>
         </div>
       </div>
@@ -55,7 +28,12 @@
 
     <div class="container">
         <div class="row">
-            <div class="span3">&nbsp;</div>
+            <div class="span3">
+                <a class="btn btn-info" data-toggle="modal" onclick="addTypeDialog.toggle(curConcept, N.MType.Concept);">
+                    <i class="icon-plus icon-white"></i>
+                    添加类型
+                </a>
+            </div>
             <div class="span9">
                 <div class="modal-header">
                     <h3 id="fn">#fn</h3>
@@ -75,6 +53,46 @@
       </footer>
     </div>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <script src="../../Content/bootstrap/js/assets/jquery-1.8.2.min.js" type="text/javascript"></script> 
+    <script src="../../Content/bootstrap/js/bootstrap.js" type="text/javascript"></script>
+    <script src="../../Content/bootstrap/js/assets/bootstrap-tab.js" type="text/javascript"></script>
+    <script src="../../Content/bootstrap/js/assets/bootstrap-button.js" type="text/javascript"></script>
+    <script src="../../Content/bootstrap/js/assets/bootstrap-dropdown.js" type="text/javascript"></script>
+    <script src="../../Content/bootstrap/js/assets/bootstrap-modal.js" type="text/javascript"></script>
+    <script src="../../Content/bootstrap/js/assets/bootstrap-transition.js" type="text/javascript"></script>
+    <script src="../../Content/bootstrap/js/assets/bootstrap-collapse.js" type="text/javascript"></script>
+
+    <script src="http://code.jquery.com/ui/1.9.2/jquery-ui.js"></script>
+    <script src="../../Content/js/jquery.qrcode.min.js" type="text/javascript"></script>
+
+    <script src="js/concept.js" type="text/javascript"></script>
+    <script src="../../Content/js/js-helper.js" type="text/javascript"></script>
+    <script src="../../Content/js/jquery-helper.js" type="text/javascript"></script>
+    <script src="../../Content/js/bootstrap-helper.js" type="text/javascript"></script>
+    <script src="../../Content/js/nagu-helper.js" type="text/javascript"></script>
+    <script src="../../Content/js/apps-helper.js" type="text/javascript"></script>
+    <script src="../../Content/js/bootstarp-dropdownmenu.js" type="text/javascript"></script>
+    <script src="../../Content/js/nagu-bs-accordion.js" type="text/javascript"></script>
+
+
+    <script type="text/javascript" src="http://qzonestyle.gtimg.cn/qzone/openapi/qc_loader.js" data-appid="100321920"  charset="utf-8"></script>
     
 </body>
 </html>

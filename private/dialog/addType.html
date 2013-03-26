@@ -1,67 +1,98 @@
-﻿            <div class="modal hide" id="dlgAddType">
-                <div class="modal-header">
-                    <a class="close" data-dismiss="modal">×</a>
-                    <h3>添加类型</h3>
-                </div>
-                <div class="modal-body">
-                    <div class="hide alert alert-error">
-                        <strong>出错啦！</strong>
-                        <ul class="error-list">
-                        </ul>
-                      </div>
-
-                    <form class="form-horizontal">
-
-                        <div class="control-group">
-                            <label for="tbTypeName" class="control-label">类型名称</label>
-                            <div class="controls">
-                                <input type="text" id="tbTypeName" placeholder="输入关键字并等待搜索"/>
-                                <input type="hidden" id="tbTypeId" />
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <a href="#" class="btn" data-dismiss="modal">关闭</a>
-                    <button onclick="addType123();" class="btn btn-primary">确定</button>
-                </div>
+﻿<div class="modal hide" id="dlgAddType">
+    <div class="modal-header">
+        <a class="close" data-dismiss="modal">×</a>
+        <h3>添加类型</h3>
+    </div>
+    <div class="modal-body">
+        <div class="hide alert alert-error">
+            <strong>出错啦！</strong>
+            <ul class="error-list">
+            </ul>
             </div>
 
-            <script type="text/javascript">
-                $("#dlgAddType").modal({
-                      backdrop: false,
-                      keyboard: false,
-                      show: false
-                  });
-                  initConceptSearch($('#tbTypeName'), $('#tbTypeId'));
+        <form class="form-horizontal">
 
-                  function addType123() {
-                      //1. 数据验证
-                      var alert = $("div#dlgAddType div.alert");
-                      alert.hide();
+            <div class="control-group">
+                <label for="tbTypeName" class="control-label">类型名称</label>
+                <div class="controls">
+                    <input type="text" id="tbTypeName" placeholder="输入关键字并等待搜索"/>
+                    <input type="hidden" id="tbTypeId" />
+                </div>
+            </div>
+            <label class="checkbox">
+                <input type="checkbox" userId="" id='{cbOnlyMe}' disabled="disabled" /><i class="icon-lock" />仅我可见
+            </label>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <a href="#" class="btn" data-dismiss="modal">关闭</a>
+        <button onclick="addType123();" class="btn btn-primary">确定</button>
+    </div>
+</div>
 
-                      ulError = $("div#dlgAddType ul.error-list").empty();
-                      var hasError = false;
-                      var type = $("#tbTypeId").val();
+<style>
+    .ui-autocomplete {
+        max-height: 100px;
+        overflow-y: auto;
+        /* prevent horizontal scrollbar */
+        overflow-x: hidden;
+    }
+    /* IE 6 doesn't support max-height
+        * we use height instead, but this forces the menu to always be this tall
+        */
+    * html .ui-autocomplete {
+        height: 100px;
+    }
+    
+    .ui-autocomplete-loading {
+        background: white url('/Content/jqueryui/ui-anim_basic_16x16.gif') right center no-repeat;
+    }
+</style>
 
-                      if (type === undefined || type == "") {
-                          hasError = true;
-                          ulError.append(newLi().append("还未选中类型"));
-                      }
-                      if (hasError) {
-                          alert.show();
-                          return;
-                      }
+<script type="text/javascript">
+    $("#dlgAddType").modal({
+            backdrop: false,
+            keyboard: false,
+            show: false
+        });
+        initConceptSearch($('#tbTypeName'), $('#tbTypeId'));
 
-                      //2. 完成类型添加
-                      var subjectId = $('#dlgAddType').attr('subjectId');
-                      var stype = $('#dlgAddType').attr('stype');
-                      var appId = $('#dlgAddType').attr('appId');
-                      var cm = new ConceptManager();
-                      cm.addRdfType(subjectId, type, { appId: appId }).done(function (fs) {
-                          $("div#dlgAddType input").val("");
-                          AddTypeDialog.prototype.onTypeAdded();
-                          $("div#dlgAddType").modal('toggle');
-                      });
-                  }
-            </script>
+        // 获取当前用户信息,并激活"仅我可见"按钮.
+        var mm = new MemberManager();
+        mm.getMe().done(function (me) {
+            $('#{cbOnlyMe}').removeAttr('disabled').attr('userId', me.Id);
+        });
+
+        function addType123() {
+            //1. 数据验证
+            var alert = $("div#dlgAddType div.alert");
+            alert.hide();
+
+            ulError = $("div#dlgAddType ul.error-list").empty();
+            var hasError = false;
+            var type = $("#tbTypeId").val();
+
+            if (type === undefined || type == "") {
+                hasError = true;
+                ulError.append(newLi().append("还未选中类型"));
+            }
+            if (hasError) {
+                alert.show();
+                return;
+            }
+
+            //2. 完成类型添加
+            var subjectId = $('#dlgAddType').attr('subjectId');
+            var stype = $('#dlgAddType').attr('stype');
+            //var appId = $('#dlgAddType').attr('appId');
+            var appId = $('#{cbOnlyMe}').attr('checked') === undefined ? "" : $('#{cbOnlyMe}').attr('userId');
+            var cm = new ConceptManager();
+            cm.addRdfType(subjectId, type, { appId: appId }).done(function (fs) {
+                console.log('成功添加Type,TypeId: ' + type);
+                $("div#dlgAddType input").val("");
+                console.log('执行AddTypeDialog.prototype.onTypeAdded:::fsId=' + fs.StatementId);
+                AddTypeDialog.prototype.onTypeAdded(fs);
+                $("div#dlgAddType").modal('toggle');
+            });
+        }
+</script>

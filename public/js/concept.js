@@ -1,4 +1,4 @@
-﻿var curUserId;
+﻿var curUserId, curConcept;
 var host = "";
 var addTypeDialog, addValueDialog, createConceptDialog, cdp;
 
@@ -12,7 +12,7 @@ $(document).ready(function () {
     CM = new ConceptManager();
     SM = new StatementManager();
     N = Nagu;
-
+    curConcept = getRequest()['id'];
     // 用于显示Concept详细信息的回调函数.
     renderValues = ConceptDetailPanel.getFunction_renderRichValues(function () {
         CM.flush(getRequest()['id']);
@@ -49,7 +49,7 @@ function getConcept() {
     // 初始化对话框:
     if (createConceptDialog === undefined) {
         createConceptDialog = new CreateConceptDialog({
-            onAdded: createConceptDialog_onAdded
+            onAdded: createConceptDialog_onUpdated
         });
     }
     if (addValueDialog === undefined) {
@@ -58,11 +58,18 @@ function getConcept() {
         });
     }
 
+    if (addTypeDialog === undefined) {
+        addTypeDialog = new AddTypeDialog({
+            onTypeAdded: addPropertyValueDialog_added
+        });
+    }
+
 
 
 
     // 显示Concept的详细信息:
     if (QC.Login.check()) {
+        createConceptDialog.opts.onAdded = createConceptDialog_onUpdated;
         cdp = new ConceptDetailPanel(request['id'], {
             renderTitle: ConceptDetailPanel.getFunction_RenderRichTitle(createConceptDialog),
             renderValues: renderValues,
@@ -70,7 +77,8 @@ function getConcept() {
             renderPropertyValues: ConceptDetailPanel.getFunction_renderRichPropertyValues(function () {
                 PvsFromBaseClass[request['id']] = undefined;
                 getConcept();
-            })
+            }),
+            renderType: ConceptDetailPanel.renderType2
         });
     } else cdp = new ConceptDetailPanel(request['id']);
     cdp.show($('#detail'));
@@ -127,12 +135,17 @@ function QQLogout() {
 
 
 
-function createConceptDialog_onAdded(concept) {
+function createConceptDialog_onUpdated(concept) {
+    
     CM.flush(concept.ConceptId);
     $('div.nagu-concept-detail').conceptShow(concept.ConceptId, {
         renderTitle: ConceptDetailPanel.getFunction_RenderRichTitle(createConceptDialog),
         renderValues: renderValues
     });
+}
+
+function createConceptDialog_onCreated(concept) {
+    window.location = "/apps/public/concept.html?id=" + concept.ConceptId;
 }
 
 

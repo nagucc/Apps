@@ -19,13 +19,14 @@
                 </a>
                 </div>
                 <div id="collapseConcept" class="accordion-body collapse" style="height: 0px;">
-                <div class="accordion-inner">
-                    <label for="{txtFn}">Concept名称</label>
-                    <input id="{txtFn}" type="text" class="span3" placeholder="请输入关键字后等待搜索..." />
-                    <input id="{txtFn}_id" type="hidden" />
-                </div>
+                    <div class="accordion-inner">
+                        <label for="{txtFn}">Concept名称</label>
+                        <input id="{txtFn}" type="text" class="span3" placeholder="请输入关键字后等待搜索..." />
+                        <input id="{txtFn}_id" type="hidden" />
+                    </div>
                 </div>
             </div>
+
             <div class="accordion-group">
                 <div class="accordion-heading">
                 <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseLiteral">
@@ -42,7 +43,7 @@
         </div>
 
         <label class="checkbox">
-            <input type="checkbox" userId="" id='cbOnlyMe' disabled="disabled" /><i class="icon-lock" />仅我可见
+            <input type="checkbox" userId="" id='{cbOnlyMe}' disabled="disabled" /><i class="icon-lock" />仅我可见
         </label>
     </div>
     <div class="modal-footer">
@@ -63,9 +64,8 @@
     // 获取当前用户信息,并激活"仅我可见"按钮.
     var mm = new MemberManager();
     mm.getMe().done(function (me) {
-        $('#cbOnlyMe').removeAttr('disabled').attr('userId', me.Id);
+        $('#{cbOnlyMe}').removeAttr('disabled').attr('userId', me.Id);
     });
-    //$('#cbOnlyMe').change(function () { alert($('#cbOnlyMe').attr('checked')); });
     
 
     function addPropertyValue34532532453245325() {
@@ -74,7 +74,7 @@
         var stype = $('#{dlgAddPropertyValue}').attr('stype');
         var predicateId = $('#{dlgAddPropertyValue}').attr('predicateId');
 
-        var appId = $('#cbOnlyMe').attr('checked') === undefined ? "" : $('#cbOnlyMe').attr('userId');
+        var appId = $('#{cbOnlyMe}').attr('checked') === undefined ? "" : $('#{cbOnlyMe}').attr('userId');
 
         var ulError = $("#{dlgAddPropertyValue} ul.error-list").empty();
         // 如果属性值是Concept：
