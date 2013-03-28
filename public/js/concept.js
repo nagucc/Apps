@@ -1,9 +1,9 @@
 ﻿var curUserId, curConcept;
 var host = "";
-var addTypeDialog, addValueDialog, createConceptDialog, cdp;
+var addTypeDialog, addValueDialog, createConceptDialog, cdp, dlgSelectDialog;
 
 // 全局变量
-var CM, SM, N;
+var CM, SM, N, MM;
 var renderValues;
 
 
@@ -11,6 +11,7 @@ $(document).ready(function () {
     // 全局变量
     CM = new ConceptManager();
     SM = new StatementManager();
+    MM = new MemberManager();
     N = Nagu;
     curConcept = getRequest()['id'];
     // 用于显示Concept详细信息的回调函数.
@@ -20,11 +21,11 @@ $(document).ready(function () {
     });
 
     getConcept().done(function () {
-        //        QC.Login({
-        //            btnId: "qqLoginBtn",
-        //            scope: "all",
-        //            size: "A_M"
-        //        }, afterQCLogin);
+                QC.Login({
+                    btnId: "qqLoginBtn",
+                    scope: "all",
+                    size: "A_M"
+                }, afterQCLogin);
     });
 });
 
@@ -64,26 +65,37 @@ function getConcept() {
         });
     }
 
+    if (dlgSelectDialog === undefined) {
+        dlgSelectDialog = new SelectConceptDialog({
+            //selected: dlgSelectDialog_selected_addProperty
+        });
+    }
+
 
 
 
     // 显示Concept的详细信息:
-    if (QC.Login.check()) {
-        createConceptDialog.opts.onAdded = createConceptDialog_onUpdated;
-        cdp = new ConceptDetailPanel(request['id'], {
-            renderTitle: ConceptDetailPanel.getFunction_RenderRichTitle(createConceptDialog),
-            renderValues: renderValues,
-            renderProperty: ConceptDetailPanel.getFunction_renderRichProperty(addValueDialog),
-            renderPropertyValues: ConceptDetailPanel.getFunction_renderRichPropertyValues(function () {
-                PvsFromBaseClass[request['id']] = undefined;
-                getConcept();
-            }),
-            renderType: ConceptDetailPanel.renderType2
-        });
-    } else cdp = new ConceptDetailPanel(request['id']);
-    cdp.show($('#detail'));
-    
-
+    $.when(MM.check().done(function (status) {
+        if (status.nagu) {
+            createConceptDialog.opts.onAdded = createConceptDialog_onUpdated;
+            cdp = new ConceptDetailPanel(request['id'], {
+                renderTitle: ConceptDetailPanel.getFunction_RenderRichTitle(createConceptDialog),
+                renderValues: renderValues,
+                renderProperty: ConceptDetailPanel.getFunction_renderRichProperty(addValueDialog),
+                renderPropertyValues: ConceptDetailPanel.getFunction_renderRichPropertyValues(function () {
+                    PvsFromBaseClass[request['id']] = undefined;
+                    getConcept();
+                }),
+                renderType: ConceptDetailPanel.renderType2
+            });
+        } else {
+            cdp = new ConceptDetailPanel(request['id']);
+        }
+    }).fail(function () {
+        cdp = new ConceptDetailPanel(request['id']);
+    })).then(function () {
+        cdp.show($('#detail'));
+    });
     return dtd.promise();
 }
 
@@ -163,3 +175,15 @@ function addPropertyValueDialog_added(fs) {
     cdp.showFromTypes();
 }
 
+
+function dlgSelectDialog_selected_addProperty(propertyId, appId) {
+    CM.addProperty(curConcept, propertyId, {
+        appId: appId
+    }).done(function (fs) {
+        cdp.showProperties();
+    });
+}
+
+function dlgSelectDialog_select_open(conceptId, appId) {
+    window.location = '?id=' + conceptId;
+}

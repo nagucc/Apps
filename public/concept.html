@@ -29,9 +29,19 @@
     <div class="container">
         <div class="row">
             <div class="span3">
-                <a class="btn btn-info" data-toggle="modal" onclick="addTypeDialog.toggle(curConcept, N.MType.Concept);">
+                <a class="btn btn-info" onclick="addTypeDialog.toggle(curConcept, N.MType.Concept);">
                     <i class="icon-plus icon-white"></i>
                     添加类型
+                </a>
+
+                <a class="btn btn-info" onclick="dlgSelectDialog.toggle({selected: dlgSelectDialog_selected_addProperty});">
+                    <i class="icon-plus icon-white"></i>
+                    添加属性
+                </a>
+
+                <a class="btn btn-info" onclick="dlgSelectDialog.toggle({selected: dlgSelectDialog_select_open});">
+                    <i class="icon-plus icon-white"></i>
+                    查找Concept
                 </a>
             </div>
             <div class="span9">

@@ -1,0 +1,92 @@
+﻿<div class="modal hide" id="{dlgSelect}">
+    <div class="modal-header">
+        <a class="close" data-dismiss="modal">×</a>
+        <h3>选择Concept</h3>
+    </div>
+    <div class="modal-body">
+        <div class="hide alert alert-error">
+            <strong>出错啦！</strong>
+            <ul class="error-list">
+            </ul>
+            </div>
+
+        <form class="form-horizontal">
+
+            <div class="control-group">
+                <label for="{tbName}" class="control-label">名称</label>
+                <div class="controls">
+                    <input type="text" id="{tbName}" placeholder="输入关键字并等待搜索"/>
+                    <input type="hidden" id="{tbId}" />
+                </div>
+            </div>
+            <label class="checkbox">
+                <input type="checkbox" userId="" id='{cbOnlyMe}' disabled="disabled" /><i class="icon-lock" />仅我可见
+            </label>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <a href="#" class="btn" data-dismiss="modal">关闭</a>
+        <button onclick="select_sfewtpu32pgb();" class="btn btn-primary">确定</button>
+    </div>
+</div>
+
+<style>
+    .ui-autocomplete {
+        max-height: 100px;
+        overflow-y: auto;
+        /* prevent horizontal scrollbar */
+        overflow-x: hidden;
+    }
+    /* IE 6 doesn't support max-height
+        * we use height instead, but this forces the menu to always be this tall
+        */
+    * html .ui-autocomplete {
+        height: 100px;
+    }
+    
+    .ui-autocomplete-loading {
+        background: white url('/Content/jqueryui/ui-anim_basic_16x16.gif') right center no-repeat;
+    }
+</style>
+
+<script type="text/javascript">
+    $("#{dlgSelect}").modal({
+            backdrop: false,
+            keyboard: false,
+            show: false
+        });
+        initConceptSearch($('#{tbName}'), $('#{tbId}'));
+
+        // 获取当前用户信息,并激活"仅我可见"按钮.
+        var mm = new MemberManager();
+        mm.getMe().done(function (me) {
+            $('#{cbOnlyMe}').removeAttr('disabled').attr('userId', me.Id);
+        });
+
+        function select_sfewtpu32pgb() {
+            //1. 数据验证
+            var alert = $("div#{dlgSelect} div.alert");
+            alert.hide();
+
+            ulError = $("div#{dlgSelect} ul.error-list").empty();
+            var hasError = false;
+            var concept = $("#{tbId}").val();
+
+            if (concept === undefined || concept == "") {
+                hasError = true;
+                ulError.append(newLi().append("还未选中任何Concept"));
+            }
+            if (hasError) {
+                alert.show();
+                return;
+            }
+
+            //2. 完成类型添加
+            var appId = $('#{cbOnlyMe}').attr('checked') === undefined ? "" : $('#{cbOnlyMe}').attr('userId');
+
+            $.when(SelectConceptDialog.selected(concept, appId)).done(function () {
+                $("div#{dlgSelect} input").val("");
+                $("div#{dlgSelect}").modal('toggle');
+            });
+        }
+</script>
