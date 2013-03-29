@@ -1,4 +1,4 @@
-﻿var curUserId, curConcept;
+﻿var curUser, curConcept;
 var host = "";
 var addTypeDialog, addValueDialog, createConceptDialog, cdp, dlgSelectDialog;
 
@@ -21,11 +21,11 @@ $(document).ready(function () {
     });
 
     getConcept().done(function () {
-                QC.Login({
-                    btnId: "qqLoginBtn",
-                    scope: "all",
-                    size: "A_M"
-                }, afterQCLogin);
+        QC.Login({
+            btnId: "qqLoginBtn",
+            scope: "all",
+            size: "A_M"
+        }, afterQCLogin);
     });
 });
 
@@ -66,9 +66,7 @@ function getConcept() {
     }
 
     if (dlgSelectDialog === undefined) {
-        dlgSelectDialog = new SelectConceptDialog({
-            //selected: dlgSelectDialog_selected_addProperty
-        });
+        dlgSelectDialog = new SelectConceptDialog();
     }
 
 
@@ -81,7 +79,7 @@ function getConcept() {
             cdp = new ConceptDetailPanel(request['id'], {
                 renderTitle: ConceptDetailPanel.getFunction_RenderRichTitle(createConceptDialog),
                 renderValues: renderValues,
-                renderProperty: ConceptDetailPanel.getFunction_renderRichProperty(addValueDialog),
+                renderProperty: ConceptDetailPanel.getFunction_renderProperty3(addValueDialog),
                 renderPropertyValues: ConceptDetailPanel.getFunction_renderRichPropertyValues(function () {
                     PvsFromBaseClass[request['id']] = undefined;
                     getConcept();
@@ -115,17 +113,20 @@ function afterQCLogin(reqData, opts) {
         span.append(spanF).append(spanN).append(spanL);
     });
 
-    QC.Login.getMe(function (openId, accessToken) {
-        $.post("/MemberApi/QQBack/" + openId + "?accessToken=" + accessToken).done(function (data) {
-            if (data.Status == "OK") {
-                console.log("创建用户成功");
-                getConcept();
-
-                $(".logged").show("slow", function () {
-                });
-            }
+    MM.getMe().fail(function () {
+        // 使用当前QC的凭据登录nagu
+        QC.Login.getMe(function (openId, accessToken) {
+            MM.loginFromQC(openid, accessToken).done(function (data) {
+                if (data.Status == "OK") {
+                    console.log("用户登录成功");
+                    getConcept();
+                    $(".logged").show("slow", function () {
+                    });
+                }
+            });
         });
     });
+    
 }
 
 function QQLogout() {
