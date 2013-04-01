@@ -89,15 +89,22 @@ Person.prototype.father = function () {
 获取家族成员的子女信息
 *********************************************/
 Person.prototype.children = function () {
+    var dtd = $.Deferred();
+
     var personId = this.personId;
     var sm = new StatementManager();
-    return sm.findBySP(this.personId, Nagu.MType.Concept, Person.Properties.Gender).done(function (fss) {
-        
+    sm.findBySP(this.personId, Nagu.MType.Concept, Person.Properties.Gender).done(function (fss) {
         if (fss.length && fss[0].Object.ConceptId == Person.GenderType.Female)
-            return sm.findByPO(Person.Properties.HasMother, personId, Nagu.MType.Concept);
+            sm.findByPO(Person.Properties.HasMother, personId, Nagu.MType.Concept).done(function (data) {
+                dtd.resolve(data);
+            });
         else
-            return sm.findByPO(Person.Properties.HasFather, personId, Nagu.MType.Concept);
+            sm.findByPO(Person.Properties.HasFather, personId, Nagu.MType.Concept).done(function (data) {
+                dtd.resolve(data);
+            });
     });
+    return dtd.promise();
+
 };
 Person.prototype.create = function (fn, desc) {
     var dtd = $.Deferred();

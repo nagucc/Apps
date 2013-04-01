@@ -69,7 +69,7 @@ function familyBtn_onClick() {
     var fid = $(this).attr("conceptId");
 
     var text = a.text();
-    a.text(text+'(数据加载中...)');
+    //a.text(text+'(数据加载中...)');
 
 
     var fm = new FamilyManager();
@@ -80,7 +80,7 @@ function familyBtn_onClick() {
             pageSize: 5,
             renderItem: members_statementList_renderItem
         });
-        a.text(text);
+        //a.text(text);
     });
 
     if (QC.Login.check()) {
@@ -244,32 +244,42 @@ function members_statementList_renderItem(statement, li) {
                 a.click(function () {
                     // 1. 显示"父亲"
 
-                    // 获取世代容器
-                    var genLi = li.closest('.gen-li').prev();
+                    
                     var pm = new Person(personId);
                     pm.father().done(function (data) {
-                        // 存在“父亲”，而且世代容器不存在，则创建世代容器
-                        if (data.length && !genLi.size()) {
-                            var newli = newLi().attr("id", "gen" + randomInt()).addClass("gen-li");
-                            genLi = li.closest('.gen-li').before(newli).prev();
-                            genLi.append(newTag('ul', { class: 'nav nav-pills' }));
+                        // 获取世代容器
+                        var fatherLi = li.closest('.gen-li').prev();
+
+                        // 如果存在父亲
+                        if (data.length) {
+                            // 世代容器不存在，则创建世代容器
+                            if (fatherLi.size() == 0) {
+                                var newli = newLi().attr("id", "gen" + randomInt()).addClass("gen-li");
+                                fatherLi = li.closest('.gen-li').before(newli).prev();
+                                fatherLi.append(newTag('ul', { class: 'nav nav-pills' }));
+                            }
+                            fatherLi.find('ul.nav').statementList(data, {
+                                renderItem: members_statementList_renderItem
+                            });
                         }
-                        genLi.find('ul.nav').statementList(data, {
-                            renderItem: members_statementList_renderItem
-                        });
                     });
 
                     // 2. 显示子女
                     pm.children().done(function (children) {
-                        // 如果世代容器不存在，则创建世代容器
-                        if (children.length && !genLi.size()) {
-                            var newli = newLi().attr("id", "gen" + randomInt()).addClass("gen-li");
-                            genLi = li.closest('.gen-li').before(newli).prev();
-                            genLi.append(newTag('ul', { class: 'nav nav-pills' }));
+                        // 获取世代容器
+                        var chilrenLi = li.closest('.gen-li').next();                        
+                        // 如果存在子女:
+                        if (children.length) {
+                            // 如果世代容器不存在，则创建世代容器
+                            if (chilrenLi.size() == 0) {
+                                var newli = newLi().attr("id", "gen" + randomInt()).addClass("gen-li");
+                                chilrenLi = li.closest('.gen-li').before(newli).prev();
+                                chilrenLi.append(newTag('ul', { class: 'nav nav-pills' }));
+                            }
+                            chilrenLi.find('ul.nav').statementList(data, {
+                                renderItem: members_statementList_renderItem
+                            });
                         }
-                        genLi.find('ul.nav').statementList(data, {
-                            renderItem: members_statementList_renderItem
-                        });
                     });
                     $(this).remove();
                 });
