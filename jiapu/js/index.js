@@ -232,7 +232,7 @@ function members_statementList_renderItem(statement, li) {
         // “详细信息”菜单
         var miDetail = new MenuItem({
             appended: function (li, a) {
-                a.attr('href', '/apps/public/concept.html?id=' + personId);
+                a.attr('href', '/apps/jiapu/person.html?id=' + personId);
             },
             text: '详细信息'
         });

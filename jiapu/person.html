@@ -3,108 +3,11 @@
 <head>
     <title>家谱系统</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="../../Content/bootstrap/js/assets/jquery-1.8.2.min.js" type="text/javascript"></script> 
-    <script src="../../Content/bootstrap/js/bootstrap.js" type="text/javascript"></script>
-    <script src="../../Content/bootstrap/js/assets/bootstrap-tab.js" type="text/javascript"></script>
-    <script src="../../Content/bootstrap/js/assets/bootstrap-button.js" type="text/javascript"></script>
-    <script src="../../Content/bootstrap/js/assets/bootstrap-dropdown.js" type="text/javascript"></script>
-    <script src="../../Content/bootstrap/js/assets/bootstrap-modal.js" type="text/javascript"></script>
-    <script src="../../Content/bootstrap/js/assets/bootstrap-transition.js" type="text/javascript"></script>
-    <script src="js/person.js" type="text/javascript"></script>
-    
-    <script src="http://code.jquery.com/ui/1.9.2/jquery-ui.js"></script>
-    <script src="../../Content/js/jquery.qrcode.min.js" type="text/javascript"></script>
-
-    <script src="../../Content/js/apps-helper.js" type="text/javascript"></script>
-    <script src="../../Content/js/js-helper.js" type="text/javascript"></script>
-    <script src="../../Content/js/jquery-helper.js" type="text/javascript"></script>
-    <script src="../../Content/js/bootstrap-helper.js" type="text/javascript"></script>
-    <script src="../../Content/js/nagu-helper.js" type="text/javascript"></script>
-    <script src="js/jiapu.js" type="text/javascript"></script>
-    <script type="text/javascript" src="http://qzonestyle.gtimg.cn/qzone/openapi/qc_loader.js" data-appid="100321920"  charset="utf-8"></script>
 
     <link href="css/style.css" rel="stylesheet" type="text/css" />
     <link href="../../Content/bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css" />
     <link href="../../Content/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css" />
-    
-    <style>
-    .ui-autocomplete {
-        max-height: 100px;
-        overflow-y: auto;
-        /* prevent horizontal scrollbar */
-        overflow-x: hidden;
-    }
-    /* IE 6 doesn't support max-height
-     * we use height instead, but this forces the menu to always be this tall
-     */
-    * html .ui-autocomplete {
-        height: 100px;
-    }
-    
-    .ui-autocomplete-loading {
-        background: white url('/Content/jqueryui/ui-anim_basic_16x16.gif') right center no-repeat;
-    }
-    </style>
-
-      <script type="text/javascript">
-          $(document).ready(function () {
-              $.when(showPerson()).done(
-              QC.Login({
-                  btnId: "qqLoginBtn",
-                  scope: "all",
-                  size: "A_M"
-              }, afterQCLogin));
-              $("#dlgCreatePerson").modal({
-                  backdrop: false,
-                  keyboard: false,
-                  show: false
-              });
-
-              $("#tbFather").autocomplete({
-                  minLength: 2,
-                  source: "/conceptapi/search",
-                  focus: function (event, ui) {
-                      $("#tbFather").val(ui.item.FriendlyNames[0]);
-                      return false;
-                  },
-                  select: function (event, ui) {
-                      $("#tbFather").val(ui.item.FriendlyNames[0]);
-                      $("#tbFatherId").val(ui.item.ConceptId);
-                      return false;
-                  }
-              })
-        .data("autocomplete")._renderItem = function (ul, item) {
-            var fn = item.FriendlyNames[0];
-            var desc = item.Descriptions[0] == "" ? "没有描述" : item.Descriptions[0];
-            return $("<li></li>")
-                    .data("item.autocomplete", item)
-                    .append("<a><b>" + fn + "</b>（<em>" + desc + "</em>）</a>")
-                    .appendTo(ul);
-        };
-
-              $("#tbMother").autocomplete({
-                  minLength: 2,
-                  source: "/conceptapi/search",
-                  focus: function (event, ui) {
-                      $("#tbMother").val(ui.item.FriendlyNames[0]);
-                      return false;
-                  },
-                  select: function (event, ui) {
-                      $("#tbMother").val(ui.item.FriendlyNames[0]);
-                      $("#tbMotherId").val(ui.item.ConceptId);
-                      return false;
-                  }
-              }).data("autocomplete")._renderItem = function (ul, item) {
-                  var fn = item.FriendlyNames[0];
-                  var desc = item.Descriptions[0] == "" ? "没有描述" : item.Descriptions[0];
-                  return $("<li></li>")
-                    .data("item.autocomplete", item)
-                    .append("<a><b>" + fn + "</b>（<em>" + desc + "</em>）</a>")
-                    .appendTo(ul);
-              };
-          });
-      </script>
 </head>
 <body>
 
@@ -207,24 +110,18 @@
     <div class="container">
         <div class="row">
             <div class="span4">
-                <h3>基本信息· · · · · ·</h3>
-                <dl class="dl-horizontal" id="personInfo">
-                </dl>
-                <!--<h3>其他属性</h3>
-                <dl class="dl-horizontal" id="properties">
-                </dl>-->
+                <div id="conceptDetail" />
+                <div id="infoFromMember" />
+                <div id="conceptProperties" />
                 <h3>用手机扫一扫</h3>
-                <div id="qrcode" class="hidden-phone"></div>
+                <div id="qrcode" class="hidden-phone" />
             </div>
             <div class="span8">
-                <div class="tab-pane active" id="familipane">
-                        
-                    <h3>家族树· · · · · ·</h3>
-                    <ol id="genTree">
-                        <li class="btn-toolbar" id="gen0"></li>
-                    </ol>
-                </div>
-                   
+                <ol id="genTree2">
+                    <li class="gen-li" id="gen20">
+                        <ul class='nav nav-pills'></ul>
+                    </li>
+                </ol>
             </div>
         </div>
 
@@ -234,6 +131,30 @@
         <p>系统所有数据均存储于nagu.cc概念云系统中，所有数据通过RDF三元组的形式进行组织。</p>
       </footer>
     </div>
+
+
+
+
+
+
+    <script src="../../Content/bootstrap/js/assets/jquery-1.8.2.min.js" type="text/javascript"></script> 
+    <script src="../../Content/bootstrap/js/bootstrap.js" type="text/javascript"></script>
+    <script src="../../Content/bootstrap/js/assets/bootstrap-tab.js" type="text/javascript"></script>
+    <script src="../../Content/bootstrap/js/assets/bootstrap-button.js" type="text/javascript"></script>
+    <script src="../../Content/bootstrap/js/assets/bootstrap-dropdown.js" type="text/javascript"></script>
+    <script src="../../Content/bootstrap/js/assets/bootstrap-modal.js" type="text/javascript"></script>
+    <script src="../../Content/bootstrap/js/assets/bootstrap-transition.js" type="text/javascript"></script>
+    <script src="js/person.js" type="text/javascript"></script> 
+    <script src="http://code.jquery.com/ui/1.9.2/jquery-ui.js"></script>
+    <script src="../../Content/js/jquery.qrcode.min.js" type="text/javascript"></script>
+
+    <script src="../../Content/js/apps-helper.js" type="text/javascript"></script>
+    <script src="../../Content/js/js-helper.js" type="text/javascript"></script>
+    <script src="../../Content/js/jquery-helper.js" type="text/javascript"></script>
+    <script src="../../Content/js/bootstrap-helper.js" type="text/javascript"></script>
+    <script src="../../Content/js/nagu-helper.js" type="text/javascript"></script>
+    <script src="js/jiapu.js" type="text/javascript"></script>
+    <script type="text/javascript" src="http://qzonestyle.gtimg.cn/qzone/openapi/qc_loader.js" data-appid="100321920"  charset="utf-8"></script>
 
     
 </body>

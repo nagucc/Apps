@@ -1,28 +1,110 @@
-﻿function showPerson() {
+﻿var curUser, curConcept;
+var host = "";
+var addTypeDialog, addValueDialog, createConceptDialog, cdp, dlgSelectDialog;
+
+// 全局变量
+var CM, SM, N, MM;
+var renderValues;
+
+
+
+$(document).ready(function () {
+    // 全局变量
+    CM = new ConceptManager();
+    SM = new StatementManager();
+    MM = new MemberManager();
+    N = Nagu;
+    curConcept = getRequest()['id'];
+
+              $.when(showPerson()).done(
+              QC.Login({
+                  btnId: "qqLoginBtn",
+                  scope: "all",
+                  size: "A_M"
+              }, afterQCLogin));
+//              $("#dlgCreatePerson").modal({
+//                  backdrop: false,
+//                  keyboard: false,
+//                  show: false
+//              });
+
+//              $("#tbFather").autocomplete({
+//                  minLength: 2,
+//                  source: "/conceptapi/search",
+//                  focus: function (event, ui) {
+//                      $("#tbFather").val(ui.item.FriendlyNames[0]);
+//                      return false;
+//                  },
+//                  select: function (event, ui) {
+//                      $("#tbFather").val(ui.item.FriendlyNames[0]);
+//                      $("#tbFatherId").val(ui.item.ConceptId);
+//                      return false;
+//                  }
+//              })
+//        .data("autocomplete")._renderItem = function (ul, item) {
+//            var fn = item.FriendlyNames[0];
+//            var desc = item.Descriptions[0] == "" ? "没有描述" : item.Descriptions[0];
+//            return $("<li></li>")
+//                    .data("item.autocomplete", item)
+//                    .append("<a><b>" + fn + "</b>（<em>" + desc + "</em>）</a>")
+//                    .appendTo(ul);
+//        };
+
+//              $("#tbMother").autocomplete({
+//                  minLength: 2,
+//                  source: "/conceptapi/search",
+//                  focus: function (event, ui) {
+//                      $("#tbMother").val(ui.item.FriendlyNames[0]);
+//                      return false;
+//                  },
+//                  select: function (event, ui) {
+//                      $("#tbMother").val(ui.item.FriendlyNames[0]);
+//                      $("#tbMotherId").val(ui.item.ConceptId);
+//                      return false;
+//                  }
+//              }).data("autocomplete")._renderItem = function (ul, item) {
+//                  var fn = item.FriendlyNames[0];
+//                  var desc = item.Descriptions[0] == "" ? "没有描述" : item.Descriptions[0];
+//                  return $("<li></li>")
+//                    .data("item.autocomplete", item)
+//                    .append("<a><b>" + fn + "</b>（<em>" + desc + "</em>）</a>")
+//                    .appendTo(ul);
+//              };
+});
+
+
+
+
+function showPerson() {
     var dtd = $.Deferred();
-    var request = getRequest();
-    var personId = request["id"];
 
-    // 显示“家族成员”按钮：
-    var pm = new Person(personId);
+    // 获取当前待显示的Concept的id:
+    if (curConcept === undefined) {
+        dtd.reject();
+        return dtd.promise();
+    }
+
+    // 显示“家族成员”详细信息：
+    var pm = new Person(curConcept);
     pm.get().done(function (person) {
+        // 显示标题
         $(".brand").text(person.FriendlyNames[0] + "@家谱系统");
-        var btnPerson = newBtnGroup("btnGroup_" + person.ConceptId);
-        renderPersonBtnGroup2(btnPerson, person.FriendlyNames[0], personId, btnPerson_OnMenuCreating);
-        btnPerson.children("a").addClass("btn-success");
-        $("#gen0").append(btnPerson);
-        $(".dropdown-toggle").dropdown();
+
+        // 显示左侧属性列表
+        var cdp = new ConceptDetailPanel(curConcept);
+        cdp.show($('#conceptDetail'));
+
+        // 显示家族树:
+//        $('#gen20 > ul').statementList(fss, {
+            clearBefore: true,
+            pageSize: 5,
+            renderItem: members_statementList_renderItem
+        });
     });
 
-    // 显示属性及值：
-    pm.memberProperties().done(function (pvs) {
-        var dl = $("#personInfo");
-        $.each(pvs, function (i, pv) {
-            onShowValueAsStatement2(dl, pv.Key, pv.Value);
-        });
-        dtd.resolve();
-    });
-    $("#qrcode").empty().qrcode({ text: "http://nagu.cc/apps/jiapu/person.html?id=" + personId });
+    
+
+    $("#qrcode").empty().qrcode({ text: "http://nagu.cc/apps/jiapu/person.html?id=" + curConcept });
     return dtd.promise();
 }
 
