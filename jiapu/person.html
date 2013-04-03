@@ -4,104 +4,25 @@
     <title>家谱系统</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link href="css/style.css" rel="stylesheet" type="text/css" />
+    
     <link href="../../Content/bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css" />
     <link href="../../Content/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css" />
 </head>
 <body>
 
-    <div class="navbar navbar-fixed-top">
+    <div class="navbar">
       <div class="navbar-inner">
         <div class="container">
           <a class="brand" href="#">家谱系统</a>
           <div class="nav-collapse">
             <ul class="nav">
               <li class="active"><a href="/apps/jiapu">首页</a></li>
+              <li><span id="qqLoginBtn" ></span></li>
             </ul>
+            
           </div><!--/.nav-collapse -->
-        <span id="qqLoginBtn" ></span>
-
-        <span class="btn-toolbar hide logged" id="optPanel">
-            <a class="btn btn-danger" data-toggle="modal" href="#dlgCreatePerson" onclick="$('#dlgCreatePerson').modal('toggle');">
-                <i class="icon-plus icon-white"></i>
-                修改家族成员信息
-            </a>
-        </span>
-
-        <div class="modal hide" id="dlgCreatePerson">
-                <div class="modal-header">
-                    <a class="close" data-dismiss="modal">×</a>
-                    <h3>修改家族成员信息</h3>
-                </div>
-                <div class="modal-body">
-                    <div class="hide alert alert-error">
-                        <strong>出错啦！</strong>
-                        <ul class="error-list">
-                        </ul>
-                      </div>
-
-                    <form class="form-horizontal">
-                        <div class="control-group">
-                            <label for="sJiazu" class="control-label">所在家族</label>
-                            <div class="controls">
-                                <select id="sJiazu"><option value="">选择待创建的成员所属的家族</option></select>
-                            </div>
-                        </div>
-
-                        <div class="control-group">
-                            <label for="tbPersonName" class="control-label">姓名</label>
-                            <div class="controls">
-                                <input type="text" id="tbPersonName" placeholder="输入待创建的成员的姓名"/>
-                            </div>
-                        </div>
-
-                        <div class="control-group">
-                            <label for="tbPersonDesc" class="control-label">简介</label>
-                            <div class="controls">
-                                <input type="text" id="tbPersonDesc" placeholder="输入待创建成员的相关简介"/>
-                            </div>
-                        </div>
-
-                        <div class="control-group">
-                            <label for="tbBirthYear" class="control-label">出生年份</label>
-                            <div class="controls">
-                                <input type="text" id="tbBirthYear" placeholder="输入待创建成员的出生年份，如1923"/>
-                            </div>
-                        </div>
-
-                        <div class="control-group">
-                            <label for="sGender" class="control-label">性别</label>
-                            <div class="controls">
-                                <select id="sGender">
-                                    <option value="96dd894c-a6da-4562-b9e9-f85fcca96463" selected="selected">男</option>
-                                    <option value="abcc829a-0a02-412b-9dc4-3ed259b1894a">女</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="control-group">
-                            <label for="tbFather" class="control-label">父亲</label>
-                            <div class="controls">
-                                <input type="text" id="tbFather" placeholder="输入关键字，等待并选择"/>
-                                <input type="hidden" id="tbFatherId" />
-                            </div>
-                        </div>
-
-                        <div class="control-group">
-                            <label for="tbMother" class="control-label">母亲</label>
-                            <div class="controls">
-                                <input type="text" id="tbMother" placeholder="输入关键字，等待并选择"/>
-                                <input type="hidden" id="tbMotherId" />
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <a href="#" class="btn" data-dismiss="modal">关闭</a>
-                    <button onclick="createPerson();" class="btn btn-primary">确定</button>
-                </div>
-            </div>
+        
 
         </div>
       </div>
@@ -109,19 +30,25 @@
 
     <div class="container">
         <div class="row">
-            <div class="span4">
-                <div id="conceptDetail" />
-                <div id="infoFromMember" />
-                <div id="conceptProperties" />
-                <h3>用手机扫一扫</h3>
-                <div id="qrcode" class="hidden-phone" />
+            <div class="span5">
+                <div id="conceptDetail"></div>
+                <div>
+                    <a id="addInfo" class="btn btn-primary">
+                        <i class=" icon-pencil icon-white"></i>
+                        去添加此人的资料 &gt;&gt;
+                    </a>
+                </div>
             </div>
-            <div class="span8">
+
+            <h3>家族树</h3>
+            <div class="span7">
                 <ol id="genTree2">
                     <li class="gen-li" id="gen20">
-                        <ul class='nav nav-pills'></ul>
+                        <ul class="nav nav-pills nagu-statement-list"></ul>
                     </li>
                 </ol>
+                <h3>用手机扫一扫</h3>
+                <div id="qrcode" class="hidden-phone"></div>
             </div>
         </div>
 
@@ -130,6 +57,8 @@
         <p>本系统是由na57开发的测试系统，所有数据目前只作为测试使用。</p>
         <p>系统所有数据均存储于nagu.cc概念云系统中，所有数据通过RDF三元组的形式进行组织。</p>
       </footer>
+
+
     </div>
 
 
@@ -152,6 +81,7 @@
     <script src="../../Content/js/js-helper.js" type="text/javascript"></script>
     <script src="../../Content/js/jquery-helper.js" type="text/javascript"></script>
     <script src="../../Content/js/bootstrap-helper.js" type="text/javascript"></script>
+    <script src="../../Content/js/bootstarp-dropdownmenu.js" type="text/javascript"></script>    
     <script src="../../Content/js/nagu-helper.js" type="text/javascript"></script>
     <script src="js/jiapu.js" type="text/javascript"></script>
     <script type="text/javascript" src="http://qzonestyle.gtimg.cn/qzone/openapi/qc_loader.js" data-appid="100321920"  charset="utf-8"></script>

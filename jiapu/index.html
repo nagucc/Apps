@@ -3,7 +3,7 @@
 <head>
     <title>家谱系统</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
+    <script src="../../Content/bootstrap/js/assets/jquery-1.8.2.min.js" type="text/javascript"></script>
     <link href="css/style.css" rel="stylesheet" type="text/css" />
     <link href="../../Content/bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css" />
     <link href="../../Content/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet" type="text/css" />
@@ -14,12 +14,12 @@
 
       <script type="text/javascript">
           $(document).ready(function () {
-
-              $("#dlgSearchPersons").modal({
-                  backdrop: false,
-                  keyboard: false,
-                  show: false
-              });
+           
+//              $("#dlgSearchPersons").modal({
+//                  backdrop: false,
+//                  keyboard: false,
+//                  show: false
+//              });
 
               getFamilies2().done(function () {
                   QC.Login({
@@ -100,13 +100,18 @@
                             <ul class='nav nav-pills'></ul>
                         </li>
                     </ol>
-                    <h3 class="logged hide">更多操作· · · · · ·</h3>
-                    <button class="btn hide logged nagu-said-status-toggler">loading...</button>
-                    <a class="btn hide logged" onclick="dlgCreatePerson.toggle($('#families > li.active a').attr('conceptId'));">
-                        <i class="icon-plus"></i>
-                        创建成员
-                    </a>
-                        
+                    <div class="logged hide">
+                        <h3>更多操作· · · · · ·</h3>
+                        <button class="btn nagu-said-status-toggler">loading...</button>
+                        <a class="btn" onclick="dlgCreatePerson.toggle($('#families > li.active a').attr('conceptId'));">
+                            <i class="icon-plus"></i>
+                            创建成员
+                        </a>
+                        <a id="addInfo" class="btn btn-primary">
+                            <i class=" icon-pencil icon-white"></i>
+                            去添加此家族的其他资料 &gt;&gt;
+                        </a>
+                    </div>    
                 </div>
             </div>
         </div>
@@ -120,7 +125,7 @@
 
     
 
-    <script src="../../Content/bootstrap/js/assets/jquery-1.8.2.min.js" type="text/javascript"></script> 
+     
     <script src="../../Content/bootstrap/js/bootstrap.js" type="text/javascript"></script>
     <script src="../../Content/bootstrap/js/assets/bootstrap-tab.js" type="text/javascript"></script>
     <script src="../../Content/bootstrap/js/assets/bootstrap-button.js" type="text/javascript"></script>

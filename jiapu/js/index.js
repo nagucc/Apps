@@ -1,7 +1,7 @@
 ﻿var dlgCreateFamily, dlgCreatePerson, cdp, addValueDialog;
 function currentFamily(){ return $('.family-list li.active a').attr('conceptId'); }
 
-
+ 
 /********************************************************************************************************************************/
 // 获取家族列表
 function getFamilies2() {
@@ -68,19 +68,23 @@ function familyBtn_onClick() {
     $(this).closest("li").addClass("active");
     var fid = $(this).attr("conceptId");
 
-    var text = a.text();
-    //a.text(text+'(数据加载中...)');
+    $('#addInfo').attr('href', '/apps/public/concept.html?id=' + fid);
 
+
+    // 清空右侧家族树的信息.
+    $('#genTree2 > li[id!="gen20"]').remove();
 
     var fm = new FamilyManager();
     fm.members(fid).done(function (memberFss) {
         // 显示当前家族基本信息
-        $('#gen20 > ul').statementList(memberFss, {
+        var members = new Array();
+        $.each(memberFss, function (i, n) { members.push(n.Subject); });
+
+        $('#gen20 > ul').conceptList(members, {
             clearBefore: true,
             pageSize: 5,
-            renderItem: members_statementList_renderItem
+            renderItem: person_conceptList_renderItem
         });
-        //a.text(text);
     });
 
     if (QC.Login.check()) {
@@ -197,105 +201,105 @@ function searchPersons() {
 
 /******** 各种回调函数 ************************************************************************************************************************/
 
-function members_statementList_renderItem(statement, li) {
-    // 显示家族树成员的算法见 #1
-    var personId;
+//function members_statementList_renderItem(statement, li) {
+//    // 显示家族树成员的算法见 #1
+//    var personId;
 
-    // 当前显示右侧家族成员列表
-    if (statement.Predicate.ConceptId == Person.Properties.SuoZaiJiaZu)
-        personId = statement.Subject.ConceptId;
-    else {
-        // 当前显示父亲或子女列表
-        personId = statement.Object.ConceptId;
-    }
-
-
-
-    // 若当前世代节点是"gen20",则不显示其它世代已经存在的成员.
-    if (li.parent().parent().attr('id') == 'gen20') {
-        if ($('#genTree2 li[personId="' + personId + '"]').size()) {
-            li.remove();
-            return;
-        }
-    }
-
-    // 删除家族树中已经存在的成员节点
-    $($.grep($('#genTree2 li'), function (li) {
-        return $(li).attr('personId') == personId;
-    })).remove();
-    li.attr('personId', personId);
-    li.append(loadingImg());
-
-    var cm = new ConceptManager();
-    cm.get(personId).done(function (person) {
-        // 下拉菜单
-        // “详细信息”菜单
-        var miDetail = new MenuItem({
-            appended: function (li, a) {
-                a.attr('href', '/apps/jiapu/person.html?id=' + personId);
-            },
-            text: '详细信息'
-        });
-
-        // “显示家族关系”菜单
-        var miGen = new MenuItem({
-            text: '显示家族关系',
-            appended: function (li, a) {
-                a.click(function () {
-                    // 1. 显示"父亲"
-
-                    
-                    var pm = new Person(personId);
-                    pm.father().done(function (data) {
-                        // 获取世代容器
-                        var fatherLi = li.closest('.gen-li').prev();
-
-                        // 如果存在父亲
-                        if (data.length) {
-                            // 世代容器不存在，则创建世代容器
-                            if (fatherLi.size() == 0) {
-                                var newli = newLi().attr("id", "gen" + randomInt()).addClass("gen-li");
-                                fatherLi = li.closest('.gen-li').before(newli).prev();
-                                fatherLi.append(newTag('ul', { class: 'nav nav-pills' }));
-                            }
-                            fatherLi.find('ul.nav').statementList(data, {
-                                renderItem: members_statementList_renderItem
-                            });
-                        }
-                    });
-
-                    // 2. 显示子女
-                    pm.children().done(function (children) {
-                        // 获取世代容器
-                        var chilrenLi = li.closest('.gen-li').next();                        
-                        // 如果存在子女:
-                        if (children.length) {
-                            // 如果世代容器不存在，则创建世代容器
-                            if (chilrenLi.size() == 0) {
-                                var newli = newLi().attr("id", "gen" + randomInt()).addClass("gen-li");
-                                chilrenLi = li.closest('.gen-li').before(newli).prev();
-                                chilrenLi.append(newTag('ul', { class: 'nav nav-pills' }));
-                            }
-                            chilrenLi.find('ul.nav').statementList(data, {
-                                renderItem: members_statementList_renderItem
-                            });
-                        }
-                    });
-                    $(this).remove();
-                });
-            }
-        });
+//    // 当前显示右侧家族成员列表
+//    if (statement.Predicate.ConceptId == Person.Properties.SuoZaiJiaZu)
+//        personId = statement.Subject.ConceptId;
+//    else {
+//        // 当前显示父亲或子女列表
+//        personId = statement.Object.ConceptId;
+//    }
 
 
-        var menuId = 'menu' + randomInt();
-        li.empty().addClass('dropdown').attr('id', menuId).conceptMenu([miDetail, miGen], {
-            text: person.FriendlyNames[0],
-            rendered: function (ph, toggler, ul) {
-                toggler.prepend(Icon('icon-user'));
-            }
-        });
-    });
-}
+
+//    // 若当前世代节点是"gen20",则不显示其它世代已经存在的成员.
+//    if (li.parent().parent().attr('id') == 'gen20') {
+//        if ($('#genTree2 li[personId="' + personId + '"]').size()) {
+//            li.remove();
+//            return;
+//        }
+//    }
+
+//    // 删除家族树中已经存在的成员节点
+//    $($.grep($('#genTree2 li'), function (li) {
+//        return $(li).attr('personId') == personId;
+//    })).remove();
+//    li.attr('personId', personId);
+//    li.append(loadingImg());
+
+//    var cm = new ConceptManager();
+//    cm.get(personId).done(function (person) {
+//        // 下拉菜单
+//        // “详细信息”菜单
+//        var miDetail = new MenuItem({
+//            appended: function (li, a) {
+//                a.attr('href', '/apps/jiapu/person.html?id=' + personId);
+//            },
+//            text: '详细信息'
+//        });
+
+//        // “显示家族关系”菜单
+//        var miGen = new MenuItem({
+//            text: '显示家族关系',
+//            appended: function (li, a) {
+//                a.click(function () {
+//                    // 1. 显示"父亲"
+
+//                    
+//                    var pm = new Person(personId);
+//                    pm.father().done(function (data) {
+//                        // 获取世代容器
+//                        var fatherLi = li.closest('.gen-li').prev();
+
+//                        // 如果存在父亲
+//                        if (data.length) {
+//                            // 世代容器不存在，则创建世代容器
+//                            if (fatherLi.size() == 0) {
+//                                var newli = newLi().attr("id", "gen" + randomInt()).addClass("gen-li");
+//                                fatherLi = li.closest('.gen-li').before(newli).prev();
+//                                fatherLi.append(newTag('ul', { class: 'nav nav-pills' }));
+//                            }
+//                            fatherLi.find('ul.nav').statementList(data, {
+//                                renderItem: members_statementList_renderItem
+//                            });
+//                        }
+//                    });
+
+//                    // 2. 显示子女
+//                    pm.children().done(function (children) {
+//                        // 获取世代容器
+//                        var chilrenLi = li.closest('.gen-li').next();                        
+//                        // 如果存在子女:
+//                        if (children.length) {
+//                            // 如果世代容器不存在，则创建世代容器
+//                            if (chilrenLi.size() == 0) {
+//                                var newli = newLi().attr("id", "gen" + randomInt()).addClass("gen-li");
+//                                chilrenLi = li.closest('.gen-li').after(newli).next();
+//                                chilrenLi.append(newTag('ul', { class: 'nav nav-pills' }));
+//                            }
+//                            chilrenLi.find('ul.nav').statementList(children, {
+//                                renderItem: members_statementList_renderItem
+//                            });
+//                        }
+//                    });
+//                    $(this).remove();
+//                });
+//            }
+//        });
+
+
+//        var menuId = 'menu' + randomInt();
+//        li.empty().addClass('dropdown').attr('id', menuId).conceptMenu([miDetail, miGen], {
+//            text: person.FriendlyNames[0],
+//            rendered: function (ph, toggler, ul) {
+//                toggler.prepend(Icon('icon-user'));
+//            }
+//        });
+//    });
+//}
 
 
 

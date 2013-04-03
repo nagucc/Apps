@@ -239,3 +239,98 @@ CreatePersonDialog.prototype.toggle = function (familyId, personId, options) {
 CreatePersonDialog.prototype.hide = function () {
     $('#' + this.opts.dialogId).modal('hide');
 }
+
+
+
+
+
+/******** 各种回调函数 ************************************************************************************************************************/
+
+function person_conceptList_renderItem(concept, li) {
+    // 显示家族树成员的算法见 #1
+    var personId = concept.ConceptId;
+
+    // 删除家族树中已经存在的成员节点
+    $($.grep($('#genTree2 li'), function (li) {
+        return $(li).attr('personId') == personId;
+    })).remove();
+    li.attr('personId', personId);
+    li.append(loadingImg());
+
+    var cm = new ConceptManager();
+    cm.get(personId).done(function (person) {
+        // 下拉菜单
+        // “详细信息”菜单
+        var miDetail = new MenuItem({
+            appended: function (li, a) {
+                a.attr('href', '/apps/jiapu/person.html?id=' + personId);
+            },
+            text: '详细信息'
+        });
+
+        // “显示家族关系”菜单
+        var miGen = new MenuItem({
+            text: '显示家族关系',
+            appended: function (li, a) {
+                a.click(function () {
+                    // 1. 显示"父亲"
+
+                    var pm = new Person(personId);
+                    pm.father().done(function (data) {
+                        // 获取世代容器
+                        var fatherLi = li.closest('.gen-li').prev();
+
+                        // 如果存在父亲
+                        if (data.length) {
+                            // 世代容器不存在，则创建世代容器
+                            if (fatherLi.size() == 0) {
+                                var newli = newLi().attr("id", "gen" + randomInt()).addClass("gen-li");
+                                fatherLi = li.closest('.gen-li').before(newli).prev();
+                                fatherLi.append(newTag('ul', { class: 'nav nav-pills' }));
+                            }
+                            var fathers = new Array();
+                            $.each(data, function (i, n) {
+                                fathers.push(n.Object);
+                            });
+                            fatherLi.find('ul.nav').conceptList(fathers, {
+                                renderItem: person_conceptList_renderItem
+                            });
+                        }
+                    });
+
+                    // 2. 显示子女
+                    pm.children().done(function (data) {
+                        // 获取世代容器
+                        var chilrenLi = li.closest('.gen-li').next();
+                        // 如果存在子女:
+                        if (data.length) {
+                            // 如果世代容器不存在，则创建世代容器
+                            if (chilrenLi.size() == 0) {
+                                var newli = newLi().attr("id", "gen" + randomInt()).addClass("gen-li");
+                                chilrenLi = li.closest('.gen-li').after(newli).next();
+                                chilrenLi.append(newTag('ul', { class: 'nav nav-pills' }));
+                            }
+                            var children = new Array();
+                            $.each(data, function (i, n) {
+                                children.push(n.Subject);
+                            });
+                            chilrenLi.find('ul.nav').conceptList(children, {
+                                renderItem: person_conceptList_renderItem
+                            });
+                        }
+                    });
+                    $(this).remove();
+                });
+            }
+        });
+
+
+        var menuId = 'menu' + randomInt();
+        li.empty().addClass('dropdown').attr('id', menuId).conceptMenu([miDetail, miGen], {
+            text: person.FriendlyNames[0],
+            rendered: function (ph, toggler, ul) {
+                toggler.prepend(Icon('icon-user'));
+            }
+        });
+    });
+}
