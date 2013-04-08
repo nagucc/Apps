@@ -288,13 +288,21 @@ function person_conceptList_renderItem(concept, li) {
                                 fatherLi = li.closest('.gen-li').before(newli).prev();
                                 fatherLi.append(newTag('ul', { class: 'nav nav-pills' }));
                             }
-                            var fathers = new Array();
-                            $.each(data, function (i, n) {
-                                fathers.push(n.Object);
+
+                            $.each(data, function (i, fatherFss) {
+                                var father = fatherFss.Object;
+                                var li = newLi().attr("conceptId", father.ConceptId);
+                                fatherLi.find('ul.nav').append(li);
+                                person_conceptList_renderItem(father, li);
                             });
-                            fatherLi.find('ul.nav').conceptList(fathers, {
-                                renderItem: person_conceptList_renderItem
-                            });
+
+                            //                            var fathers = new Array();
+                            //                            $.each(data, function (i, n) {
+                            //                                fathers.push(n.Object);
+                            //                            });
+                            //                            fatherLi.find('ul.nav').conceptList(fathers, {
+                            //                                renderItem: person_conceptList_renderItem
+                            //                            });
                         }
                     });
 
@@ -310,13 +318,21 @@ function person_conceptList_renderItem(concept, li) {
                                 chilrenLi = li.closest('.gen-li').after(newli).next();
                                 chilrenLi.append(newTag('ul', { class: 'nav nav-pills' }));
                             }
-                            var children = new Array();
-                            $.each(data, function (i, n) {
-                                children.push(n.Subject);
+
+
+                            $.each(data, function (i, childFss) {
+                                var child = childFss.Subject;
+                                var li = newLi().attr("conceptId", child.ConceptId);
+                                chilrenLi.find('ul.nav').append(li);
+                                person_conceptList_renderItem(child, li);
                             });
-                            chilrenLi.find('ul.nav').conceptList(children, {
-                                renderItem: person_conceptList_renderItem
-                            });
+                            //                            var children = new Array();
+                            //                            $.each(data, function (i, n) {
+                            //                                children.push(n.Subject);
+                            //                            });
+                            //                            chilrenLi.find('ul.nav').conceptList(children, {
+                            //                                renderItem: person_conceptList_renderItem
+                            //                            });
                         }
                     });
                     $(this).remove();

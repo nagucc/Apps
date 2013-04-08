@@ -48,19 +48,6 @@ function getFamilies2() {
         });
     });
 
-    // 初始化对话框:
-//    dlgCreateFamily = new CreateConceptDialog(
-//    {
-//        onAdded: dlgCreateFamily_onAdded
-//    });
-//    dlgCreatePerson = new CreatePersonDialog({
-//        added: dlgCreatePerson_added
-//    });
-
-//    addValueDialog = new AddPropertyValueDialog({
-//        added: addPropertyValueDialog_added
-//    });
-
     return dtd.promise();
 }
 
@@ -92,7 +79,8 @@ function afterNaguLogin() {
         renderValues: conceptDetailPanel_renderValues,
         renderProperty: conceptDetailPanel_renderProperty,
         renderPropertyValues: conceptDetailPanel_renderPropertyValues,
-        renderType: ConceptDetailPanel.renderType2
+        renderType: ConceptDetailPanel.renderType2,
+        showDetail: false
     });
 
     // 初始化一些与登录状态有关的控件：
@@ -152,7 +140,7 @@ function familyBtn_onClick() {
             cdp = new ConceptDetailPanel(curFamily);
         }
     }).fail(function () {
-        cdp = new ConceptDetailPanel(curConcept);
+        cdp = new ConceptDetailPanel(curConcept, { showDetail: false });
     }).done(function () {
         cdp.show($('#family_detail'));
     });
