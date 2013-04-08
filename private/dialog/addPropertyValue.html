@@ -40,6 +40,20 @@
                 </div>
                 </div>
             </div>
+
+            <div class="accordion-group">
+                <div class="accordion-heading">
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseImage">
+                    上传图片至第三方作为属性值(暂不可用)
+                </a>
+                </div>
+                <div id="collapseImage" class="accordion-body collapse" style="height: 0px;">
+                    <div class="accordion-inner">
+                        <input id="txtImage" type="file" />
+                    </div>
+                </div>
+            </div>
+
         </div>
 
         <label class="checkbox">
@@ -77,8 +91,9 @@
         var appId = $('#{cbOnlyMe}').attr('checked') === undefined ? "" : $('#{cbOnlyMe}').attr('userId');
 
         var ulError = $("#{dlgAddPropertyValue} ul.error-list").empty();
-        // 如果属性值是Concept：
+
         var cm = new ConceptManager();
+        // 如果属性值是Concept：
         if ($('#collapseConcept').hasClass('in')) {
             var fn = $('#{txtFn}').val();
             var conceptId = $('#{txtFn}_id').val();
@@ -93,8 +108,26 @@
                 $('#{dlgAddPropertyValue}').modal('hide');
                 AddPropertyValueDialog.added(fs);
             });
-        }
-        else { // 属性值是文本：
+        // 如果属性值是第三方上传图片:
+        } else if ($('#collapseImage').hasClass('in')) {
+            var mm = new MemberManager();
+            mm.check().done(function (status) {
+                // 如果QQ登录，则上传图片到腾讯微博
+                if (status.qc) {
+                    var reader = new FileReader();
+                    reader.onload = function (oFREvent) {
+                        QC.api("add_pic_t", {
+                            content: 'image from nagucc localhost',
+                            pic: oFREvent.target.result
+                        }).success(function (s) {
+                            alert(s.data.imgurl);
+                        });
+                    };
+                    var name = $('#txtImage')[0].files[0];
+                    reader.readAsBinaryString(name);
+                }
+            });
+        } else  { // 属性值是文本：
             var val = $('#{txtValue}').val();
             if (val == "") {
                 ulError.append(newLi().append("请输入属性值"));

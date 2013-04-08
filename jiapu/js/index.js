@@ -1,6 +1,28 @@
-﻿var dlgCreateFamily, dlgCreatePerson, cdp, addValueDialog;
+﻿var dlgCreateFamily, dlgCreatePerson, cdp, addValueDialog, curFamily;
+// 全局变量
+var CM, SM, N, MM, FM;
+
 function currentFamily(){ return $('.family-list li.active a').attr('conceptId'); }
 
+
+
+$(document).ready(function () {
+    // 全局变量
+    CM = new ConceptManager();
+    SM = new StatementManager();
+    MM = new MemberManager();
+    FM = new FamilyManager();
+    N = Nagu;
+    curFamily = getRequest()['id'];
+
+    getFamilies2().done(function () {
+        QC.Login({
+            btnId: "qqLoginBtn",
+            scope: "all",
+            size: "A_M"
+        }, afterQCLogin);
+    });
+});
  
 /********************************************************************************************************************************/
 // 获取家族列表
@@ -8,8 +30,7 @@ function getFamilies2() {
     var dtd = $.Deferred();
 
     // 获取所有家族
-    var fm = new FamilyManager();
-    fm.all().done(function (fss) {
+    FM.all().done(function (fss) {
         $('#families').statementList(fss, {
             renderItem: function (fs, li) {
                 li.addClass('concept-list-item');
@@ -18,28 +39,27 @@ function getFamilies2() {
                 });
             }
         }).done(function (fss) {
-            var request = getRequest();
-            if (request['id'] === undefined)
+            if (curFamily === undefined)
                 $('#families li:first a').click();
             else {
-                $('#families li a[conceptId="' + request['id'] + '"]').click();
+                $('#families li a[conceptId="' + curFamily + '"]').click();
             }
             dtd.resolve();
         });
     });
 
     // 初始化对话框:
-    dlgCreateFamily = new CreateConceptDialog(
-    {
-        onAdded: dlgCreateFamily_onAdded
-    });
-    dlgCreatePerson = new CreatePersonDialog({
-        added: dlgCreatePerson_added
-    });
+//    dlgCreateFamily = new CreateConceptDialog(
+//    {
+//        onAdded: dlgCreateFamily_onAdded
+//    });
+//    dlgCreatePerson = new CreatePersonDialog({
+//        added: dlgCreatePerson_added
+//    });
 
-    addValueDialog = new AddPropertyValueDialog({
-        added: addPropertyValueDialog_added
-    });
+//    addValueDialog = new AddPropertyValueDialog({
+//        added: addPropertyValueDialog_added
+//    });
 
     return dtd.promise();
 }
@@ -48,7 +68,46 @@ function getFamilies2() {
 
 
 /********************************************************************************************************************************/
+function afterNaguLogin() {
+    // 初始化对话框:
+    if (dlgCreateFamily === undefined) {
+        dlgCreateFamily = new CreateConceptDialog({
+            onAdded: dlgCreateFamily_onAdded
+        });
+    }
+    if (dlgCreatePerson === undefined) {
+        dlgCreatePerson = new CreatePersonDialog({
+            added: dlgCreatePerson_added
+        });
+    }
+    if (addValueDialog === undefined) {
+        addValueDialog = new AddPropertyValueDialog({
+            added: addPropertyValueDialog_added
+        });
+    }
 
+    // 显示右侧类型详细信息
+    cdp = new ConceptDetailPanel(curFamily, {
+        renderTitle: conceptDetailPanel_renderTitle,
+        renderValues: conceptDetailPanel_renderValues,
+        renderProperty: conceptDetailPanel_renderProperty,
+        renderPropertyValues: conceptDetailPanel_renderPropertyValues,
+        renderType: ConceptDetailPanel.renderType2
+    });
+
+    // 初始化一些与登录状态有关的控件：
+    $('#addInfo').attr('href', '/apps/public/concept.html?id=' + curFamily);
+    
+    $('.nagu-said-status-toggler').attr('StatementId', $(this).closest("li").attr('StatementId'));
+    initBtnSaidStatus(function () {
+        if ($('.nagu-said-status-toggler').text() == '加注星标') $('.concept-list-item.active').prependTo($('#myfamilies'));
+        else $('.concept-list-item.active').prependTo($('#families'));
+    });
+
+    // 显示一些该显示的控件：
+    $(".logged").show("slow", function () {
+    });
+}
 
 /********************************************************************************************************************************
 
@@ -59,23 +118,21 @@ function getFamilies2() {
 
 // 定义左边按钮的OnClick事件
 function familyBtn_onClick() {
-    $('.concept-list-item').removeClass('active');
-
+    
     // 为防止出现异步错误,此处必须声明一个变量
     // 不能直接使用$('.family-list .active a'))取当前值.
     var a = $(this);
 
+    $('.concept-list-item').removeClass('active');
     $(this).closest("li").addClass("active");
-    var fid = $(this).attr("conceptId");
 
-    $('#addInfo').attr('href', '/apps/public/concept.html?id=' + fid);
+    curFamily = $(this).attr("conceptId");
 
+    
 
-    // 清空右侧家族树的信息.
+    // 显示右侧家族树信息.
     $('#genTree2 > li[id!="gen20"]').remove();
-
-    var fm = new FamilyManager();
-    fm.members(fid).done(function (memberFss) {
+    FM.members(curFamily).done(function (memberFss) {
         // 显示当前家族基本信息
         var members = new Array();
         $.each(memberFss, function (i, n) { members.push(n.Subject); });
@@ -87,24 +144,23 @@ function familyBtn_onClick() {
         });
     });
 
-    if (QC.Login.check()) {
-        cdp = new ConceptDetailPanel(fid, {
-            renderTitle: conceptDetailPanel_renderTitle,
-            renderValues: conceptDetailPanel_renderValues,
-            renderProperty: conceptDetailPanel_renderProperty,
-            renderPropertyValues: conceptDetailPanel_renderPropertyValues
-        });
-    } else cdp = new ConceptDetailPanel(fid);
-    cdp.show($('#family_detail'));
-
-
-    $('.nagu-said-status-toggler').attr('StatementId', $(this).closest("li").attr('StatementId'));
-    initBtnSaidStatus(function () {
-        if ($('.nagu-said-status-toggler').text() == '加注星标') $('.concept-list-item.active').prependTo($('#myfamilies'));
-        else $('.concept-list-item.active').prependTo($('#families'));
+    // 显示右侧类型信息：
+    MM.check().done(function (status) {
+        if (status.nagu) {
+            afterNaguLogin();
+        } else {
+            cdp = new ConceptDetailPanel(curFamily);
+        }
+    }).fail(function () {
+        cdp = new ConceptDetailPanel(curConcept);
+    }).done(function () {
+        cdp.show($('#family_detail'));
     });
 
-    $("#qrcode").empty().qrcode({ text: "http://nagu.cc/apps/jiapu/index.html?id=" + fid });
+    // 初始化一些零碎的，与登录状态无关的控件：
+    $("#qrcode").empty().qrcode({ text: "http://nagu.cc/apps/jiapu/index.html?id=" + curFamily });
+
+    
 }
 
 
@@ -132,50 +188,25 @@ function afterQCLogin(reqData, opts) {
     // 获取用户信息并显示：
     QC.api("get_user_info").success(function (s) {
         var span = $("#qqLoginBtn");
-        //alert('dd');
         var spanF = newSpan().append(newImg(s.data.figureurl));
         var spanN = newSpan().text(s.data.nickname);
         var spanL = newSpan().append(newA("#").text("退出").click(function () {
             QQLogout();
         }));
-        $(".logged").show("slow", function () {
-            $('.nagu-said-status').each(function (i, s) {
-                var sm = new SayManager();
-                sm.status($(s).attr('statementid')).done(function (hasSaid) {
-                    initSaidStatus($(s).attr('statementid'), hasSaid);
-                    if (hasSaid) {
-                        var li = $('.concept-list-item[StatementId="' + $(s).attr('statementid') + '"]');
-                        li.prependTo($('#myfamilies'));
-                    }
-                });
-            });
-            initBtnSaidStatus(function () {
-                if ($('.nagu-said-status-toggler').text() == '加注星标') $('.concept-list-item.active').prependTo($('#myfamilies'));
-                else $('.concept-list-item.active').prependTo($('#families'));
-            });
-        });
-
-        // 重新显示右侧信息
-        cdp = new ConceptDetailPanel(currentFamily(), {
-            renderTitle: conceptDetailPanel_renderTitle,
-            renderValues: conceptDetailPanel_renderValues,
-            renderProperty: conceptDetailPanel_renderProperty,
-            renderPropertyValues: conceptDetailPanel_renderPropertyValues
-        });
-        cdp.show($('#family_detail'));
-
-
         span.empty();
         span.append(spanF).append(spanN).append(spanL);
     });
 
-    // 登录服务器端
-    QC.Login.getMe(function (openId, accessToken) {
-        $.getJSON("/MemberApi/QQBack/" + openId + "?accessToken=" + accessToken, function (data) {
-            if (data.Status == "OK") {
-                console.log("创建用户成功");
-                dtd.resolve();
-            }
+    MM.getMe().fail(function () {
+        // 若当前nagu未登录，使用当前QC的凭据登录nagu
+        QC.Login.getMe(function (openId, accessToken) {
+            MM.loginFromQC(openId, accessToken).done(function (data) {
+                if (data.Status == "OK") {
+                    console.log("用户登录成功");
+                    afterNaguLogin();
+                    cdp.show($('#family_detail'));
+                }
+            });
         });
     });
     return dtd.promise();
@@ -200,106 +231,6 @@ function searchPersons() {
 }
 
 /******** 各种回调函数 ************************************************************************************************************************/
-
-//function members_statementList_renderItem(statement, li) {
-//    // 显示家族树成员的算法见 #1
-//    var personId;
-
-//    // 当前显示右侧家族成员列表
-//    if (statement.Predicate.ConceptId == Person.Properties.SuoZaiJiaZu)
-//        personId = statement.Subject.ConceptId;
-//    else {
-//        // 当前显示父亲或子女列表
-//        personId = statement.Object.ConceptId;
-//    }
-
-
-
-//    // 若当前世代节点是"gen20",则不显示其它世代已经存在的成员.
-//    if (li.parent().parent().attr('id') == 'gen20') {
-//        if ($('#genTree2 li[personId="' + personId + '"]').size()) {
-//            li.remove();
-//            return;
-//        }
-//    }
-
-//    // 删除家族树中已经存在的成员节点
-//    $($.grep($('#genTree2 li'), function (li) {
-//        return $(li).attr('personId') == personId;
-//    })).remove();
-//    li.attr('personId', personId);
-//    li.append(loadingImg());
-
-//    var cm = new ConceptManager();
-//    cm.get(personId).done(function (person) {
-//        // 下拉菜单
-//        // “详细信息”菜单
-//        var miDetail = new MenuItem({
-//            appended: function (li, a) {
-//                a.attr('href', '/apps/jiapu/person.html?id=' + personId);
-//            },
-//            text: '详细信息'
-//        });
-
-//        // “显示家族关系”菜单
-//        var miGen = new MenuItem({
-//            text: '显示家族关系',
-//            appended: function (li, a) {
-//                a.click(function () {
-//                    // 1. 显示"父亲"
-
-//                    
-//                    var pm = new Person(personId);
-//                    pm.father().done(function (data) {
-//                        // 获取世代容器
-//                        var fatherLi = li.closest('.gen-li').prev();
-
-//                        // 如果存在父亲
-//                        if (data.length) {
-//                            // 世代容器不存在，则创建世代容器
-//                            if (fatherLi.size() == 0) {
-//                                var newli = newLi().attr("id", "gen" + randomInt()).addClass("gen-li");
-//                                fatherLi = li.closest('.gen-li').before(newli).prev();
-//                                fatherLi.append(newTag('ul', { class: 'nav nav-pills' }));
-//                            }
-//                            fatherLi.find('ul.nav').statementList(data, {
-//                                renderItem: members_statementList_renderItem
-//                            });
-//                        }
-//                    });
-
-//                    // 2. 显示子女
-//                    pm.children().done(function (children) {
-//                        // 获取世代容器
-//                        var chilrenLi = li.closest('.gen-li').next();                        
-//                        // 如果存在子女:
-//                        if (children.length) {
-//                            // 如果世代容器不存在，则创建世代容器
-//                            if (chilrenLi.size() == 0) {
-//                                var newli = newLi().attr("id", "gen" + randomInt()).addClass("gen-li");
-//                                chilrenLi = li.closest('.gen-li').after(newli).next();
-//                                chilrenLi.append(newTag('ul', { class: 'nav nav-pills' }));
-//                            }
-//                            chilrenLi.find('ul.nav').statementList(children, {
-//                                renderItem: members_statementList_renderItem
-//                            });
-//                        }
-//                    });
-//                    $(this).remove();
-//                });
-//            }
-//        });
-
-
-//        var menuId = 'menu' + randomInt();
-//        li.empty().addClass('dropdown').attr('id', menuId).conceptMenu([miDetail, miGen], {
-//            text: person.FriendlyNames[0],
-//            rendered: function (ph, toggler, ul) {
-//                toggler.prepend(Icon('icon-user'));
-//            }
-//        });
-//    });
-//}
 
 
 

@@ -43,6 +43,7 @@ function getConcept() {
     CM.get(curConcept).done(function (concept) {
         $('#fn').text(concept.FriendlyNames[0]);
         $('#desc').text(concept.Descriptions[0]);
+        $('#id').text(concept.ConceptId);
         dtd.resolve();
     }).fail(function () { });
 
