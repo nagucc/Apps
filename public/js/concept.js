@@ -12,6 +12,7 @@ $(document).ready(function () {
     CM = new ConceptManager();
     SM = new StatementManager();
     MM = new MemberManager();
+    Nagu.init();
     N = Nagu;
     curConcept = getRequest()['id'];
     // 用于显示Concept详细信息的回调函数.
@@ -196,4 +197,10 @@ function dlgSelectDialog_selected_addProperty(propertyId, appId) {
 
 function dlgSelectDialog_select_open(conceptId, appId) {
     window.location = '?id=' + conceptId;
+}
+
+
+
+function test(eventData) {
+    alert(eventData);
 }

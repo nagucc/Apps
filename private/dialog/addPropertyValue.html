@@ -12,7 +12,9 @@
 
 
         <div class="accordion" id="accordion2">
-            <div class="accordion-group">
+            
+            <!-- Concept -->
+            <div class="accordion-group hide" id='accordionConcept'>
                 <div class="accordion-heading">
                 <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseConcept">
                     添加Concept作为属性值
@@ -27,7 +29,8 @@
                 </div>
             </div>
 
-            <div class="accordion-group">
+            <!-- 文本 -->
+            <div class="accordion-group hide" id='accordionLiteral'>
                 <div class="accordion-heading">
                 <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseLiteral">
                     添加文本作为属性值
@@ -41,7 +44,8 @@
                 </div>
             </div>
 
-            <div class="accordion-group">
+            <!-- 图像 -->
+            <div class="accordion-group hide" id='accordionImage'>
                 <div class="accordion-heading">
                 <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseImage">
                     上传图片至第三方作为属性值(暂不可用)
@@ -80,6 +84,36 @@
     mm.getMe().done(function (me) {
         $('#{cbOnlyMe}').removeAttr('disabled').attr('userId', me.Id);
     });
+
+    // 对话框打开时的处理事件
+    $('#{dlgAddPropertyValue}').on('show', function (eventData) {
+        // 由于show事件会在对话框内多个控件被触发
+        // 所以此处需要判断触发事件的控件：
+        if (eventData.target.id != '{dlgAddPropertyValue}') return;
+
+        var subjectId = $('#{dlgAddPropertyValue}').attr('predicateId');
+        // 根据rdf:range判断显示哪些内容：
+        Nagu.CM.getPropertyValues(subjectId, Nagu.Concepts.RdfRange).done(function (fss) {
+            if (fss.length == 0) {
+                $('#accordionConcept').show();
+                $('#accordionLiteral').show();
+            } else {
+                $.each(fss, function (i, rangeFs) {
+                    switch (rangeFs.Object.ConceptId) {
+                        case Nagu.Concepts.NaguImage:
+                            $('#accordionImage').show();
+                            break;
+                        case Nagu.Concepts.NaguConcept:
+                            $('#accordionConcept').show();
+                            break;
+                        default:
+                            alert('unknown range type');
+                    }
+                });
+            }
+        });
+    });
+    
     
 
     function addPropertyValue34532532453245325() {
@@ -110,22 +144,9 @@
             });
         // 如果属性值是第三方上传图片:
         } else if ($('#collapseImage').hasClass('in')) {
+            uploadTest($('#txtImage'));
             var mm = new MemberManager();
             mm.check().done(function (status) {
-                // 如果QQ登录，则上传图片到腾讯微博
-                if (status.qc) {
-                    var reader = new FileReader();
-                    reader.onload = function (oFREvent) {
-                        QC.api("add_pic_t", {
-                            content: 'image from nagucc localhost',
-                            pic: oFREvent.target.result
-                        }).success(function (s) {
-                            alert(s.data.imgurl);
-                        });
-                    };
-                    var name = $('#txtImage')[0].files[0];
-                    reader.readAsBinaryString(name);
-                }
             });
         } else  { // 属性值是文本：
             var val = $('#{txtValue}').val();

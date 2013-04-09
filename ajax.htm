@@ -1,0 +1,31 @@
+﻿<html>  
+<body>  
+<h1>Ajax file upload sample</h1><br/><input id="uplaod" onclick="btn_send_onclick();" name="btn_send" type="button" value="上传测试"/>  
+<div id=result></div>  
+<PRE class=js name="code"><SCRIPT LANGUAGE=JavaScript>
+        // 上传函数    
+        function btn_send_onclick() {
+            data = ""
+            spliter = "-------7d8d733180846"
+            datadata = data + spliter + "\r\n"
+            datadata = data + "Content-Disposition: form-data; name=\"photofile\"; filename=\"C:\\a.txt\"\r\n"
+            // datadata = data + "Content-Type: image/pjpeg" + vbCrLf   
+            datadata = data + "Content-Type: text/plain" + "\r\n" + "\r\n"
+            text = "My name is Wilson Lin."
+            postLength = text.length + data.length + 2 + spliter.length + 4
+            package = data + text + "\r\n" + spliter + "--\r\n"
+
+            alert(package)
+            // 把XML文档发送到Web服务器    
+            var xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+            xmlhttp.open("POST", "./upload.php", false);
+            xmlhttp.setRequestHeader("Content-Type", "multipart/form-data; boundary=-----7d8d733180846");
+            xmlhttp.setRequestHeader("Content-Length", postLength);
+            xmlhttp.send(package);
+            // 显示服务器返回的信息    
+            result.innerHTML = xmlhttp.ResponseText;
+        }    
+</SCRIPT>    
+</PRE>  
+ </body>  
+</html>
