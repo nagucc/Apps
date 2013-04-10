@@ -19,7 +19,7 @@
                     <input type="hidden" id="{tbId}" />
                 </div>
             </div>
-            <label class="checkbox">
+            <label class="checkbox hide" id='{cbOnlyMe}_ph'>
                 <input type="checkbox" userId="" id='{cbOnlyMe}' disabled="disabled" /><i class="icon-lock" />仅我可见
             </label>
         </form>
@@ -55,11 +55,12 @@
             keyboard: false,
             show: false
         });
-        initConceptSearch($('#{tbName}'), $('#{tbId}'));
+        
+        
 
         // 获取当前用户信息,并激活"仅我可见"按钮.
-        var mm = new MemberManager();
-        mm.getMe().done(function (me) {
+        Nagu.MM.getMe().done(function (me) {
+            $('#{cbOnlyMe}_ph').show();
             $('#{cbOnlyMe}').removeAttr('disabled').attr('userId', me.Id);
         });
 
@@ -86,7 +87,7 @@
 
             $.when(SelectConceptDialog.selected(concept, appId)).done(function () {
                 $("div#{dlgSelect} input").val("");
-                $("div#{dlgSelect}").modal('toggle');
+                $("div#{dlgSelect}").modal('hide');
             });
         }
 </script>

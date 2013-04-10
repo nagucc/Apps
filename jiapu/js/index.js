@@ -1,4 +1,4 @@
-﻿var dlgCreateFamily, dlgCreatePerson, cdp, addValueDialog, curFamily;
+﻿var dlgCreateFamily, dlgCreatePerson, cdp, addValueDialog, dlgSearch, curFamily;
 // 全局变量
 var CM, SM, N, MM, FM;
 
@@ -47,6 +47,10 @@ function getFamilies2() {
             dtd.resolve();
         });
     });
+    if(dlgSearch === undefined)
+        dlgSearch = new SelectConceptDialog({
+            typeId: Person.JiazuChengyuanType
+        });
 
     return dtd.promise();
 }
