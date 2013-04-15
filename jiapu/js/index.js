@@ -93,11 +93,13 @@ function afterNaguLogin() {
     // 初始化一些与登录状态有关的控件：
     $('#addInfo').attr('href', '/apps/public/concept.html?id=' + curFamily);
     
-    $('.nagu-said-status-toggler').attr('StatementId', $(this).closest("li").attr('StatementId'));
-    initBtnSaidStatus(function () {
-        if ($('.nagu-said-status-toggler').text() == '加注星标') $('.concept-list-item.active').prependTo($('#myfamilies'));
-        else $('.concept-list-item.active').prependTo($('#families'));
-    });
+//    $('.nagu-said-status-toggler').attr('StatementId', $(this).closest("li").attr('StatementId'));
+//    initBtnSaidStatus(function () {
+//        if ($('.nagu-said-status-toggler').text() == '加注星标') $('.concept-list-item.active').prependTo($('#myfamilies'));
+//        else $('.concept-list-item.active').prependTo($('#families'));
+//    });
+    var typeFs = $('#families li.active').attr('StatementId');
+    $('#btnSay').btnSay(typeFs);
 
     // 显示一些该显示的控件：
     $(".logged").show("slow", function () {
