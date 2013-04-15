@@ -25,7 +25,7 @@ FamilyManager.prototype.members = function (familyId, options) {
 
     var sm = new StatementManager();
     if (this.opts.reflesh) sm.flush('', '', Person.Properties.SuoZaiJiaZu, familyId);
-    return sm.findByPO(Person.Properties.SuoZaiJiaZu, familyId, Nagu.MType.Concept);
+    return sm.findSByPO(Person.Properties.SuoZaiJiaZu, familyId, Nagu.MType.Concept);
 };
 FamilyManager.prototype.create = function (fn, desc) {
     var dtd = $.Deferred();

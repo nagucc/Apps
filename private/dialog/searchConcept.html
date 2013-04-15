@@ -1,0 +1,71 @@
+﻿<div class="modal hide" id="{dlgSelect}" typeId="{typeId}">
+    <div class="modal-header">
+        <a class="close" data-dismiss="modal">×</a>
+        <h3>搜索Concept</h3>
+    </div>
+    <div class="modal-body">
+
+        <span class="form-horizontal">
+
+            <div class="control-group">
+                <label for="{tbName}" class="control-label">名称</label>
+                <div class="controls">
+                    <input type="text" id="{tbName}" placeholder="输入关键字并搜索"/>
+                    <button onclick="search_sfewtpu32pgb();" class="btn">搜索</button>
+                </div>
+                
+
+            </div>
+            <label class="checkbox hide" id='{cbOnlyMe}_ph'>
+                <input type="checkbox" userId="" id='{cbOnlyMe}' disabled="disabled" /><i class="icon-lock" />仅我可见
+            </label>
+        </span>
+        <h4 class='hide'>搜索结果</h4>
+        <ul class="nav nav-pills">
+            
+        </ul>
+    </div>
+    <div class="modal-footer">
+        <a href="#" class="btn" data-dismiss="modal">关闭</a>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $("#{dlgSelect}").modal({
+            backdrop: false,
+            keyboard: false,
+            show: false
+        });
+        
+        
+
+        // 获取当前用户信息,并激活"仅我可见"按钮.
+        Nagu.MM.getMe().done(function (me) {
+            $('#{cbOnlyMe}_ph').show();
+            $('#{cbOnlyMe}').removeAttr('disabled').attr('userId', me.Id);
+        });
+
+        function search_sfewtpu32pgb() {
+            $('div#{dlgSelect} h4').show();
+            var tempLi = newLi().append(newImg('/Content/Images/loading-128.gif'));
+            $('div#{dlgSelect} ul').empty().append(tempLi);
+            Nagu.CM.search($('#{tbName}').val(), $("div#{dlgSelect}").attr('typeId')).done(function (cs) {
+                if (cs.length == 0) {
+                    $('div#{dlgSelect} ul').empty().append(newLi().append('没有找到任何数据'));
+                    return;
+                }
+                $('div#{dlgSelect} ul').conceptList(cs, {
+                    clearBefore: true,
+                    pageSize: 5,
+                    renderItem: function (concept, li) {
+                        var a = newA().appendTo(li);
+                        a.appendConcept(concept.ConceptId);
+                        a.click(function () {
+                            var conceptId = li.attr('ConceptId');
+                            SearchConceptDialog.selected(conceptId);
+                        });
+                    }
+                });
+            });
+        }
+</script>

@@ -47,9 +47,12 @@ function getFamilies2() {
             dtd.resolve();
         });
     });
-    if(dlgSearch === undefined)
-        dlgSearch = new SelectConceptDialog({
-            typeId: Person.JiazuChengyuanType
+    if (dlgSearch === undefined)
+        dlgSearch = new SearchConceptDialog({
+            typeId: Person.JiazuChengyuanType,
+            selected: function (conceptId) {
+                window.location = '/apps/jiapu/person.html?id=' + conceptId;
+            }
         });
 
     return dtd.promise();
@@ -120,15 +123,10 @@ function familyBtn_onClick() {
 
     curFamily = $(this).attr("conceptId");
 
-    
-
     // 显示右侧家族树信息.
     $('#genTree2 > li[id!="gen20"]').remove();
-    FM.members(curFamily).done(function (memberFss) {
+    FM.members(curFamily).done(function (members) {
         // 显示当前家族基本信息
-        var members = new Array();
-        $.each(memberFss, function (i, n) { members.push(n.Subject); });
-
         $('#gen20 > ul').conceptList(members, {
             clearBefore: true,
             pageSize: 5,
