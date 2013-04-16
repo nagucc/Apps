@@ -99,7 +99,6 @@ function afterNaguLogin() {
         renderProperty: ConceptDetailPanel.getFunction_renderProperty3(addValueDialog),
         renderPropertyValues: ConceptDetailPanel.getFunction_renderRichPropertyValues(function () {
             PvsFromBaseClass[curConcept] = undefined;
-            //getConcept();
             cdp.show($('#detail'));
         }),
         renderType: ConceptDetailPanel.renderType2

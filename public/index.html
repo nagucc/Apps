@@ -45,7 +45,7 @@
                         </div>
                     </span>
                     <h4 class='hide'>搜索结果</h4>
-                    <ul class="nav nav-pills"></ul>
+                    <ul id="result" class="nav nav-pills"></ul>
                 </div>
             </div>
         </div>
@@ -89,10 +89,10 @@
                     span.append(spanF).append(spanN).append(spanL);
                 });
 
-                MM.getMe().fail(function () {
+                Nagu.MM.getMe().fail(function () {
                     // 使用当前QC的凭据登录nagu
                     QC.Login.getMe(function (openId, accessToken) {
-                        MM.loginFromQC(openId, accessToken).done(function (data) {
+                        Nagu.MM.loginFromQC(openId, accessToken).done(function (data) {
                             if (data.Status == "OK") {
                                 afterNaguLogin();
                             }
@@ -104,13 +104,13 @@
           function search() {
               $('h4').show();
               var tempLi = newLi().append(newImg('/Content/Images/loading-128.gif'));
-              $('ul').empty().append(tempLi);
+              $('#result').empty().append(tempLi);
               Nagu.CM.search($('#tbName').val()).done(function (cs) {
                   if (cs.length == 0) {
-                      $('ul').empty().append(newLi().append('没有找到任何数据'));
+                      $('#result').empty().append(newLi().append('没有找到任何数据'));
                       return;
                   }
-                  $('ul').conceptList(cs, {
+                  $('#result').conceptList(cs, {
                       clearBefore: true,
                       pageSize: 5,
                       renderItem: function (concept, li) {
