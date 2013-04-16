@@ -86,8 +86,8 @@ function afterNaguLogin() {
         renderValues: conceptDetailPanel_renderValues,
         renderProperty: conceptDetailPanel_renderProperty,
         renderPropertyValues: conceptDetailPanel_renderPropertyValues,
-        renderType: ConceptDetailPanel.renderType2,
-        showDetail: false
+        renderType: ConceptDetailPanel.renderType3
+        //showDetail: false
     });
 
     // 初始化一些与登录状态有关的控件：
@@ -150,7 +150,10 @@ function familyBtn_onClick() {
     });
 
     // 初始化一些零碎的，与登录状态无关的控件：
-    $("#qrcode").empty().qrcode({ text: "http://nagu.cc/apps/jiapu/index.html?id=" + curFamily });
+    $("#qrcode").empty().qrcode({
+        width: 150,
+        height: 150,
+        text: "http://nagu.cc/apps/jiapu/index.html?id=" + curFamily });
 
     
 }

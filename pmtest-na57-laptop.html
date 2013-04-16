@@ -1,0 +1,33 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<script src="../Content/js/messengerjs/messenger.js" type="text/javascript" /> 
+    <script src="../Content/bootstrap/js/assets/jquery-1.8.2.min.js" type="text/javascript"></script>
+    
+    <script>
+        $(function () {
+            var messenger = Messenger.initInIframe();
+            messenger.onmessage = function (message) {
+                /*
+                message格式：
+                message.url: 将被post的地址；
+                message.data: 将被post的数据；
+                message.result: post返回的数据
+                message.failed: 执行状态，false：成功，true：失败.
+                */
+                $.post(message.url, message.data).done(function (data) {
+                    message.result = data;
+                    message.failed = false;
+                    messenger.send(message);
+                }).fail(function () {
+                    message.failed = true;
+                    messenger.send(message);
+                });
+            };
+        });
+    </script>
+</head>
+<body>
+
+</body>
+</html>

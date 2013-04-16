@@ -56,9 +56,13 @@ function showPerson() {
         });
     });
 
-    
 
-    $("#qrcode").empty().qrcode({ text: "http://nagu.cc/apps/jiapu/person.html?id=" + curConcept });
+
+    $("#qrcode").empty().qrcode({
+        width: 150,
+        height: 150,
+        text: "http://nagu.cc/apps/jiapu/person.html?id=" + curConcept
+    });
     return dtd.promise();
 }
 

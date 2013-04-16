@@ -1,0 +1,46 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <script src="../Content/js/messengerjs/messenger.js" type="text/javascript" ></script> 
+    <script src="../Content/bootstrap/js/assets/jquery-1.8.2.min.js" type="text/javascript"></script>
+    
+    <script type="text/javascript">
+        var messenger;
+        $(document).ready(function () {
+            messenger = Messenger.initInParent(document.getElementById('iframe'));
+            
+        });
+        function go() {
+            var message = {
+                url: 'http://nagu.cc/ConceptApi/Get/bf913684-7ac6-4324-9578-828e5a13b457'
+            };
+            // 接收数据
+            var callback = function (message) {
+                /*
+                message格式：
+                message.url: 将被post的地址；
+                message.data: 将被post的数据；
+                message.result: post返回的数据
+                message.done: 执行状态，true：成功，false：失败.
+                */
+                if (message.done) {
+                    alert('concept:' + message.result.FriendlyNames[0]);
+                }
+            };
+            if (window.detachEvent) {
+                window.detachEvent('onmessage', obj['messagecallback']);
+                window['messagecallback'] = null;
+            } else
+                window.removeEventListener('message', callback, false);
+            messenger.onmessage = callback;
+            
+            
+            messenger.send(message);
+        }
+    </script>
+</head>
+<body>
+<a href="#" onclick="go();">go</a>
+    <iframe style="width: 0px; height: 0px; display: none; overflow: hidden;" id="iframe" src="http://nagu.cc/apps/pmproxy.html"></iframe>
+</body>
+</html>

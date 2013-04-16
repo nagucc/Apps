@@ -4,14 +4,13 @@
     <title>家谱系统</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="../../Content/bootstrap/js/assets/jquery-1.8.2.min.js" type="text/javascript"></script>
-    <link href="css/style.css" rel="stylesheet" type="text/css" />
     <link href="../../Content/bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css" />
     <link href="../../Content/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css" />
 </head>
 <body>
 
-    <div class="navbar navbar-fixed-top">
+    <div class="navbar">
     <div class="navbar-inner">
         <div class="container">
             <a class="brand" href="#">家谱系统</a>
@@ -20,14 +19,14 @@
 
             <span class="btn-toolbar hide logged" id="optPanel">
 
-                <a class="btn btn-info" onclick="dlgCreateFamily.toggle('',{h3:'创建新家族'});">
+                <a class="btn btn-primary" onclick="dlgCreateFamily.toggle('',{h3:'创建新家族'});">
                     <i class="icon-plus icon-white"></i>
                     创建新家族
                 </a>
             </span>
 
             <span>
-                <a class="btn btn-info" onclick="dlgSearch.toggle();">
+                <a class="btn btn-primary" onclick="dlgSearch.toggle();">
                     <i class="icon-plus icon-white"></i>
                     查找家族成员
                 </a>
@@ -42,7 +41,7 @@
             <div class="span4">
 
                 <div id="myfamilies-panel" class="hide logged">
-                <h3>我的家族</h3>
+                <h3 class="hide">我的家族</h3>
                 <ul id="myfamilies" class="nav nav-pills nav-stacked family-list"></ul>
                 </div>
                 <h3>全部家族</h3>
