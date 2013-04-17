@@ -10,7 +10,7 @@
             <div class="control-group">
                 <label for="{tbName}" class="control-label">名称</label>
                 <div class="controls">
-                    <input type="text" id="{tbName}" placeholder="输入关键字并搜索"/>
+                    <input type="text" id="{tbName}" onkeypress="if(event.keyCode === 13){search_sfewtpu32pgb();}" placeholder="输入关键字并搜索"/>
                     <button onclick="search_sfewtpu32pgb();" class="btn">搜索</button>
                 </div>
                 
@@ -20,7 +20,7 @@
                 <input type="checkbox" userId="" id='{cbOnlyMe}' disabled="disabled" /><i class="icon-lock" />仅我可见
             </label>
         </span>
-        <h4 class='hide'>搜索结果</h4>
+        <h4 class='hide'>请从以下搜索结果中选择：</h4>
         <ul class="nav nav-pills">
             
         </ul>
@@ -31,19 +31,42 @@
 </div>
 
 <script type="text/javascript">
-    $("#{dlgSelect}").modal({
+    $(document).ready(function () {
+        $("#{dlgSelect}").modal({
             backdrop: false,
             keyboard: false,
             show: false
         });
-        
-        
 
         // 获取当前用户信息,并激活"仅我可见"按钮.
         Nagu.MM.getMe().done(function (me) {
             $('#{cbOnlyMe}_ph').show();
             $('#{cbOnlyMe}').removeAttr('disabled').attr('userId', me.Id);
         });
+    });
+
+    function addAndSelect_0417() {
+        
+        var fn = $('#{tbName}').val();
+        var fnId = 'tbConceptNameddddd';
+        var dlgCreateConcept = new CreateConceptDialog({
+            fnId: fnId,
+            autoInit:false,
+            onAdded: function (concept) {
+                SearchConceptDialog.selected(concept.ConceptId);
+                $("div#{dlgSelect} input").val("");
+                $("div#{dlgSelect}").modal('hide');
+            }
+        });
+        dlgCreateConcept.init().done(function () {
+            $('#' + fnId).val(fn);
+            $("div#{dlgSelect}").modal('hide');
+            dlgCreateConcept.toggle();
+        });
+        
+    }
+    
+
 
         function search_sfewtpu32pgb() {
             $('div#{dlgSelect} h4').show();
@@ -51,7 +74,16 @@
             $('div#{dlgSelect} ul').empty().append(tempLi);
             Nagu.CM.search($('#{tbName}').val(), $("div#{dlgSelect}").attr('typeId')).done(function (cs) {
                 if (cs.length == 0) {
-                    $('div#{dlgSelect} ul').empty().append(newLi().append('没有找到任何数据'));
+                    $('div#{dlgSelect} ul').empty();
+                    $('div#{dlgSelect} ul').append(newLi().append('没有找到任何数据'));
+                    Nagu.MM.check().done(function (status) {
+                        if (status.nagu) {
+                            var adda = newBtn().addClass('btn btn-primary').text('去创建一个>>').click(function () {
+                                addAndSelect_0417();
+                            });
+                            $('div#{dlgSelect} ul').after(adda);
+                        }
+                    });
                     return;
                 }
                 $('div#{dlgSelect} ul').conceptList(cs, {
@@ -63,6 +95,8 @@
                         a.click(function () {
                             var conceptId = li.attr('ConceptId');
                             SearchConceptDialog.selected(conceptId);
+                            $("div#{dlgSelect} input").val("");
+                            $("div#{dlgSelect}").modal('hide');
                         });
                     }
                 });

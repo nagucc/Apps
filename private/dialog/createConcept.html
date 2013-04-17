@@ -1,4 +1,4 @@
-﻿<div class="modal hide" id="dlgCreateConcept">
+﻿<div class="modal hide" id="{dlgCreateConcept}">
     <div class="modal-header">
         <a class="close" data-dismiss="modal">×</a>
         <h3>创建新Concept</h3>
@@ -13,16 +13,16 @@
         <form class="form-horizontal">
 
             <div class="control-group">
-                <label for="tbConceptName" class="control-label">名称</label>
+                <label for="{txtConceptName}" class="control-label">名称</label>
                 <div class="controls">
-                    <input type="text" id="tbConceptName" placeholder="输入待创建的Concept的名称"/>
+                    <input type="text" id="{txtConceptName}" placeholder="输入待创建的Concept的名称"/>
                 </div>
             </div>
 
             <div class="control-group">
-                <label for="tbConceptDesc" class="control-label">简介</label>
+                <label for="{txtConceptDesc}" class="control-label">简介</label>
                 <div class="controls">
-                    <input type="text" id="tbConceptDesc" placeholder="输入待创建Concept的相关简介"/>
+                    <input type="text" id="{txtConceptDesc}" placeholder="输入待创建Concept的相关简介"/>
                 </div>
             </div>
         </form>
@@ -36,7 +36,7 @@
 
 <script type="text/javascript">
 
-    $("#dlgCreateConcept").modal({
+    $("#{dlgCreateConcept}").modal({
         backdrop: false,
         keyboard: false,
         show: false
@@ -44,16 +44,16 @@
 
     function createConcept__etrewgasdgret() {
         //1. 数据验证
-        var alert = $("div#dlgCreateConcept div.alert");
+        var alert = $("div#{dlgCreateConcept} div.alert");
         alert.hide();
 
-        ulError = $("div#dlgCreateConcept ul.error-list").empty();
+        ulError = $("div#{dlgCreateConcept} ul.error-list").empty();
         var hasError = false;
 
-        var id = $("div#dlgCreateConcept").attr("conceptId");
-        var appId = $("div#dlgCreateConcept").attr("appId");
-        var fn = $("#tbConceptName").val();
-        var desc = $("#tbConceptDesc").val();
+        var id = $("div#{dlgCreateConcept}").attr("conceptId");
+        var appId = $("div#{dlgCreateConcept}").attr("appId");
+        var fn = $("#{txtConceptName}").val();
+        var desc = $("#{txtConceptDesc}").val();
 
         var hasId = (id !== undefined && id != "")
         var emptyFn = (fn === undefined || fn == "");
@@ -82,16 +82,15 @@
         }
 
         //2. 完成Class创建
-        var cm = new ConceptManager();
-        cm.create(fn, desc, { id: id, appId: appId }).done(function (c) {
+        Nagu.CM.create(fn, desc, { id: id, appId: appId }).done(function (c) {
             console.log("CreateConceptDialog::添加Concept成功");
             // 将所有输入控件清空
-            $("div#dlgCreateConcept input").val("");
+            $("div#{dlgCreateConcept} input").val("");
 
             // 执行回调函数
             console.log("CreateConceptDialog::执行回调函数OnAdded:::c.conceptId:"+c.ConceptId);
             CreateConceptDialog.prototype.OnAdded(c);
-            $("div#dlgCreateConcept").modal('hide');
+            $("div#{dlgCreateConcept}").modal('hide');
         });
     }
 </script>

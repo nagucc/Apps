@@ -16,11 +16,30 @@ $(document).ready(function () {
     curFamily = getRequest()['id'];
 
     getFamilies2().done(function () {
-        QC.Login({
-            btnId: "qqLoginBtn",
-            scope: "all",
-            size: "A_M"
-        }, afterQCLogin);
+        try {
+            QC.Login({
+                btnId: "qqLoginBtn",
+                scope: "all",
+                size: "A_M"
+            }, afterQCLogin);
+        } catch (e) {
+
+        }
+        
+//        WB2.anyWhere(function (W) {
+//            W.widget.connectButton({
+//                id: "wb_connect_btn",
+//                type: '3,2',
+//                callback: {
+//                    login: function (o) {
+//                        alert(o.screen_name)
+//                    },
+//                    logout: function () {
+//                        alert('logout');
+//                    }
+//                }
+//            });
+//        });
     });
 });
  
@@ -93,16 +112,16 @@ function afterNaguLogin() {
     // 初始化一些与登录状态有关的控件：
     $('#addInfo').attr('href', '/apps/public/concept.html?id=' + curFamily);
     
-//    $('.nagu-said-status-toggler').attr('StatementId', $(this).closest("li").attr('StatementId'));
-//    initBtnSaidStatus(function () {
-//        if ($('.nagu-said-status-toggler').text() == '加注星标') $('.concept-list-item.active').prependTo($('#myfamilies'));
-//        else $('.concept-list-item.active').prependTo($('#families'));
-//    });
     var typeFs = $('#families li.active').attr('StatementId');
     $('#btnSay').btnSay(typeFs);
 
     // 显示一些该显示的控件：
     $(".logged").show("slow", function () {
+    });
+    $(".nagu-logged").show("slow", function () {
+        Nagu.MM.getMe().done(function (me) {
+            $('#accountInfo').attr('href', '/apps/public/concept.html?id=' + me.Id);
+        });
     });
 }
 
@@ -179,11 +198,11 @@ function QQLogout() {
 // 当QQ登录成功之后：
 function afterQCLogin(reqData, opts) {
     var dtd = $.Deferred();
-
+    var spanF;
     // 获取用户信息并显示：
     QC.api("get_user_info").success(function (s) {
         var span = $("#qqLoginBtn");
-        var spanF = newSpan().append(newImg(s.data.figureurl));
+        spanF = newSpan().append(newA().append(newImg(s.data.figureurl)));
         var spanN = newSpan().text(s.data.nickname);
         var spanL = newSpan().append(newA("#").text("退出").click(function () {
             QQLogout();
@@ -210,20 +229,7 @@ function afterQCLogin(reqData, opts) {
 
 
 /********************************************************************************************************************************/
-function searchPersons() {
-    $("#personResult").empty();
-    searchWithType($("#personpre").val(), jzcyId).done(function (persons) {
-        $.each(persons, function (index, person) {
-            $("#personResult").append(newLi("personresult_" + person.ConceptId));
-            getConcept(person.ConceptId).done(function (person) {
-                var a = newA().attr("href", "person.html?id=" + person.ConceptId)
-                            .text(person.FriendlyNames[0]);
-                $("#personresult_" + person.ConceptId).append(a);
-            });
-        });
 
-    });
-}
 
 /******** 各种回调函数 ************************************************************************************************************************/
 
@@ -255,16 +261,14 @@ function dlgCreateFamily_onAdded(family) {
 }
 
 function dlgCreatePerson_added(person) {
-    var fm = new FamilyManager();
-    var fid = $('#families > li.active a').attr('conceptId');
-    fm.members(fid, { reflesh: true }).done(function (memberFss) {
+    
+    FM.members(curFamily).done(function (members) {
         // 显示当前家族基本信息
-        $("dt#dtPersonCount").next("dd").text(memberFss.length);
-
-        $('#gen20 > ul').statementList(memberFss, {
+        $('#genTree2 > li[id!="gen20"]').remove();
+        $('#gen20 > ul').conceptList(members, {
             clearBefore: true,
             pageSize: 5,
-            renderItem: members_statementList_renderItem
+            renderItem: person_conceptList_renderItem
         });
     });
 }

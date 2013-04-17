@@ -350,3 +350,39 @@ function person_conceptList_renderItem(concept, li) {
         });
     });
 }
+function searchParent(tb, h4, ul) {
+
+    tb.attr('personId', '');
+    h4.show();
+    var tempLi = newLi().append(newImg('/Content/Images/loading-128.gif'));
+    ul.empty().append(tempLi);
+    Nagu.CM.search(tb.val()).done(function (cs) {
+        if (cs.length == 0) {
+            ul.empty().append(newLi().append('没有找到任何数据'));
+            return;
+        }
+        ul.conceptList(cs, {
+            clearBefore: true,
+            pageSize: 5,
+            renderItem: function (concept, li) {
+                var a = newA().appendTo(li);
+                a.appendConcept(concept.ConceptId);
+                a.click(function () {
+                    $(this).closest('ul').find('i.icon-ok').remove();
+                    tb.val($(this).text());
+                    $(this).prepend(Icon('icon-ok'));
+                    
+                    tb.attr('personId', concept.ConceptId);
+                });
+            }
+        });
+    });
+}
+
+function searchFather() {
+    searchParent($('#tbFather'), $('#fatherH4'), $('#fatherResult'));
+}
+
+function searchMother() {
+    searchParent($('#tbMother'), $('motherH4'), $('#motherResult'));
+}

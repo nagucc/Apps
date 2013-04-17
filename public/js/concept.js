@@ -1,6 +1,6 @@
 ﻿var curUser, curConcept;
 var host = "";
-var addTypeDialog, addValueDialog, createConceptDialog, cdp, dlgSelectDialog;
+var addTypeDialog, addValueDialog, createConceptDialog, cdp, dlgSelectDialog, dlgSearchDialog;
 
 // 全局变量
 var CM, SM, N, MM;
@@ -89,6 +89,9 @@ function afterNaguLogin() {
 
     if (dlgSelectDialog === undefined) {
         dlgSelectDialog = new SelectConceptDialog();
+    }
+    if (dlgSearchDialog === undefined) {
+        dlgSearchDialog = new SearchConceptDialog();
     }
 
     // 显示Concept的详细信息:
