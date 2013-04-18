@@ -286,7 +286,7 @@ function person_conceptList_renderItem(concept, li) {
                             if (fatherLi.size() == 0) {
                                 var newli = newLi().attr("id", "gen" + randomInt()).addClass("gen-li");
                                 fatherLi = li.closest('.gen-li').before(newli).prev();
-                                fatherLi.append(newTag('ul', { class: 'nav nav-pills' }));
+                                fatherLi.append(newTag('ul').addClass('nav nav-pills'));
                             }
 
                             $.each(data, function (i, fatherFss) {
@@ -316,7 +316,7 @@ function person_conceptList_renderItem(concept, li) {
                             if (chilrenLi.size() == 0) {
                                 var newli = newLi().attr("id", "gen" + randomInt()).addClass("gen-li");
                                 chilrenLi = li.closest('.gen-li').after(newli).next();
-                                chilrenLi.append(newTag('ul', { class: 'nav nav-pills' }));
+                                chilrenLi.append(newTag('ul').addClass('nav nav-pills'));
                             }
 
 

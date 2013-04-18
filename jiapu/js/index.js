@@ -47,7 +47,6 @@ $(document).ready(function () {
 // 获取家族列表
 function getFamilies2() {
     var dtd = $.Deferred();
-
     // 获取所有家族
     FM.all().done(function (fss) {
         $('#families').statementList(fss, {
@@ -169,11 +168,15 @@ function familyBtn_onClick() {
     });
 
     // 初始化一些零碎的，与登录状态无关的控件：
-    $("#qrcode").empty().qrcode({
-        width: 150,
-        height: 150,
-        text: "http://nagu.cc/apps/jiapu/index.html?id=" + curFamily });
+    try {
+        $("#qrcode").empty().qrcode({
+            width: 150,
+            height: 150,
+            text: "http://nagu.cc/apps/jiapu/index.html?id=" + curFamily
+        });
+    } catch (e) {
 
+    }
     
 }
 
@@ -283,7 +286,7 @@ function conceptDetailPanel_renderTitle(ph, title, concept) {
 
 function conceptDetailPanel_renderValues(ph, values, valueFss) {
     var dd = newDd();
-    var ul = newTag('ul', { class: 'nav nav-pills ' });
+    var ul = newTag('ul').addClass('nav nav-pills ');
     ph.append(dd.append(ul));
 
     // 为每一个名称或描述值生成下拉菜单:
@@ -356,7 +359,7 @@ function conceptDetailPanel_renderProperty(placeHolder, propertyId, subjectId) {
 
 function conceptDetailPanel_renderPropertyValues(placeHolder, propertyId, values, subjectId) {
     if (values.length == 0) { placeHolder.text('无属性值'); return; }
-    var ul = newTag('ul', { class: 'nav nav-pills' });
+    var ul = newTag('ul').addClass('nav nav-pills');
     placeHolder.append(ul);
     $.each(values, function (i, v) {
 
