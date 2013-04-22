@@ -44,6 +44,25 @@
                 </div>
             </div>
 
+            <!-- 长文本Text -->
+            <div class="accordion-group" id='accordionText'>
+                <div class="accordion-heading">
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseText">
+                    添加长文本作为属性值
+                </a>
+                </div>
+                <div id="collapseText" class="accordion-body collapse" style="height: 0px;">
+                <div class="accordion-inner">
+                    <label>标题
+                        <input id="{tbTitle}" type="text" class="span3" placeholder="输入标题..." />
+                    </label>
+                    <label for="{txtContent}">文本内容</label>
+                    <textarea rows="10" id="{txtContent}" class="span3" placeholder="输入文本作为内容..." />
+                </div>
+                </div>
+            </div>
+
+
             <!-- 图像 -->
             <div class="accordion-group hide" id='accordionImage'>
                 <div class="accordion-heading">
@@ -148,17 +167,22 @@
             var mm = new MemberManager();
             mm.check().done(function (status) {
             });
-        } else  { // 属性值是文本：
-            var val = $('#{txtValue}').val();
-            if (val == "") {
-                ulError.append(newLi().append("请输入属性值"));
-                $('#{dlgAddPropertyValue} .alert-error').show();
-                return;
-            }
-            cm.addLiteralPropertyValue(subject, predicateId, val, { appId: appId }).done(function (fs) {
-                $('#{txtValue}').val('');
-                $('#{dlgAddPropertyValue}').modal('hide');
-                AddPropertyValueDialog.added(fs);
+        } else if ($('#collapseText').hasClass('in')){
+            AddPropertyValueDialog.AddTextValue({
+                dialog: $('#{dlgAddPropertyValue}'),
+                subjectId: subject,
+                predicateId: predicateId,
+                tbTitle: $('#{tbTitle}'),
+                txtContent: $('#{txtContent}'),
+                appId: appId
+            });
+        }else { // 属性值是文本：
+            AddPropertyValueDialog.AddLiteralValue({
+                dialog: $('#{dlgAddPropertyValue}'),
+                subjectId: subject,
+                predicateId: predicateId,
+                tbValue: $('#{txtValue}'),
+                appId: appId
             });
         }
     }

@@ -1,6 +1,6 @@
 ﻿var curUser, curConcept;
 var host = "";
-var addTypeDialog, addValueDialog, createConceptDialog, cdp, dlgSelectDialog, dlgSearchDialog;
+var addTypeDialog, addValueDialog, createConceptDialog, cdp, dlgSelectDialog, dlgSearchDialog, dlgArticleShow;
 
 // 全局变量
 var CM, SM, N, MM;
@@ -20,6 +20,8 @@ $(document).ready(function () {
         CM.flush(curConcept);
         cdp.showDetail();
     });
+
+    dlgArticleShow = new ArticleShowDialog();
 
     getConcept().done(function () {
         QC.Login({
@@ -100,9 +102,16 @@ function afterNaguLogin() {
         renderTitle: ConceptDetailPanel.getFunction_RenderRichTitle(createConceptDialog),
         renderValues: renderValues,
         renderProperty: ConceptDetailPanel.getFunction_renderProperty3(addValueDialog),
-        renderPropertyValues: ConceptDetailPanel.getFunction_renderRichPropertyValues(function () {
-            PvsFromBaseClass[curConcept] = undefined;
-            cdp.show($('#detail'));
+//        renderPropertyValues: ConceptDetailPanel.getFunction_renderRichPropertyValues(function () {
+//            PvsFromBaseClass[curConcept] = undefined;
+//            cdp.show($('#detail'));
+        //        }),
+        renderPropertyValues: ConceptDetailPanel.get_renderPropertyValues2({
+            changed: function () {
+                PvsFromBaseClass[curConcept] = undefined;
+                cdp.show($('#detail'));
+            },
+            articleShowDialog: dlgArticleShow
         }),
         renderType: ConceptDetailPanel.renderType2
     });
