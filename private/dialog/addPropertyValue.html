@@ -45,7 +45,7 @@
             </div>
 
             <!-- 长文本Text -->
-            <div class="accordion-group" id='accordionText'>
+            <div class="accordion-group hide" id='accordionText' >
                 <div class="accordion-heading">
                 <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseText">
                     添加长文本作为属性值
@@ -125,8 +125,14 @@
                         case Nagu.Concepts.NaguConcept:
                             $('#accordionConcept').show();
                             break;
+                        case Nagu.Concepts.Literal:
+                            $('#accordionLiteral').show();
+                            break;
+                        case Nagu.Concepts.Article:
+                            $('#accordionText').show();
+                            break;
                         default:
-                            alert('unknown range type');
+                            alert('unknown range type: ' + rangeFs.Object.ConceptId);
                     }
                 });
             }
