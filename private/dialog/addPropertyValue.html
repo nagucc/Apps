@@ -114,6 +114,7 @@
         // 根据rdf:range判断显示哪些内容：
         Nagu.CM.getPropertyValues(subjectId, Nagu.Concepts.RdfRange).done(function (fss) {
             if (fss.length == 0) {
+                // 未指定时，显示最基本的两种：
                 $('#accordionConcept').show();
                 $('#accordionLiteral').show();
             } else {

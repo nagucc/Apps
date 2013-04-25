@@ -1,4 +1,4 @@
-﻿<div class="modal hide" id="dlgAddType">
+﻿<div class="modal hide" id="dlgAddType" subjectId="">
     <div class="modal-header">
         <a class="close" data-dismiss="modal">×</a>
         <h3>添加类型</h3>
@@ -10,89 +10,149 @@
             </ul>
             </div>
 
-        <form class="form-horizontal">
-
-            <div class="control-group">
-                <label for="tbTypeName" class="control-label">类型名称</label>
-                <div class="controls">
-                    <input type="text" id="tbTypeName" placeholder="输入关键字并等待搜索"/>
-                    <input type="hidden" id="tbTypeId" />
+            <div class="accordion" id="accordion_addType">
+                <!-- from system -->
+                <div class="accordion-group accordion-addtype-system">
+                    <div class="accordion-heading">
+                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion_addType" href="#{collapseSystem}">
+                        从系统自定义的类型中选择
+                    </a>
+                    </div>
+                    <div id="{collapseSystem}" class="accordion-body collapse" style="height: 0px;">
+                        <div class="accordion-inner">
+                            <div class="form-horizontal">
+                                <div class="control-group">
+                                    <label for="tbTypeName" class="control-label">类型名称</label>
+                                    <div class="controls">
+                                        <select class='system-types'>
+                                            <option value='' selected>--请选择--</option>
+                                        </select>
+                                        <button class="btn btn-primary" disabled>确定</button>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                            <h4 class='hide'>请从以下搜索结果中选择：</h4>
+                            <ul class="nav nav-pills"></ul>
+                        </div>
+                    </div>
                 </div>
+
+                <!-- Concept -->
+                <div class="accordion-group accordion-addtype-concept" id='accordionConcept'>
+                    <div class="accordion-heading">
+                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion_addType" href="#{collapseConcept}">
+                        添加Concept作为类型
+                    </a>
+                    </div>
+                    <div id="{collapseConcept}" class="accordion-body collapse" style="height: 0px;">
+                        <div class="accordion-inner">
+                            <div class="form-horizontal">
+                                <div class="control-group">
+                                    <label for="tbTypeName" class="control-label">类型名称</label>
+                                    <div class="controls">
+                                        <input type="text" id="tbTypeName" onkeypress="if(event.keyCode === 13){searchType_0425();}" placeholder="输入关键字并等待搜索"/>
+                                        <button onclick="searchType_0425();" class="btn">搜索</button>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                            <h4 class='hide'>请从以下搜索结果中选择：</h4>
+                            <ul class="nav nav-pills"></ul>
+                        </div>
+                    </div>
+                </div>
+
             </div>
+
             <label class="checkbox">
                 <input type="checkbox" userId="" id='{cbOnlyMe}' disabled="disabled" /><i class="icon-lock" />仅我可见
             </label>
-        </form>
+        
     </div>
     <div class="modal-footer">
         <a href="#" class="btn" data-dismiss="modal">关闭</a>
-        <button onclick="addType123();" class="btn btn-primary">确定</button>
     </div>
 </div>
 
-<style>
-    .ui-autocomplete {
-        max-height: 100px;
-        overflow-y: auto;
-        /* prevent horizontal scrollbar */
-        overflow-x: hidden;
-    }
-    /* IE 6 doesn't support max-height
-        * we use height instead, but this forces the menu to always be this tall
-        */
-    * html .ui-autocomplete {
-        height: 100px;
-    }
-    
-    .ui-autocomplete-loading {
-        background: white url('/Content/jqueryui/ui-anim_basic_16x16.gif') right center no-repeat;
-    }
-</style>
+
 
 <script type="text/javascript">
     $("#dlgAddType").modal({
             backdrop: false,
-            keyboard: false,
+            keyboard: true,
             show: false
         });
-        initConceptSearch($('#tbTypeName'), $('#tbTypeId'));
 
         // 获取当前用户信息,并激活"仅我可见"按钮.
-        var mm = new MemberManager();
-        mm.getMe().done(function (me) {
+        Nagu.MM.getMe().done(function (me) {
             $('#{cbOnlyMe}').removeAttr('disabled').attr('userId', me.Id);
         });
 
-        function addType123() {
-            //1. 数据验证
-            var alert = $("div#dlgAddType div.alert");
-            alert.hide();
-
-            ulError = $("div#dlgAddType ul.error-list").empty();
-            var hasError = false;
-            var type = $("#tbTypeId").val();
-
-            if (type === undefined || type == "") {
-                hasError = true;
-                ulError.append(newLi().append("还未选中类型"));
+        // 初始化“系统预定义”类型列表
+        var select = $('select.system-types');
+        Nagu.CM.getPropertyValues(Nagu.Concepts.SystemTypeBag, Nagu.Rdf.Li).done(function (fss) {
+            $.each(fss, function (i, fs) {
+                if (fs.Object.ConceptId) {
+                    var option = $('<option/>').attr('value', fs.Object.ConceptId);
+                    option.text(fs.Object.ConceptId).appendTo(select);
+                    Nagu.CM.get(fs.Object.ConceptId).done(function (concept) {
+                        option.text(concept.FriendlyNames[0]);
+                    });
+                }
+            });
+        });
+        select.change(function () {
+            if (select.val() == '') {
+                $(this).next('button').attr('disabled', true);
             }
-            if (hasError) {
-                alert.show();
-                return;
+            else {
+                $(this).next('button').removeAttr('disabled');
             }
+        });
 
-            //2. 完成类型添加
-            var subjectId = $('#dlgAddType').attr('subjectId');
-            var stype = $('#dlgAddType').attr('stype');
-            //var appId = $('#dlgAddType').attr('appId');
-            var appId = $('#{cbOnlyMe}').attr('checked') === undefined ? "" : $('#{cbOnlyMe}').attr('userId');
-            var cm = new ConceptManager();
-            cm.addRdfType(subjectId, type, { appId: appId }).done(function (fs) {
-                console.log('成功添加Type,TypeId: ' + type);
-                $("div#dlgAddType input").val("");
-                console.log('执行AddTypeDialog.prototype.onTypeAdded:::fsId=' + fs.StatementId);
-                AddTypeDialog.prototype.onTypeAdded(fs);
-                $("div#dlgAddType").modal('toggle');
+        select.next('button').click(function () {
+            var dialog = $('div#dlgAddType');
+            var subjectId = dialog.attr('subjectId');
+            var appId = $('#{cbOnlyMe}').attr('checked') === undefined ? '' : $('#{cbOnlyMe}').attr('userId');
+            var typeId = select.val();
+            AddTypeDialog.AddType(subjectId, typeId, { appId: appId }).done(function () {
+                select.val('');
+                dialog.toggle('hide');
+            });
+        });
+
+
+        function searchType_0425() {
+            var dialog = $('div#dlgAddType');
+            var ulResult = dialog.find('ul');
+
+            // 进入“等待搜索结果”状态
+            dialog.find('h4').show();
+            var tempLi = newLi().append(newImg('/Content/Images/loading-128.gif'));
+            ulResult.empty().append(tempLi);
+
+            // 开始搜索
+            Nagu.CM.search($('#tbTypeName').val(), Nagu.Owl.Class).done(function (cs) {
+                if (cs.length == 0) {
+                    ulResult.empty().append(newLi().append('没有找到任何数据'));
+                    return;
+                }
+                ulResult.conceptList(cs, {
+                    clearBefore: true,
+                    pageSize: 5,
+                    renderItem: function (concept, li) {
+                        li.appendConcept(concept.ConceptId);
+                        li.find('a').click(function () {
+                            var typeId = li.attr('ConceptId');
+                            var subjectId = dialog.attr('subjectId');
+                            var appId = $('#{cbOnlyMe}').attr('checked') === undefined ? '' : $('#{cbOnlyMe}').attr('userId');
+                            AddTypeDialog.AddType(subjectId, typeId, { appId: appId }).done(function () {
+                                dialog.toggle('hide');
+                            });
+                        });
+                    }
+                });
             });
         }
 </script>
