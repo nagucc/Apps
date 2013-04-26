@@ -33,6 +33,7 @@
                         </div>
                         <h4 class='hide'>请从以下搜索结果中选择：</h4>
                         <ul class="nav nav-pills"></ul>
+                        <button id='{btnNew}' class='hide btn btn-primary' onclick='newAndAddPropertyValue_0426()'>去创建一个>></button>
                     </div>
                 </div>
             </div>
@@ -106,10 +107,6 @@
             show: false
         });
 
-        
-
-        //initConceptSearch($('#{txtFn}'), $('#{txtFn}_id'));
-
         // 获取当前用户信息,并激活"仅我可见"按钮.
         Nagu.MM.getMe().done(function (me) {
             $('#{cbOnlyMe}').removeAttr('disabled').attr('userId', me.Id);
@@ -171,6 +168,7 @@
         Nagu.CM.search($('#{txtFn}').val()).done(function (cs) {
             if (cs.length == 0) {
                 ulResult.empty().append(newLi().append('没有找到任何数据'));
+                $('#{btnNew}').show();
                 return;
             }
             ulResult.conceptList(cs, {
@@ -195,6 +193,31 @@
             });
         });
     }
+
+    function newAndAddPropertyValue_0426() {
+        var dialog = $('#{dlgAddPropertyValue}');      
+        var fn = $('#{txtFn}').val();
+        var fnId = 'tbName' + randomInt();
+        var dlgCreateConcept = new CreateConceptDialog({
+            fnId: fnId,
+            autoInit: false,
+            onAdded: function (concept) {
+                          
+                var subjectId = dialog.attr('subjectId');
+                var predicateId = dialog.attr('predicateId');
+                var appId = $('#{cbOnlyMe}').attr('checked') === undefined ? "" : $('#{cbOnlyMe}').attr('userId');
+
+                AddPropertyValueDialog.AddConceptValue(subjectId, predicateId, concept.ConceptId, {
+                    appId: appId
+                });
+            }
+        });
+        dlgCreateConcept.init().done(function () {
+            $('#' + fnId).val(fn);
+            dialog.modal('hide');
+            dlgCreateConcept.toggle();
+        });
+    }
     
 
     function addPropertyValue34532532453245325() {
@@ -209,22 +232,22 @@
 
         var cm = new ConceptManager();
         // 如果属性值是Concept：
-        if ($('#collapseConcept').hasClass('in')) {
-            var fn = $('#{txtFn}').val();
-            var conceptId = $('#{txtFn}_id').val();
-            if (fn == "") {
-                ulError.append(newLi().append("请输入关键字并选择Concept"));
-                $('#{dlgAddPropertyValue} .alert-error').show();
-                return;
-            }
-            cm.addConceptPropertyValue(subject, stype, predicateId, fn, conceptId, { appId: appId }).done(function (fs) {
-                $('#{txtFn}').val('');
-                $('#{txtFn}_id').val('');
-                $('#{dlgAddPropertyValue}').modal('hide');
-                AddPropertyValueDialog.added(fs);
-            });
+//        if ($('#collapseConcept').hasClass('in')) {
+//            var fn = $('#{txtFn}').val();
+//            var conceptId = $('#{txtFn}_id').val();
+//            if (fn == "") {
+//                ulError.append(newLi().append("请输入关键字并选择Concept"));
+//                $('#{dlgAddPropertyValue} .alert-error').show();
+//                return;
+//            }
+//            cm.addConceptPropertyValue(subject, stype, predicateId, fn, conceptId, { appId: appId }).done(function (fs) {
+//                $('#{txtFn}').val('');
+//                $('#{txtFn}_id').val('');
+//                $('#{dlgAddPropertyValue}').modal('hide');
+//                AddPropertyValueDialog.added(fs);
+//            });
         // 如果属性值是第三方上传图片:
-        } else if ($('#collapseImage').hasClass('in')) {
+        /*} else */if ($('#collapseImage').hasClass('in')) {
             uploadTest($('#txtImage'));
             var mm = new MemberManager();
             mm.check().done(function (status) {
