@@ -91,52 +91,61 @@
 </div>
 
 <script type="text/javascript">
-    $("#{dlgAddPropertyValue}").modal({
-        backdrop: false,
-        keyboard: false,
-        show: false
-    });
-    initConceptSearch($('#{txtFn}'), $('#{txtFn}_id'));
+    $(document).ready(function () {
+        $("#{dlgAddPropertyValue}").modal({
+            backdrop: false,
+            keyboard: false,
+            show: false
+        });
 
-    // 获取当前用户信息,并激活"仅我可见"按钮.
-    var mm = new MemberManager();
-    mm.getMe().done(function (me) {
-        $('#{cbOnlyMe}').removeAttr('disabled').attr('userId', me.Id);
-    });
+        
 
-    // 对话框打开时的处理事件
-    $('#{dlgAddPropertyValue}').on('show', function (eventData) {
-        // 由于show事件会在对话框内多个控件被触发
-        // 所以此处需要判断触发事件的控件：
-        if (eventData.target.id != '{dlgAddPropertyValue}') return;
+        initConceptSearch($('#{txtFn}'), $('#{txtFn}_id'));
 
-        var subjectId = $('#{dlgAddPropertyValue}').attr('predicateId');
-        // 根据rdf:range判断显示哪些内容：
-        Nagu.CM.getPropertyValues(subjectId, Nagu.Concepts.RdfRange).done(function (fss) {
-            if (fss.length == 0) {
-                // 未指定时，显示最基本的两种：
-                $('#accordionConcept').show();
-                $('#accordionLiteral').show();
-            } else {
-                $.each(fss, function (i, rangeFs) {
-                    switch (rangeFs.Object.ConceptId) {
-                        case Nagu.Concepts.NaguImage:
-                            $('#accordionImage').show();
-                            break;
-                        case Nagu.Concepts.NaguConcept:
-                            $('#accordionConcept').show();
-                            break;
-                        case Nagu.Concepts.Literal:
-                            $('#accordionLiteral').show();
-                            break;
-                        case Nagu.Concepts.Article:
-                            $('#accordionText').show();
-                            break;
-                        default:
-                            alert('unknown range type: ' + rangeFs.Object.ConceptId);
-                    }
-                });
-            }
+        // 获取当前用户信息,并激活"仅我可见"按钮.
+        Nagu.MM.getMe().done(function (me) {
+            $('#{cbOnlyMe}').removeAttr('disabled').attr('userId', me.Id);
+        });
+
+        var dialog = $('#{dlgAddPropertyValue}');
+
+        // 对话框打开时的处理事件
+        dialog.on('show', function (eventData) {
+            // 由于show事件会在对话框内多个控件被触发
+            // 所以此处需要判断触发事件的控件：
+            if (eventData.target.id != '{dlgAddPropertyValue}') return;
+
+            // 显示对话框之前，初始化对话框中的各个元素：
+            dialog.find('.accordion-group').hide();
+
+            var subjectId = $('#{dlgAddPropertyValue}').attr('predicateId');
+            // 根据rdf:range判断显示哪些内容：
+            Nagu.CM.getPropertyValues(subjectId, Nagu.Concepts.RdfRange).done(function (fss) {
+                if (fss.length == 0) {
+                    // 未指定时，显示最基本的两种：
+                    $('#accordionConcept').show();
+                    $('#accordionLiteral').show();
+                } else {
+                    $.each(fss, function (i, rangeFs) {
+                        switch (rangeFs.Object.ConceptId) {
+                            case Nagu.Concepts.NaguImage:
+                                $('#accordionImage').show();
+                                break;
+                            case Nagu.Concepts.NaguConcept:
+                                $('#accordionConcept').show();
+                                break;
+                            case Nagu.Concepts.Literal:
+                                $('#accordionLiteral').show();
+                                break;
+                            case Nagu.Concepts.Article:
+                                $('#accordionText').show();
+                                break;
+                            default:
+                                alert('unknown range type: ' + rangeFs.Object.ConceptId);
+                        }
+                    });
+                }
+            });
         });
     });
     

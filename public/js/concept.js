@@ -23,6 +23,8 @@ $(document).ready(function () {
 
     dlgArticleShow = new ArticleShowDialog();
 
+    
+
     getConcept().done(function () {
         QC.Login({
             btnId: "qqLoginBtn",
@@ -30,6 +32,8 @@ $(document).ready(function () {
             size: "A_M"
         }, afterQCLogin);
     });
+
+    
 });
 
 /********************************************************************************************************************************/
@@ -47,6 +51,29 @@ function getConcept() {
         $('#fn').text(concept.FriendlyNames[0]);
         $('#desc').text(concept.Descriptions[0]);
         $('#id').text(concept.ConceptId);
+
+
+        // 初始化本地存储信息：
+        var days = 0, hours = 0, minutes = 0, seconds = 0;
+        var text = '';
+        var ttl = Math.floor($.jStorage.getTTL('concept_' + curConcept) / 1000);
+        days = Math.floor(ttl / 86400);
+        ttl -= days * 86400;
+
+        hours = Math.floor(ttl / 3600);
+        ttl -= hours * 3600;
+
+        minutes = Math.floor(ttl / 60);
+        ttl -= minutes * 60;
+
+        seconds = ttl;
+
+        if (days > 0) text += days + '天';
+        if (hours > 0 || text != '') text += hours + '小时';
+        if (minutes > 0 || text != '') text += minutes + '分';
+        if (seconds > 0 || text != '') text += seconds + '秒';
+        $('#ttlText').text(text);
+
         dtd.resolve();
     }).fail(function () { });
 
@@ -158,6 +185,10 @@ function QQLogout() {
 
 
 
+function flushConcept() {
+    ConceptManager.removeCachedConcept(curConcept);
+    location.reload();
+}
 
 
 

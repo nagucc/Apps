@@ -39,13 +39,17 @@
                         <div class="control-group">
                             <label for="tbName" class="control-label">名称</label>
                             <div class="controls">
-                                <input type="text" id="tbName" placeholder="输入关键字并搜索"/>
+                                <input type="text" id="tbName" onkeypress="if(event.keyCode === 13){search();}" placeholder="输入关键字并搜索"/>
                                 <button onclick="search();" class="btn">搜索</button>
                             </div>
                         </div>
                     </span>
                     <h4 class='hide'>搜索结果</h4>
                     <ul id="result" class="nav nav-pills"></ul>
+                    <div id="localConcepts" class="hide">
+                    最近访问：
+                    <ul class="nav nav-pills"></ul>
+                    </div>
                 </div>
             </div>
         </div>
@@ -70,6 +74,23 @@
                     scope: "all",
                     size: "A_M"
                 }, afterQCLogin);
+
+                var concepts = $.jStorage.get('concepts', []);
+                if (concepts.length > 0) {
+                    var div = $('#localConcepts').show();
+                    var ul = div.find('ul');
+                    ul.conceptList(concepts.reverse(), {
+                        clearBefore: true,
+                        pageSize: 10,
+                        renderItem: function (concept, li) {
+                            li.appendConcept(concept.ConceptId);
+                            li.find('a').click(function () {
+                                var conceptId = li.attr('ConceptId');
+                                window.location = 'concept.html?id=' + conceptId;
+                            });
+                        }
+                    });
+                }
             });
 
             function afterNaguLogin() {
@@ -114,17 +135,27 @@
                       clearBefore: true,
                       pageSize: 5,
                       renderItem: function (concept, li) {
-                          var a = newA().appendTo(li);
-                          a.appendConcept(concept.ConceptId);
-                          a.click(function () {
+                          li.appendConcept(concept.ConceptId);
+                          li.find('a').click(function () {
                               var conceptId = li.attr('ConceptId');
+                              var concepts = $.jStorage.get('concepts', []);
+                              var localcs = $.grep(concepts, function (c, i) {
+                                  return c.ConceptId == conceptId;
+                              });
+                              if (localcs.length == 0) {
+                                  Nagu.CM.get(conceptId).done(function (c) {
+                                      concepts.push(c);
+                                  });
+                              }
+                              $.jStorage.set('concepts', concepts);
+
                               window.location = 'concept.html?id=' + conceptId;
                           });
                       }
                   });
               });
           }
-      </script>
+        </script>
     </div>
 
 
@@ -167,6 +198,6 @@
     <script src="../../Content/js/jquery/fileupload/jquery.iframe-transport.js" type="text/javascript"></script>
 
     <script type="text/javascript" src="http://qzonestyle.gtimg.cn/qzone/openapi/qc_loader.js" data-appid="100321920"  charset="utf-8"></script>
-    
+    <script src="../../Content/lib/jStorage/jstorage.min.js" type="text/javascript"></script>
 </body>
 </html>
