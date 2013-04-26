@@ -14,7 +14,7 @@
         <div class="accordion" id="accordion2">
             
             <!-- Concept -->
-            <div class="accordion-group hide" id='accordionConcept'>
+            <div class="accordion-group hide" id='{accordionConcept}'>
                 <div class="accordion-heading">
                 <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseConcept">
                     添加Concept作为属性值
@@ -22,9 +22,17 @@
                 </div>
                 <div id="collapseConcept" class="accordion-body collapse" style="height: 0px;">
                     <div class="accordion-inner">
-                        <label for="{txtFn}">Concept名称</label>
-                        <input id="{txtFn}" type="text" class="span3" placeholder="请输入关键字后等待搜索..." />
-                        <input id="{txtFn}_id" type="hidden" />
+                        <div class="form-horizontal">
+                            <div class="control-group">
+                            <label for="{txtFn}"  class="control-label">Concept名称</label>
+                            <div class="controls">
+                                <input id="{txtFn}" type="text" onkeypress="if(event.keyCode === 13){searchForAddValue_0426();}" placeholder="请输入关键字后等待搜索..." />
+                                <button onclick="searchForAddValue_0426();" class="btn btn-primary">搜索</button>
+                            </div>
+                            </div>
+                        </div>
+                        <h4 class='hide'>请从以下搜索结果中选择：</h4>
+                        <ul class="nav nav-pills"></ul>
                     </div>
                 </div>
             </div>
@@ -100,7 +108,7 @@
 
         
 
-        initConceptSearch($('#{txtFn}'), $('#{txtFn}_id'));
+        //initConceptSearch($('#{txtFn}'), $('#{txtFn}_id'));
 
         // 获取当前用户信息,并激活"仅我可见"按钮.
         Nagu.MM.getMe().done(function (me) {
@@ -123,7 +131,7 @@
             Nagu.CM.getPropertyValues(subjectId, Nagu.Concepts.RdfRange).done(function (fss) {
                 if (fss.length == 0) {
                     // 未指定时，显示最基本的两种：
-                    $('#accordionConcept').show();
+                    $('#{accordionConcept}').show();
                     $('#accordionLiteral').show();
                 } else {
                     $.each(fss, function (i, rangeFs) {
@@ -132,7 +140,7 @@
                                 $('#accordionImage').show();
                                 break;
                             case Nagu.Concepts.NaguConcept:
-                                $('#accordionConcept').show();
+                                $('#{accordionConcept}').show();
                                 break;
                             case Nagu.Concepts.Literal:
                                 $('#accordionLiteral').show();
@@ -148,7 +156,45 @@
             });
         });
     });
-    
+
+
+    function searchForAddValue_0426() {
+        var dialog = $('#{dlgAddPropertyValue}');
+        var ulResult = dialog.find('ul');
+
+        // 进入“等待搜索结果”状态
+        dialog.find('h4').show();
+        var tempLi = newLi().append(newImg('/Content/Images/loading-128.gif'));
+        ulResult.empty().append(tempLi);
+
+        // 开始搜索
+        Nagu.CM.search($('#{txtFn}').val()).done(function (cs) {
+            if (cs.length == 0) {
+                ulResult.empty().append(newLi().append('没有找到任何数据'));
+                return;
+            }
+            ulResult.conceptList(cs, {
+                clearBefore: true,
+                pageSize: 10,
+                renderItem: function (concept, li) {
+                    li.appendConcept(concept.ConceptId);
+                    li.find('a').click(function () {
+                        var conceptId = $(this).attr('conceptId');
+                        var subjectId = dialog.attr('subjectId');
+                        var predicateId = dialog.attr('predicateId');
+                        var appId = $('#{cbOnlyMe}').attr('checked') === undefined ? "" : $('#{cbOnlyMe}').attr('userId');
+
+                        AddPropertyValueDialog.AddConceptValue(subjectId, predicateId, conceptId, {
+                            appId: appId
+                        }).done(function () {
+                            $('#{dlgAddPropertyValue}').modal('hide');
+                        });
+
+                    });
+                }
+            });
+        });
+    }
     
 
     function addPropertyValue34532532453245325() {
