@@ -190,7 +190,7 @@ function QQLogout() {
     $(".logged").hide("slow", function () {
         $("#myfamilies li").prependTo("#families");
     });
-    cdp = new ConceptDetailPanel($('families li.active a').attr('conceptId'));
+    cdp = new ConceptDetailPanel($('#families li.active a').attr('conceptId'));
     cdp.show($('#family_detail'));
 }
 

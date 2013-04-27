@@ -129,10 +129,6 @@ function afterNaguLogin() {
         renderTitle: ConceptDetailPanel.getFunction_RenderRichTitle(createConceptDialog),
         renderValues: renderValues,
         renderProperty: ConceptDetailPanel.getFunction_renderProperty3(addValueDialog),
-//        renderPropertyValues: ConceptDetailPanel.getFunction_renderRichPropertyValues(function () {
-//            PvsFromBaseClass[curConcept] = undefined;
-//            cdp.show($('#detail'));
-        //        }),
         renderPropertyValues: ConceptDetailPanel.get_renderPropertyValues2({
             changed: function () {
                 PvsFromBaseClass[curConcept] = undefined;
@@ -145,6 +141,12 @@ function afterNaguLogin() {
     cdp.show($('#detail'));
 
     $(".logged").show("slow", function () {
+    });
+    $('.nagu-logged').show();
+
+    // 显示“帐户信息”
+    Nagu.MM.getMe().done(function (me) {
+        $('#accountInfo').attr('href', '/apps/public/concept.html?id=' + me.Id);        
     });
 }
 

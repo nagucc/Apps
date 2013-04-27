@@ -231,23 +231,9 @@
         var ulError = $("#{dlgAddPropertyValue} ul.error-list").empty();
 
         var cm = new ConceptManager();
-        // 如果属性值是Concept：
-//        if ($('#collapseConcept').hasClass('in')) {
-//            var fn = $('#{txtFn}').val();
-//            var conceptId = $('#{txtFn}_id').val();
-//            if (fn == "") {
-//                ulError.append(newLi().append("请输入关键字并选择Concept"));
-//                $('#{dlgAddPropertyValue} .alert-error').show();
-//                return;
-//            }
-//            cm.addConceptPropertyValue(subject, stype, predicateId, fn, conceptId, { appId: appId }).done(function (fs) {
-//                $('#{txtFn}').val('');
-//                $('#{txtFn}_id').val('');
-//                $('#{dlgAddPropertyValue}').modal('hide');
-//                AddPropertyValueDialog.added(fs);
-//            });
+        // 如果属性值是Concept，则由其他方法处理。
         // 如果属性值是第三方上传图片:
-        /*} else */if ($('#collapseImage').hasClass('in')) {
+        if ($('#collapseImage').hasClass('in')) {
             uploadTest($('#txtImage'));
             var mm = new MemberManager();
             mm.check().done(function (status) {
