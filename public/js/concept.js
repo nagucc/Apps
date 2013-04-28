@@ -228,6 +228,7 @@ function addPropertyValueDialog_added(fs) {
     // 刷新缓存
     PvsFromBaseClass[fs.Subject.ConceptId] = undefined;
     cdp.showFromTypes();
+    cdp.showProperties();
 }
 
 
