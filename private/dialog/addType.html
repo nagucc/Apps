@@ -11,13 +11,13 @@
             </div>
         <div>
             <div class="control-group">
-                
                 <div class="controls">
-                    <label class="control-label">可见范围
+                    <label class="control-label">
+                        可见范围
                     <select id="{listApps}">
                         <option value=''>公开</option>
                     </select>
-                        </label>
+                    </label>
                 </div>
             </div>
         </div>
@@ -90,8 +90,7 @@
         });
 
         // 初始化“可见范围”
-        var listApps = $('#{listApps}');
-        Dialog.InitAppList(listApps);
+        Dialog.InitAppList($('#{listApps}'));
 
         // 初始化“系统预定义”类型列表
         var select = $('select.system-types');

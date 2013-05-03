@@ -10,6 +10,16 @@
             </ul>
         </div>
 
+        <div class="control-group">
+            <div class="controls">
+                <label class="control-label">
+                    可见范围
+                    <select id="{listApps}">
+                        <option value=''>公开</option>
+                    </select>
+                </label>
+            </div>
+        </div>
 
         <div class="accordion" id="accordion2">
             
@@ -108,9 +118,12 @@
         });
 
         // 获取当前用户信息,并激活"仅我可见"按钮.
-        Nagu.MM.getMe().done(function (me) {
-            $('#{cbOnlyMe}').removeAttr('disabled').attr('userId', me.Id);
-        });
+        //Nagu.MM.getMe().done(function (me) {
+        //    $('#{cbOnlyMe}').removeAttr('disabled').attr('userId', me.Id);
+        //});
+
+        // 初始化“可见范围”
+        Dialog.InitAppList($('#{listApps}'));
 
         var dialog = $('#{dlgAddPropertyValue}');
 
@@ -205,8 +218,8 @@
                           
                 var subjectId = dialog.attr('subjectId');
                 var predicateId = dialog.attr('predicateId');
-                var appId = $('#{cbOnlyMe}').attr('checked') === undefined ? "" : $('#{cbOnlyMe}').attr('userId');
-
+                //var appId = $('#{cbOnlyMe}').attr('checked') === undefined ? "" : $('#{cbOnlyMe}').attr('userId');
+                var appId = $('#{listApps}').val();
                 AddPropertyValueDialog.AddConceptValue(subjectId, predicateId, concept.ConceptId, {
                     appId: appId
                 });
@@ -226,17 +239,14 @@
         var stype = $('#{dlgAddPropertyValue}').attr('stype');
         var predicateId = $('#{dlgAddPropertyValue}').attr('predicateId');
 
-        var appId = $('#{cbOnlyMe}').attr('checked') === undefined ? "" : $('#{cbOnlyMe}').attr('userId');
-
+        var appId = $('#{listApps}').val();
         var ulError = $("#{dlgAddPropertyValue} ul.error-list").empty();
 
-        var cm = new ConceptManager();
         // 如果属性值是Concept，则由其他方法处理。
         // 如果属性值是第三方上传图片:
         if ($('#collapseImage').hasClass('in')) {
             uploadTest($('#txtImage'));
-            var mm = new MemberManager();
-            mm.check().done(function (status) {
+            Nagu.MM.check().done(function (status) {
             });
         } else if ($('#collapseText').hasClass('in')){
             AddPropertyValueDialog.AddTextValue({
