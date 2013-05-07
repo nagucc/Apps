@@ -88,9 +88,8 @@
                     clearBefore: true,
                     pageSize: 5,
                     renderItem: function (concept, li) {
-                        var a = newA().appendTo(li);
-                        a.appendConcept(concept.ConceptId);
-                        a.click(function () {
+                        li.appendConcept(concept.ConceptId);
+                        li.find('a').click(function () {
                             var conceptId = li.attr('ConceptId');
                             SearchConceptDialog.selected(conceptId);
                             $("div#{dlgSelect} input").val("");

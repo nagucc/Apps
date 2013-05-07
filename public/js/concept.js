@@ -3,26 +3,28 @@ var host = "";
 var addTypeDialog, addValueDialog, createConceptDialog, cdp, dlgSelectDialog, dlgSearchDialog, dlgArticleShow;
 
 // 全局变量
-var CM, SM, N, MM;
+var SM, N, MM;
 var renderValues;
 
 
 $(document).ready(function () {
     // 全局变量
-    CM = new ConceptManager();
     SM = new StatementManager();
     MM = new MemberManager();
-    Nagu.init();
+    //Nagu.init({
+    //    useIframe: true,
+    //    host:"http://nagu.cc"
+    //});
     N = Nagu;
     curConcept = getRequest()['id'];
     // 用于显示Concept详细信息的回调函数.
     renderValues = ConceptDetailPanel.getFunction_renderRichValues(function () {
-        CM.flush(curConcept);
+        Nagu.CM.flush(curConcept);
         cdp.showDetail();
     });
 
     dlgArticleShow = new ArticleShowDialog();
-
+    dlgSearchDialog = new SearchConceptDialog();
     
 
     getConcept().done(function () {
@@ -47,7 +49,7 @@ function getConcept() {
     }
 
     // 获取Concept信息,显示标题
-    CM.get(curConcept).done(function (concept) {
+    Nagu.CM.get(curConcept).done(function (concept) {
         $('#fn').text(concept.FriendlyNames[0]);
         $('#desc').text(concept.Descriptions[0]);
         $('#id').text(concept.ConceptId);
@@ -119,16 +121,16 @@ function afterNaguLogin() {
     if (dlgSelectDialog === undefined) {
         dlgSelectDialog = new SelectConceptDialog();
     }
-    if (dlgSearchDialog === undefined) {
-        dlgSearchDialog = new SearchConceptDialog();
-    }
+    
 
     // 显示Concept的详细信息:
     createConceptDialog.opts.onAdded = createConceptDialog_onUpdated;
     cdp = new ConceptDetailPanel(curConcept, {
         renderTitle: ConceptDetailPanel.getFunction_RenderRichTitle(createConceptDialog),
         renderValues: renderValues,
-        renderProperty: ConceptDetailPanel.getFunction_renderProperty3(addValueDialog),
+        renderProperty: ConceptDetailPanel.getFunction_renderProperty3({
+            dlgAddPropertyValue: addValueDialog
+        }),
         renderPropertyValues: ConceptDetailPanel.get_renderPropertyValues2({
             changed: function () {
                 PvsFromBaseClass[curConcept] = undefined;
@@ -204,7 +206,7 @@ function flushConcept() {
 
 function createConceptDialog_onUpdated(concept) {
     
-    CM.flush(concept.ConceptId);
+    Nagu.CM.flush(concept.ConceptId);
     $('div.nagu-concept-detail').conceptShow(concept.ConceptId, {
         renderTitle: ConceptDetailPanel.getFunction_RenderRichTitle(createConceptDialog),
         renderValues: renderValues
@@ -233,7 +235,7 @@ function addPropertyValueDialog_added(fs) {
 
 
 function dlgSelectDialog_selected_addProperty(propertyId, appId) {
-    CM.addProperty(curConcept, propertyId, {
+    Nagu.CM.addProperty(curConcept, propertyId, {
         appId: appId
     }).done(function (fs) {
         cdp.showProperties();
