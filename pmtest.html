@@ -1,8 +1,13 @@
 ﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <script src="../Content/js/messengerjs/messenger.js" type="text/javascript" ></script> 
+    <link href="../Content/bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css" />
+    <link href="../Content/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet" type="text/css" />
     <script src="../Content/bootstrap/js/assets/jquery-1.8.2.min.js" type="text/javascript"></script>
+
+    <script src="../Content/bootstrap/js/bootstrap.js" type="text/javascript"></script>
+
+    <script src="../Content/js/messengerjs/messenger.js" type="text/javascript" ></script> 
     <script src="../../Content/js/js-helper.js" type="text/javascript"></script>
     <script src="../../Content/js/jquery-helper.js" type="text/javascript"></script>
     <script src="../../Content/js/bootstrap-helper.js" type="text/javascript"></script>
@@ -11,11 +16,24 @@
     <script src="../../Content/js/bootstarp-dropdownmenu.js" type="text/javascript"></script>
     <script src="../../Content/js/nagu-bs-accordion.js" type="text/javascript"></script>
 
+    <script type="text/javascript" src="http://qzonestyle.gtimg.cn/qzone/openapi/qc_loader.js" data-appid="100321920"  charset="utf-8"></script>
+
+
     <script type="text/javascript">
         var messenger;
         $(document).ready(function () {
             messenger = Messenger.initInParent(document.getElementById('iframe'));
             
+            QC.Login({
+                btnId: "qqLoginBtn",
+                scope: "all",
+                size: "A_M"
+            }, function () {
+                alert('login');
+            });
+
+            alert(QC.Login.check());
+
         });
         function go() {
             var message = {
@@ -57,12 +75,35 @@
     </script>
 </head>
 <body>
+            <span id="qqLoginBtn" ></span>
+
+
 <a href="#" onclick="go();">go</a>
 
 <a href="#" onclick="go2();">go2</a>
 
     <iframe style="width: 0px; height: 0px; display: none; overflow: hidden;" id="iframe" src="http://nagu.cc/apps/pmproxy.html"></iframe>
 <form id="fileupload" method="post" enctype="multipart/form-data"></form>
+
+
+    <ul>
+    <li id="menu6632946641184" class="dropdown"><a href="#menu6632946641184" class="dropdown-toggle"
+        data-toggle="dropdown">血块章</a><ul class="dropdown-menu">
+            <li><a href="javascript:void(0)" statementid="1e2b4422-bf56-4433-a11a-d867bf8c20d8"
+                nagu-said-status="true">删除星标</a></li>
+            <li><a href="javascript:void(0)">详细信息</a></li>
+        </ul>
+    </li>
+
+
+    <li id="Li1" class="dropdown"><a href="#menu6502255701926" class="dropdown-toggle"
+        data-toggle="dropdown">血块章</a><ul class="dropdown-menu">
+            <li><a href="javascript:void(0)" statementid="fd9aca08-49a9-4705-ab5c-c0d1bc1ac0e8"
+                nagu-said-status="false">添加星标</a></li>
+            <li><a href="javascript:void(0)">详细信息</a></li>
+        </ul>
+    </li>
+</ul>
 
 </body>
 </html>

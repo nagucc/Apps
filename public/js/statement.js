@@ -1,98 +1,52 @@
-﻿var curUser, curConcept;
+﻿var curUser, curStatement;
 var host = "";
 var addTypeDialog, addValueDialog, createConceptDialog, cdp, dlgSelectDialog, dlgSearchDialog, dlgArticleShow;
 
 // 全局变量
-var SM, N, MM;
 var renderValues;
 
 
 $(document).ready(function () {
     // 全局变量
-    SM = new StatementManager();
-    MM = new MemberManager();
-    //Nagu.init({
-    //    useIframe: true,
-    //    host:"http://nagu.cc"
-    //});
-    N = Nagu;
-    curConcept = getRequest()['id'];
-    // 用于显示Concept详细信息的回调函数.
-    renderValues = ConceptDetailPanel.getFunction_renderRichValues(function () {
-        Nagu.CM.flush(curConcept);
-        cdp.showDetail();
-    });
 
-    dlgArticleShow = new ArticleShowDialog();
-    dlgSearchDialog = new SearchConceptDialog();
+    curStatement = getRequest()['id'];
+    getStatement();
+
+    // 用于显示Concept详细信息的回调函数.
+    //renderValues = ConceptDetailPanel.getFunction_renderRichValues(function () {
+    //    Nagu.CM.flush(curConcept);
+    //    cdp.showDetail();
+    //});
+
+    //dlgArticleShow = new ArticleShowDialog();
+    //dlgSearchDialog = new SearchConceptDialog();
     
 
-    getConcept().done(function () {
-        QC.Login({
-            btnId: "qqLoginBtn",
-            scope: "all",
-            size: "A_M"
-        }, afterQCLogin);
-    });
+    //getConcept().done(function () {
+    //    QC.Login({
+    //        btnId: "qqLoginBtn",
+    //        scope: "all",
+    //        size: "A_M"
+    //    }, afterQCLogin);
+    //});
 
     
 });
 
 /********************************************************************************************************************************/
-function getConcept() {
-    var dtd = $.Deferred();
+function getStatement() {
+    //var dtd = $.Deferred();
 
-    // 获取当前待显示的Concept的id:
-    if (curConcept === undefined) {
+    // 获取当前待显示的Statement的id:
+    if (curStatement === undefined) {
         dtd.reject();
         return dtd.promise();
     }
-
+    $('#id').text(curStatement);
+    return $('#fn').appendStatement(curStatement);
     // 获取Concept信息,显示标题
-    Nagu.CM.get(curConcept).done(function (concept) {
-        $('#fn').text(concept.FriendlyNames[0]);
-        $('#desc').text(concept.Descriptions[0]);
-        $('#id').text(concept.ConceptId);
 
-
-        // 初始化本地存储信息：
-        var days = 0, hours = 0, minutes = 0, seconds = 0;
-        var text = '';
-        var ttl = Math.floor($.jStorage.getTTL('concept_' + curConcept) / 1000);
-        days = Math.floor(ttl / 86400);
-        ttl -= days * 86400;
-
-        hours = Math.floor(ttl / 3600);
-        ttl -= hours * 3600;
-
-        minutes = Math.floor(ttl / 60);
-        ttl -= minutes * 60;
-
-        seconds = ttl;
-
-        if (days > 0) text += days + '天';
-        if (hours > 0 || text != '') text += hours + '小时';
-        if (minutes > 0 || text != '') text += minutes + '分';
-        if (seconds > 0 || text != '') text += seconds + '秒';
-        $('#ttlText').text(text);
-
-        dtd.resolve();
-    }).fail(function () { });
-
-
-    // 显示Concept的详细信息:
-    MM.check().done(function (status) {
-        if (status.nagu) {
-            afterNaguLogin();
-        } else {
-            cdp = new ConceptDetailPanel(curConcept);
-            cdp.show($('#detail'));
-        }
-    }).fail(function () {
-        cdp = new ConceptDetailPanel(curConcept);
-        cdp.show($('#detail'));
-    });
-    return dtd.promise();
+    //return dtd.promise();
 }
 
 
@@ -199,11 +153,6 @@ function flushConcept() {
 
 /**  各种回调函数 ***************************************************************************/
 
-
-
-
-
-
 function createConceptDialog_onUpdated(concept) {
     
     Nagu.CM.flush(concept.ConceptId);
@@ -244,10 +193,4 @@ function dlgSelectDialog_selected_addProperty(propertyId, appId) {
 
 function dlgSelectDialog_select_open(conceptId, appId) {
     window.location = '?id=' + conceptId;
-}
-
-
-
-function test(eventData) {
-    alert(eventData);
 }
