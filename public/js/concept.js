@@ -25,6 +25,8 @@ $(document).ready(function () {
 
     dlgArticleShow = new ArticleShowDialog();
     dlgSearchDialog = new SearchConceptDialog();
+
+    $('#btnFavorite').btnFavorite(curConcept);
     
 
     getConcept().done(function () {
