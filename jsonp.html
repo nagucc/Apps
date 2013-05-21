@@ -1,0 +1,33 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title></title>
+    <script src="/Content/bootstrap/js/assets/jquery-1.8.2.min.js" type="text/javascript"></script> 
+
+    <script type="text/javascript">
+
+
+
+        $(document).ready(function(){
+            $.ajax({ 
+
+                //使用iPad新浪微博客户端的Appkey
+                url: 'http://api.weibo.com/2/short_url/shorten.json?source=2849184197&url_long=http://nagu.cc',  
+                type: "GET",
+                dataType: "jsonp", //使用JSONP方法进行AJAX
+                cache: false,
+                success: function (data) {
+                    alert(data.data.urls[0].url_short); //处理返回数据，显示到网页上 
+                }
+            });
+        });
+
+
+
+</script>
+</head>
+<body>
+
+</body>
+</html>
