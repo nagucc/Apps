@@ -1,0 +1,84 @@
+﻿<div class="modal hide" id="{dlgLogin}" subjectId="">
+    <div class="modal-header">
+        <a class="close" data-dismiss="modal">×</a>
+        <h3>用户登录</h3>
+    </div>
+    <div class="modal-body">
+        <div class="hide alert alert-error">
+            <strong>出错啦！</strong>
+            <ul class="error-list">
+            </ul>
+            </div>
+
+        <div class="form-horizontal">
+            <div class="control-group">
+                <label class="control-label">用户名</label>
+                <div class="controls">
+                    <input class="nagu-username" />
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">密码</label>
+                <div class="controls">
+                    <input type="password"  class="nagu-password"/>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <div class="controls">
+                    <button class="btn btn-primary" onclick="login0520();"><i class="icon-white icon-user"></i>登录</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">使用第三方帐号登录</label>
+                <div class="controls">
+                    <a class="nagu-btn-qqlogin" href="http://nagu.cc/Member/QQLogin">
+                        <img src="/Content/qq/Connect_logo_3.png" />
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <a href="#" class="btn" data-dismiss="modal">关闭</a>
+    </div>
+</div>
+
+
+
+<script type="text/javascript">
+    $(function () {
+        var dialog = $('#{dlgLogin}');
+
+        dialog.modal({
+            backdrop: false,
+            keyboard: true,
+            show: false
+        });
+
+        var url = 'http://nagu.cc/Member/QQLogin?returnUrl=' + window.location.href;
+        dialog.find('.nagu-btn-qqlogin').attr('href', url);
+
+        
+
+    });
+
+    function login0520() {
+        var dialog = $('#{dlgLogin}');
+        var userName = dialog.find('.nagu-username').val();
+        var password = dialog.find('.nagu-password').val();
+        if (userName == "" || password == "") {
+            dialog.find('.alert').show();
+            return;
+        }
+        Nagu.MM.loginFromNagu(userName, password).done(function (me) {
+            if (me.ret == 0) {
+                LoginDialog.Success(me);
+            } else {
+                LoginDialog.Fail();
+            }
+        });
+    }
+</script>

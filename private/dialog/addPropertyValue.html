@@ -109,7 +109,7 @@
                     </div>
                     <div id="collapseImage" class="accordion-body collapse" style="height: 0px;">
                         <div class="accordion-inner">
-                            <input id="txtImage" type="file" />
+                            <input id="fileImage" type="file" />
                         </div>
                     </div>
                 </div>
@@ -150,12 +150,14 @@
             // 根据rdf:range判断显示哪些内容：
             Nagu.CM.getPropertyValues(subjectId, Nagu.Concepts.RdfRange).done(function (fss) {
                 if (fss.length == 0) {
-                    // 未指定时，显示最基本的三种：
-                    $('#{accordionConcept}').show();
-                    $('#accordionLiteral').show();
-                    $('#accordionID').show();
-                    $('#accordionText').show();
+                    // 未指定时，全部显示：
+                    $('#{dlgAddPropertyValue} .accordion-group').show();
+                    //$('#{accordionConcept}').show();
+                    //$('#accordionLiteral').show();
+                    //$('#accordionID').show();
+                    //$('#accordionText').show();
                 } else {
+                    $('#{dlgAddPropertyValue} .accordion-group').hide();
                     $.each(fss, function (i, rangeFs) {
                         switch (rangeFs.Object.ConceptId) {
                             case Nagu.Concepts.NaguImage:
@@ -252,21 +254,20 @@
         var appId = $('#{listApps}').val();
         var ulError = $("#{dlgAddPropertyValue} ul.error-list").empty();
 
-        // 如果属性值是Concept，则由其他方法处理。
+        var options = {
+            dialog: $('#{dlgAddPropertyValue}'),
+            subjectId: subject,
+            predicateId: predicateId,
+            appId: appId
+        };
         // 如果属性值是第三方上传图片:
         if ($('#collapseImage').hasClass('in')) {
-            uploadTest($('#txtImage'));
-            Nagu.MM.check().done(function (status) {
-            });
-        } else if ($('#collapseText').hasClass('in')){
-            AddPropertyValueDialog.AddTextValue({
-                dialog: $('#{dlgAddPropertyValue}'),
-                subjectId: subject,
-                predicateId: predicateId,
-                tbTitle: $('#{tbTitle}'),
-                txtContent: $('#{txtContent}'),
-                appId: appId
-            });
+            AddPropertyValueDialog.AddImageValue(options);
+
+        } else if ($('#collapseText').hasClass('in')) {
+            options.tbTitle = $('#{tbTitle}');
+            options.txtContent = $('#{txtContent}');
+            AddPropertyValueDialog.AddTextValue(options);
         }else { // 属性值是文本：
             AddPropertyValueDialog.AddLiteralValue({
                 dialog: $('#{dlgAddPropertyValue}'),
