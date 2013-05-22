@@ -1,12 +1,6 @@
 ﻿var dlgLogin;
 
 $(function () {
-    dlgLogin = new LoginDialog({
-        success: function (me) {
-            alert(me.Id);
-        }
-    });
-
     // 检查用户是否已登录
     Nagu.MM.getMe().done(function (me) {
         if (me.ret == 0) { // 已登录
@@ -62,6 +56,14 @@ function afterNaguLogin(me) {
 function naguLogout() {
     $('.nagu-logged').hide();
     $('.nagu-logout').show();
+
+    if (dlgLogin === undefined) {
+        dlgLogin = new LoginDialog({
+            success: function (me) {
+                alert(me.Id);
+            }
+        });
+    }
 }
 
 function logout() {

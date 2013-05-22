@@ -11,11 +11,20 @@
     <div class="navbar-inner">
         <div class="container"> 
             <a class="brand" href="#">Concept详情@纳谷概念云</a>
+            <div class="nav-collapse">
+                <ul class="nav">
+                    <li class=" nagu-logout" style="display: none"><a href="#" onclick="dlgLogin.toggle();">
+                        登录</a></li>
+                    <li class="nagu-logged" style="display: none"><a id="accountInfo">#accountInfo</a></li>
+                    <li class="nagu-logged" style="display: none"><a href="javascript:void(0)" id="btnLogout"
+                        onclick="logout();">注销</a></li>
+                </ul>
+            </div>
 
-            <span id="qqLoginBtn" ></span>
-            <span class="hide nagu-logged"><a id="accountInfo">帐户信息</a></span>
+            <!--<span id="qqLoginBtn" ></span>
+            <span class="hide nagu-logged"><a id="accountInfo">帐户信息</a></span>-->
 
-            <span class="btn-toolbar logged ">
+            <span class="btn-toolbar nagu-logged hide">
                 <a class="btn btn-info" data-toggle="modal" onclick="createConceptDialog.toggle('', {h3:'创建新Concept', onAdded:createConceptDialog_onCreated});">
                     <i class="icon-plus icon-white"></i>
                     创建新Concept

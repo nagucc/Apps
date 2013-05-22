@@ -1,13 +1,14 @@
 ﻿var curUser, curConcept;
 var host = "";
 var addTypeDialog, addValueDialog, createConceptDialog, cdp, dlgSelectDialog, dlgSearchDialog, dlgArticleShow;
+var dlgLogin;
 
 // 全局变量
 var SM, N, MM;
 var renderValues;
 
 
-$(document).ready(function () {
+$(function () {
     // 全局变量
     SM = new StatementManager();
     MM = new MemberManager();
@@ -17,6 +18,8 @@ $(document).ready(function () {
     //});
     N = Nagu;
     curConcept = getRequest()['id'];
+    if (curConcept === undefined || curConcept == '') return;
+
     // 用于显示Concept详细信息的回调函数.
     renderValues = ConceptDetailPanel.getFunction_renderRichValues(function () {
         Nagu.CM.flush(curConcept);
@@ -25,16 +28,25 @@ $(document).ready(function () {
 
     dlgArticleShow = new ArticleShowDialog();
     dlgSearchDialog = new SearchConceptDialog();
+    dlgSelectDialog = new SelectConceptDialog();
+    
 
-    $('#btnFavorite').btnFavorite(curConcept);
+    // 检查用户是否已登录
+    Nagu.MM.getMe().done(function (me) {
+        if (me.ret == 0) { // 已登录
+            afterNaguLogin(me);
+        } else { // 未登录
+            naguLogout();
+        }
+    })
     
 
     getConcept().done(function () {
-        QC.Login({
-            btnId: "qqLoginBtn",
-            scope: "all",
-            size: "A_M"
-        }, afterQCLogin);
+        //QC.Login({
+        //    btnId: "qqLoginBtn",
+        //    scope: "all",
+        //    size: "A_M"
+        //}, afterQCLogin);
     });
 
     
@@ -44,13 +56,7 @@ $(document).ready(function () {
 function getConcept() {
     var dtd = $.Deferred();
 
-    // 获取当前待显示的Concept的id:
-    if (curConcept === undefined) {
-        dtd.reject();
-        return dtd.promise();
-    }
-
-    // 获取Concept信息,显示标题
+    // 获取Concept信息,显示与登录无关的信息
     Nagu.CM.get(curConcept).done(function (concept) {
         $('#fn').text(concept.FriendlyNames[0]);
         $('#desc').text(concept.Descriptions[0]);
@@ -79,11 +85,11 @@ function getConcept() {
         $('#ttlText').text(text);
 
         dtd.resolve();
-    }).fail(function () { });
+    });
 
 
     // 显示Concept的详细信息:
-    MM.check().done(function (status) {
+    Nagu.MM.check().done(function (status) {
         if (status.nagu) {
             afterNaguLogin();
         } else {
@@ -97,11 +103,36 @@ function getConcept() {
     return dtd.promise();
 }
 
+// 当nagu未登录或用户退出之后
+function naguLogout() {
+    $('.nagu-logged').hide();
+    $('.nagu-logout').show();
+
+    if (dlgLogin === undefined) {
+        dlgLogin = new LoginDialog({
+            success: function (me) {
+                alert(me.Id);
+            }
+        });
+    }
+
+    getConcept();
+}
 
 
+
+function logout() {
+    Nagu.MM.logout().done(function () {
+        naguLogout();
+    });
+}
 
 // 当nagu登录成功之后
-function afterNaguLogin() {
+function afterNaguLogin(me) {
+
+    // 初始化“添加/删除收藏”按钮
+    $('#btnFavorite').btnFavorite(curConcept);
+
     // 初始化对话框:
     if (createConceptDialog === undefined) {
         createConceptDialog = new CreateConceptDialog({
@@ -120,9 +151,9 @@ function afterNaguLogin() {
         });
     }
 
-    if (dlgSelectDialog === undefined) {
-        dlgSelectDialog = new SelectConceptDialog();
-    }
+    //if (dlgSelectDialog === undefined) {
+    //    dlgSelectDialog = new SelectConceptDialog();
+    //}
     
 
     // 显示Concept的详细信息:
@@ -144,14 +175,17 @@ function afterNaguLogin() {
     });
     cdp.show($('#detail'));
 
-    $(".logged").show("slow", function () {
-    });
     $('.nagu-logged').show();
+    $('.nagu-logout').hide();
 
     // 显示“帐户信息”
-    Nagu.MM.getMe().done(function (me) {
-        $('#accountInfo').attr('href', '/apps/public/concept.html?id=' + me.Id);        
-    });
+    $('#accountInfo').text(me.Name).attr('href', '/apps/public/concept.html?id=' + me.Id);
+
+    // 如果QQ已绑定，显示QQ图标。
+    if (me.QcOpenId != '') {
+        var qqimg = $('<img/>').attr('src', 'http://qzonestyle.gtimg.cn/qzone/vas/opensns/res/img/Connect_logo_1.png');
+        $('#accountInfo').prepend(qqimg);
+    }
 }
 
 
