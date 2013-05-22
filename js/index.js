@@ -1,8 +1,14 @@
 ﻿var dlgLogin;
 
 $(function () {
+
+    var mode = getRequest()['mode'];
+    if (mode == 'debug') $('#divDebug').show();
+
+    log('index ready');
     // 检查用户是否已登录
     Nagu.MM.getMe().done(function (me) {
+        log('me.ret: ' + me.ret);
         if (me.ret == 0) { // 已登录
             afterNaguLogin(me);
         } else { // 未登录
@@ -10,7 +16,20 @@ $(function () {
         }
     }).fail();
     showApps();
+
+    if ($.jStorage && $.jStorage.storageAvailable()) {
+        var size = $.jStorage.storageSize();
+        $('#btnClearStorage').text('清空缓存(共' + size + '字节)').click(function () {
+            $.jStorage.flush()
+            size = $.jStorage.storageSize();
+            $('#btnClearStorage').text('清空缓存(共' + size + '字节)');
+        });
+    } else {
+        $('#btnClearStorage').hide();
+    }
 });
+
+
 
 
 function showApps() {
@@ -60,7 +79,11 @@ function naguLogout() {
     if (dlgLogin === undefined) {
         dlgLogin = new LoginDialog({
             success: function (me) {
-                alert(me.Id);
+                afterNaguLogin(me);
+            },
+            fail: function (data) {
+                alert('登录失败');
+                log('new pass: ' + data.newPass);
             }
         });
     }

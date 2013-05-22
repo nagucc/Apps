@@ -4,19 +4,14 @@ var addTypeDialog, addValueDialog, createConceptDialog, cdp, dlgSelectDialog, dl
 var dlgLogin;
 
 // 全局变量
-var SM, N, MM;
 var renderValues;
 
 
 $(function () {
-    // 全局变量
-    SM = new StatementManager();
-    MM = new MemberManager();
     //Nagu.init({
     //    useIframe: true,
     //    host:"http://nagu.cc"
     //});
-    N = Nagu;
     curConcept = getRequest()['id'];
     if (curConcept === undefined || curConcept == '') return;
 
@@ -39,17 +34,15 @@ $(function () {
             naguLogout();
         }
     })
-    
 
-    getConcept().done(function () {
-        //QC.Login({
-        //    btnId: "qqLoginBtn",
-        //    scope: "all",
-        //    size: "A_M"
-        //}, afterQCLogin);
-    });
-
-    
+    // 显示二维码
+    try {
+        $("#qrcode").qrcode({
+            width: 150,
+            height: 150,
+            text: window.location.href
+        });
+    } catch (e) { }
 });
 
 /********************************************************************************************************************************/
@@ -87,19 +80,7 @@ function getConcept() {
         dtd.resolve();
     });
 
-
-    // 显示Concept的详细信息:
-    Nagu.MM.check().done(function (status) {
-        if (status.nagu) {
-            afterNaguLogin();
-        } else {
-            cdp = new ConceptDetailPanel(curConcept);
-            cdp.show($('#detail'));
-        }
-    }).fail(function () {
-        cdp = new ConceptDetailPanel(curConcept);
-        cdp.show($('#detail'));
-    });
+    cdp.show($('#detail'));
     return dtd.promise();
 }
 
@@ -111,10 +92,11 @@ function naguLogout() {
     if (dlgLogin === undefined) {
         dlgLogin = new LoginDialog({
             success: function (me) {
-                alert(me.Id);
             }
         });
     }
+
+    cdp = new ConceptDetailPanel(curConcept);
 
     getConcept();
 }
@@ -129,6 +111,8 @@ function logout() {
 
 // 当nagu登录成功之后
 function afterNaguLogin(me) {
+
+    
 
     // 初始化“添加/删除收藏”按钮
     $('#btnFavorite').btnFavorite(curConcept);
@@ -150,10 +134,6 @@ function afterNaguLogin(me) {
             onTypeAdded: addPropertyValueDialog_added
         });
     }
-
-    //if (dlgSelectDialog === undefined) {
-    //    dlgSelectDialog = new SelectConceptDialog();
-    //}
     
 
     // 显示Concept的详细信息:
@@ -173,7 +153,6 @@ function afterNaguLogin(me) {
         }),
         renderType: ConceptDetailPanel.renderType2
     });
-    cdp.show($('#detail'));
 
     $('.nagu-logged').show();
     $('.nagu-logout').hide();
@@ -186,6 +165,8 @@ function afterNaguLogin(me) {
         var qqimg = $('<img/>').attr('src', 'http://qzonestyle.gtimg.cn/qzone/vas/opensns/res/img/Connect_logo_1.png');
         $('#accountInfo').prepend(qqimg);
     }
+
+    getConcept();
 }
 
 
@@ -203,10 +184,10 @@ function afterQCLogin(reqData, opts) {
         span.append(spanF).append(spanN).append(spanL);
     });
 
-    MM.getMe().fail(function () {
+    Nagu.MM.getMe().fail(function () {
         // 使用当前QC的凭据登录nagu
         QC.Login.getMe(function (openId, accessToken) {
-            MM.loginFromQC(openId, accessToken).done(function (data) {
+            Nagu.MM.loginFromQC(openId, accessToken).done(function (data) {
                 if (data.Status == "OK") {
                     console.log("用户登录成功");
                     afterNaguLogin();
@@ -255,9 +236,8 @@ function createConceptDialog_onCreated(concept) {
 
 
 function addTypeDialog_onTypeAdded(fs) {
-    var sm = new StatementManager();
     // 刷新缓存,重新findBySP
-    sm.flush('', fs.Subject.ConceptId, Nagu.Concepts.RdfType, '', curUserId);
+    Nagu.SM.flush('', fs.Subject.ConceptId, Nagu.Concepts.RdfType, '', curUserId);
     $('#myConcepts li.active').find('a').click();
 }
 
