@@ -19,10 +19,14 @@ $(function () {
 
     if ($.jStorage && $.jStorage.storageAvailable()) {
         var size = $.jStorage.storageSize();
-        $('#btnClearStorage').text('清空缓存(共' + size + '字节)').click(function () {
+        $('#btnClearStorage').append($('<i/>').addClass('icon-trash icon-white'))
+            .append('清空缓存(共' + size + '字节)')
+            .click(function () {
             $.jStorage.flush()
             size = $.jStorage.storageSize();
-            $('#btnClearStorage').text('清空缓存(共' + size + '字节)');
+            $('#btnClearStorage').empty()
+                .append($('<i/>').addClass('icon-trash icon-white'))
+                .append('清空缓存(共' + size + '字节)');
         });
     } else {
         $('#btnClearStorage').hide();
@@ -75,6 +79,7 @@ function afterNaguLogin(me) {
 function naguLogout() {
     $('.nagu-logged').hide();
     $('.nagu-logout').show();
+    
 
     if (dlgLogin === undefined) {
         dlgLogin = new LoginDialog({
@@ -87,10 +92,13 @@ function naguLogout() {
             }
         });
     }
+
+    
 }
 
 function logout() {
     Nagu.MM.logout().done(function () {
+        $.jStorage.flush();
         naguLogout();
     });
 }

@@ -53,12 +53,20 @@
           </a>
           <a class="brand" href="#">纳谷概念云 Apps</a>
           <div class="nav-collapse">
-            <ul class="nav">
-              <li class=" nagu-logout" style="display:none"><a href="#"  onclick="dlgLogin.toggle();">登录</a></li>
+              <ul class="nav">
+                  <li>
+                      <a href="javascript:void(0)" id="btnClearStorage"></a>
+                  </li>
+              </ul>
+            <ul class="nav pull-right">
+                <li class=" nagu-logout" style="display: none"><a href="javascript:void(0)" onclick="dlgLogin.toggle();">
+                    <i class="icon-user icon-white"></i>
+                    登录</a></li>
               <li class=" nagu-logged" style="display:none"><a id="accountInfo"></a></li>
-              <li class=" nagu-logged" style="display:none"><a href="javascript:void(0)" id="btnLogout" onclick="logout();">注销</a></li>
-              <li><a href="#" id="btnClearStorage" >清空本地缓存</a></li>
-
+                <li class=" nagu-logged" style="display: none"><a href="javascript:void(0)" id="btnLogout"
+                    onclick="logout();">
+                    <i class="icon-off icon-white"></i>
+                    注销</a></li>
             </ul>
           </div><!--/.nav-collapse -->
         </div>

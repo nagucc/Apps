@@ -7,22 +7,48 @@
     <link href="../../Content/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
-    <div class="navbar">
+    <div class="navbar navbar-fixed-top">
     <div class="navbar-inner">
-        <div class="container"> 
+        <div class="container">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+
             <a class="brand" href="#">Concept详情@纳谷概念云</a>
             <div class="nav-collapse">
                 <ul class="nav">
+                    <li>
+                        <a href="javascript:void(0)"
+                            onclick="createConceptDialog.toggle('', {h3:'创建新Concept', onAdded:createConceptDialog_onCreated});">
+                            <i class="icon-pencil icon-white"></i>
+                            创建Concept
+                        </a>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)" 
+                            onclick="dlgSearchDialog.toggle({selected: dlgSelectDialog_select_open});">
+                            <i class="icon-eye-open icon-white"></i>
+                            查找Concept
+                        </a>
+                    </li>
+                </ul>
+                <ul class="nav pull-right">
                     <li class=" nagu-logout" style="display: none"><a href="#" onclick="dlgLogin.toggle();">
+                        <i class="icon-user icon-white"></i>
                         登录</a></li>
-                    <li class="nagu-logged" style="display: none"><a id="accountInfo">#accountInfo</a></li>
+                    <li class="nagu-logged" style="display: none"><a id="accountInfo">#accountInfo</a>
+                    </li>
                     <li class="nagu-logged" style="display: none"><a href="javascript:void(0)" id="btnLogout"
-                        onclick="logout();">注销</a></li>
+                        onclick="logout();">
+                        <i class="icon-off icon-white"></i>
+                        注销</a></li>
                 </ul>
             </div>
 
 
-            <span class="btn-toolbar nagu-logged hide">
+            <!--<span class="btn-toolbar nagu-logged hide">
                 <a class="btn btn-info" data-toggle="modal" onclick="createConceptDialog.toggle('', {h3:'创建新Concept', onAdded:createConceptDialog_onCreated});">
                     <i class="icon-plus icon-white"></i>
                     创建新Concept
@@ -32,12 +58,12 @@
                     <i class="icon-plus icon-white"></i>
                     查找Concept
                 </a>
-            </span>
+            </span>-->
         </div>
       </div>
     </div>
 
-    <div class="container">
+    <div class="container" style="padding-top:40px;">
         <div class="row">
             <div class="span3">
                 <div class="nagu-logged hide">

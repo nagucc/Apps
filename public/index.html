@@ -18,19 +18,31 @@
             </a>
 
             <a class="brand" href="#">Concept@纳谷概念云</a>
+            
+
             <div class="nav-collapse">
                 <ul class="nav">
                     <li class="nagu-logged" style="display: none">
                         <a href="javascript:void(0)" onclick="createConceptDialog.toggle('', {h3:'创建新Concept'})">
-                            <i class="icon-plus icon-white"></i>
+                            <i class="icon-pencil icon-white"></i>
                             创建新Concept
                         </a>
                     </li>
+                    <li>
+                        <a href="javascript:void(0)" id="btnClearStorage"></a>
+                    </li>
+                </ul>
+
+                <ul class="nav pull-right">
+                    
                     <li class=" nagu-logout" style="display: none"><a href="#" onclick="dlgLogin.toggle();">
+                        <i class="icon-user icon-white"></i>
                         登录</a></li>
                     <li class="nagu-logged" style="display: none"><a id="accountInfo">#accountInfo</a></li>
                     <li class="nagu-logged" style="display: none">
-                        <a href="javascript:void(0)" id="btnLogout" onclick="logout();">注销</a>
+                        <a href="javascript:void(0)" id="btnLogout" onclick="logout();">
+                            <i class="icon-off icon-white"></i>
+                            注销</a>
                     </li>
                     
                 </ul>
@@ -85,6 +97,20 @@
                 });
 
                 if ($.jStorage && $.jStorage.storageAvailable()) {
+
+                    // 初始化“清空缓存”按钮
+                    var size = $.jStorage.storageSize();
+                    $('#btnClearStorage').append($('<i/>').addClass('icon-trash icon-white'))
+                        .append('清空缓存(共' + size + '字节)')
+                        .click(function () {
+                            $.jStorage.flush()
+                            size = $.jStorage.storageSize();
+                            $('#btnClearStorage').empty()
+                                .append($('<i/>').addClass('icon-trash icon-white'))
+                                .append('清空缓存(共' + size + '字节)');
+                        });
+
+                    // 初始化“最近访问”列表
                     var concepts = $.jStorage.get('concepts', []);
                     if (concepts.length > 0) {
                         var div = $('#localConcepts').show();
@@ -101,6 +127,8 @@
                             }
                         });
                     }
+                } else {
+                    $('#btnClearStorage').hide();
                 }
             });
 
@@ -189,6 +217,7 @@
 
           function logout() {
               Nagu.MM.logout().done(function () {
+                  $.jStorage.flush();
                   naguLogout();
               });
           }
