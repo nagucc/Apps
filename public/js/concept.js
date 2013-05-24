@@ -11,6 +11,9 @@ $(function () {
     curConcept = getRequest()['id'];
     if (curConcept === undefined || curConcept == '') return;
 
+    var mode = getRequest()['mode'];
+    if (mode == 'debug') $('#divDebug').show();
+
     // 用于显示Concept详细信息的回调函数.
     renderValues = ConceptDetailPanel.getFunction_renderRichValues(function () {
         Nagu.CM.flush(curConcept);
@@ -140,8 +143,8 @@ function afterNaguLogin(me) {
         }),
         renderPropertyValues: ConceptDetailPanel.get_renderPropertyValues2({
             articleShowDialog: dlgArticleShow
-        }),
-        renderType: ConceptDetailPanel.renderType2
+        })
+        //renderType: ConceptDetailPanel.renderType2
     });
 
     $('.nagu-logged').show();
