@@ -8,10 +8,6 @@ var renderValues;
 
 
 $(function () {
-    //Nagu.init({
-    //    useIframe: true,
-    //    host:"http://nagu.cc"
-    //});
     curConcept = getRequest()['id'];
     if (curConcept === undefined || curConcept == '') return;
 
@@ -112,8 +108,6 @@ function logout() {
 // 当nagu登录成功之后
 function afterNaguLogin(me) {
 
-    
-
     // 初始化“添加/删除收藏”按钮
     $('#btnFavorite').btnFavorite(curConcept);
 
@@ -145,10 +139,6 @@ function afterNaguLogin(me) {
             dlgAddPropertyValue: addValueDialog
         }),
         renderPropertyValues: ConceptDetailPanel.get_renderPropertyValues2({
-            changed: function () {
-                PvsFromBaseClass[curConcept] = undefined;
-                cdp.show($('#detail'));
-            },
             articleShowDialog: dlgArticleShow
         }),
         renderType: ConceptDetailPanel.renderType2
