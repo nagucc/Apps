@@ -43,6 +43,8 @@ $(function () {
         });
     } catch (e) { }
 
+    $('#btnClearStorage').btnCleanStorage();
+
     //$('.dropdown-toggle').dropdown()
 });
 
@@ -99,7 +101,7 @@ function getConcept() {
         dtd.resolve();
     });
 
-    cdp.show($('#detail'));
+    //cdp.show($('#detail'));
     return dtd.promise();
 }
 
@@ -181,14 +183,7 @@ function afterNaguLogin(me) {
             articleShowDialog: dlgArticleShow
         })
     });
-    $('#type1').conceptInfoFromTypes(curConcept, {
-        renderProperty: ConceptDetailPanel.get_renderProperty3({
-            dlgAddPropertyValue: addValueDialog
-        }),
-        renderPropertyValues: ConceptDetailPanel.get_renderPropertyValues2({
-            articleShowDialog: dlgArticleShow
-        })
-    });
+
 
     $('.nagu-logged').show();
     $('.nagu-logout').hide();

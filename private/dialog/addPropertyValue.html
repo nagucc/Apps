@@ -13,10 +13,9 @@
         <div class="control-group">
             <div class="controls">
                 <label class="control-label">
+                    <i class="icon-lock"></i>
                     可见范围
-                    <select id="{listApps}">
-                        <option value=''>公开</option>
-                    </select>
+                    <select id="{listApps}"></select>
                 </label>
             </div>
         </div>
@@ -32,8 +31,7 @@
                     </div>
                     <div id="collapseConcept" class="accordion-body collapse" style="height: 0px;">
                         <div class="accordion-inner">
-                            <div class="form-horizontal">
-                                <div class="control-group">
+                            <div class="control-group">
                                     <label for="{txtFn}" class="control-label">Concept名称</label>
                                     <div class="controls">
                                         <input id="{txtFn}" type="text" onkeypress="if(event.keyCode === 13){searchForAddValue_0426();}"
@@ -41,7 +39,6 @@
                                         <button onclick="searchForAddValue_0426();" class="btn btn-primary">搜索</button>
                                     </div>
                                 </div>
-                            </div>
                             <h4 class='hide'>请从以下搜索结果中选择：</h4>
                             <ul class="nav nav-pills"></ul>
                             <button id='{btnNew}' class='hide btn btn-primary' onclick='newAndAddPropertyValue_0426()'>
@@ -59,8 +56,8 @@
                     </div>
                     <div id="collapseLiteral" class="accordion-body collapse" style="height: 0px;">
                         <div class="accordion-inner">
-                            <label for="{txtValue}">属性值</label>
                             <input id="{txtValue}" type="text" class="span3" placeholder="输入文本作为属性值..." />
+                            <a class="btn btn-primary" onclick="addLiteralPv20130528()">确定</a>
                         </div>
                     </div>
                 </div>
@@ -152,10 +149,6 @@
                 if (fss.length == 0) {
                     // 未指定时，全部显示：
                     $('#{dlgAddPropertyValue} .accordion-group').show();
-                    //$('#{accordionConcept}').show();
-                    //$('#accordionLiteral').show();
-                    //$('#accordionID').show();
-                    //$('#accordionText').show();
                 } else {
                     $('#{dlgAddPropertyValue} .accordion-group').hide();
                     $.each(fss, function (i, rangeFs) {
@@ -181,7 +174,18 @@
         });
     });
 
+    // 添加文本作为属性值
+    function addLiteralPv20130528() {
+        AddPropertyValueDialog.AddLiteralValue({
+            dialog: $('#{dlgAddPropertyValue}'),
+            subjectId: $('#{dlgAddPropertyValue}').attr('subjectId'),
+            predicateId: $('#{dlgAddPropertyValue}').attr('predicateId'),
+            tbValue: $('#{txtValue}'),
+            appId: $('#{listApps}').val()
+        });
+    }
 
+    // 添加Concept作为属性值
     function searchForAddValue_0426() {
         var dialog = $('#{dlgAddPropertyValue}');
         var ulResult = dialog.find('ul');
@@ -195,6 +199,7 @@
         Nagu.CM.search($('#{txtFn}').val()).done(function (cs) {
             if (cs.length == 0) {
                 ulResult.empty().append(newLi().append('没有找到任何数据'));
+                alert($('#{btnNew}').attr('id'));
                 $('#{btnNew}').show();
                 return;
             }
@@ -268,14 +273,6 @@
             options.tbTitle = $('#{tbTitle}');
             options.txtContent = $('#{txtContent}');
             AddPropertyValueDialog.AddTextValue(options);
-        }else { // 属性值是文本：
-            AddPropertyValueDialog.AddLiteralValue({
-                dialog: $('#{dlgAddPropertyValue}'),
-                subjectId: subject,
-                predicateId: predicateId,
-                tbValue: $('#{txtValue}'),
-                appId: appId
-            });
         }
     }
 </script>
