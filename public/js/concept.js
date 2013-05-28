@@ -42,6 +42,8 @@ $(function () {
             text: window.location.href
         });
     } catch (e) { }
+
+    //$('.dropdown-toggle').dropdown()
 });
 
 /********************************************************************************************************************************/
@@ -51,8 +53,26 @@ function getConcept() {
     // 获取Concept信息,显示与登录无关的信息
     Nagu.CM.get(curConcept).done(function (concept) {
         $('#fn').text(concept.FriendlyNames[0]);
+        $('.brand').text(concept.FriendlyNames[0]);
         $('#desc').text(concept.Descriptions[0]);
         $('#id').text(concept.ConceptId);
+
+        // 显示类型下拉列表
+        $.each(concept.TypeFss, function (i, typeFs) {
+            if (typeFs.Object.ConceptId == Nagu.Concepts.NaguConcept) return;
+            var ul = $('#typeMenu');
+            var li = $('<li/>').appendTo(ul);
+            var a = $('<a/>').attr('data-toggle', 'tab');
+            a.append($('<i></i>').addClass('icon-th-large')).appendTo(li);
+
+            var divPane = $('<div/>').addClass('tab-pane').appendTo($('.tab-content'));
+            Nagu.CM.get(typeFs.Object.ConceptId).done(function (type) {
+                a.attr('href', '#type-pane-' + type.ConceptId).append(type.FriendlyNames[0]);
+                divPane.attr('id', 'type-pane-' + type.ConceptId);
+                divPane.conceptType(typeFs);
+            });
+        });
+        
 
 
         // 初始化本地存储信息：
@@ -97,6 +117,9 @@ function naguLogout() {
 
     cdp = new ConceptDetailPanel(curConcept);
 
+    $('#info').conceptShow(curConcept);
+    $('#properties').conceptProperties(curConcept);
+    $('#type1').conceptInfoFromTypes(curConcept);
     getConcept();
 }
 
@@ -144,7 +167,27 @@ function afterNaguLogin(me) {
         renderPropertyValues: ConceptDetailPanel.get_renderPropertyValues2({
             articleShowDialog: dlgArticleShow
         })
-        //renderType: ConceptDetailPanel.renderType2
+    });
+
+    $('#info').conceptShow(curConcept, {
+        renderTitle: ConceptDetailPanel.getFunction_RenderRichTitle(createConceptDialog),
+        renderValues: renderValues
+    });
+    $('#properties').conceptProperties(curConcept,{
+        renderProperty: ConceptDetailPanel.get_renderProperty3({
+            dlgAddPropertyValue: addValueDialog
+        }),
+        renderPropertyValues: ConceptDetailPanel.get_renderPropertyValues2({
+            articleShowDialog: dlgArticleShow
+        })
+    });
+    $('#type1').conceptInfoFromTypes(curConcept, {
+        renderProperty: ConceptDetailPanel.get_renderProperty3({
+            dlgAddPropertyValue: addValueDialog
+        }),
+        renderPropertyValues: ConceptDetailPanel.get_renderPropertyValues2({
+            articleShowDialog: dlgArticleShow
+        })
     });
 
     $('.nagu-logged').show();
