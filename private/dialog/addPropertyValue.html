@@ -199,7 +199,6 @@
         Nagu.CM.search($('#{txtFn}').val()).done(function (cs) {
             if (cs.length == 0) {
                 ulResult.empty().append(newLi().append('没有找到任何数据'));
-                alert($('#{btnNew}').attr('id'));
                 $('#{btnNew}').show();
                 return;
             }

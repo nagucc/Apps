@@ -3,12 +3,12 @@
 <head>
     <title>Concept@纳谷概念云</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="../../Content/bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css" />
-    <link href="../../Content/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet" type="text/css" />
+    <link href="../../Content/bootstrap/2.3.2/css/bootstrap.css" rel="stylesheet" type="text/css" />
+    <link href="../../Content/bootstrap/2.3.2/css/bootstrap-responsive.min.css" rel="stylesheet" type="text/css" />
     <script src="../../Content/bootstrap/js/assets/jquery-1.8.2.min.js" type="text/javascript"></script> 
 </head>
 <body>
-    <div class="navbar navbar-fixed-top">
+    <div class="navbar navbar-inverse navbar-fixed-top">
     <div class="navbar-inner">
         <div class="container">
             <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
@@ -17,15 +17,15 @@
                 <span class="icon-bar"></span>
             </a>
 
-            <a class="brand" href="#">Concept@纳谷概念云</a>
+            <a class="brand" href="#">概念云</a>
             
 
             <div class="nav-collapse">
                 <ul class="nav">
-                    <li class="nagu-logged" style="display: none">
-                        <a href="javascript:void(0)" onclick="createConceptDialog.toggle('', {h3:'创建新Concept'})">
-                            <i class="icon-pencil icon-white"></i>
-                            创建新Concept
+                    <li>
+                        <a href="/apps/index.html">
+                            <i class="icon-chevron-left icon-white"></i>
+                            纳谷概念云
                         </a>
                     </li>
                     <li>
@@ -60,15 +60,32 @@
                     <span><i>输入关键字搜索想要的Concept</i></span>
                 </div>
                 <div class="modal-body">
-                    <span class="form-horizontal">
+                    <div class="form-horizontal">
                         <div class="control-group">
                             <label for="tbName" class="control-label">名称</label>
                             <div class="controls">
                                 <input type="text" id="tbName" onkeypress="if(event.keyCode === 13){search();}" placeholder="输入关键字并搜索"/>
-                                <button onclick="search();" class="btn">搜索</button>
+                                
+                            </div>
+                            
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label" for="exact">选项</label>
+                            <div class="controls">
+                                    <input type="checkbox" checked="checked" id="exact" />
+                                    精确查找Concept以节省速度
                             </div>
                         </div>
-                    </span>
+                        <div class="control-group">
+                            <div class="controls">
+                                <button onclick="search();" class="btn">搜索</button>
+                                <button class="btn btn-primary nagu-logged hide" href="javascript:void(0)" onclick="createConceptDialog.toggle('', {h3:'创建新Concept'})">
+                                    <i class="icon-pencil icon-white"></i>
+                                    创建新Concept
+                                </button>
+                            </div>
+                            </div>
+                    </div>
                     <h4 class='hide'>搜索结果</h4>
                     <ul id="result" class="nav nav-pills"></ul>
                     <div id="localConcepts" class="hide">
@@ -88,6 +105,8 @@
         <script type="text/javascript">
             var createConceptDialog, dlgLogin;
             $(function () {
+                // 设置焦点
+                $('#tbName').focus();
                 Nagu.MM.getMe().done(function (me) {
                     if (me.ret == 0) {
                         afterNaguLogin(me);
@@ -96,20 +115,10 @@
                     }
                 });
 
+                // 初始化“清空缓存”按钮
+                $('#btnClearStorage').btnCleanStorage();
+
                 if ($.jStorage && $.jStorage.storageAvailable()) {
-
-                    // 初始化“清空缓存”按钮
-                    var size = $.jStorage.storageSize();
-                    $('#btnClearStorage').append($('<i/>').addClass('icon-trash icon-white'))
-                        .append('清空缓存(共' + size + '字节)')
-                        .click(function () {
-                            $.jStorage.flush()
-                            size = $.jStorage.storageSize();
-                            $('#btnClearStorage').empty()
-                                .append($('<i/>').addClass('icon-trash icon-white'))
-                                .append('清空缓存(共' + size + '字节)');
-                        });
-
                     // 初始化“最近访问”列表
                     var concepts = $.jStorage.get('concepts', []);
                     if (concepts.length > 0) {
@@ -127,8 +136,6 @@
                             }
                         });
                     }
-                } else {
-                    $('#btnClearStorage').hide();
                 }
             });
 
@@ -185,7 +192,9 @@
               $('h4').show();
               var tempLi = newLi().append(newImg('/Content/Images/loading-128.gif'));
               $('#result').empty().append(tempLi);
-              Nagu.CM.search($('#tbName').val()).done(function (cs) {
+              Nagu.CM.search($('#tbName').val(), {
+                  exact: $('#exact').attr('checked') == 'checked'
+              }).done(function (cs) {
                   if (cs.length == 0) {
                       $('#result').empty().append(newLi().append('没有找到任何数据'));
                       return;
@@ -242,11 +251,11 @@
 
 
     
-    <script src="../../Content/bootstrap/js/bootstrap.js" type="text/javascript"></script>
-    <script src="../../Content/bootstrap/js/assets/bootstrap-button.js" type="text/javascript"></script>
+    <script src="../../Content/bootstrap/2.3.2/js/bootstrap.js" type="text/javascript"></script>
+    <!--<script src="../../Content/bootstrap/js/assets/bootstrap-button.js" type="text/javascript"></script>
     <script src="../../Content/bootstrap/js/assets/bootstrap-dropdown.js" type="text/javascript"></script>
     <script src="../../Content/bootstrap/js/assets/bootstrap-modal.js" type="text/javascript"></script>
-    <script src="../../Content/bootstrap/js/assets/bootstrap-transition.js" type="text/javascript"></script>
+    <script src="../../Content/bootstrap/js/assets/bootstrap-transition.js" type="text/javascript"></script>-->
 
     <script src="../../Content/js/jquery.qrcode.min.js" type="text/javascript"></script>
 
@@ -265,6 +274,7 @@
     <script type="text/javascript" src="http://qzonestyle.gtimg.cn/qzone/openapi/qc_loader.js" data-appid="100321920"  charset="utf-8"></script>
     <script src="../../Content/lib/jStorage/jstorage.min.js" type="text/javascript"></script>
     <script src="../../Content/js/messengerjs/messenger.js" type="text/javascript" ></script> 
+    <img class="hide" src="/Content/Images/loading-128.gif" />
     
 </body>
 </html>

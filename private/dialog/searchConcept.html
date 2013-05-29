@@ -70,7 +70,9 @@
             $('div#{dlgSelect} h4').show();
             var tempLi = newLi().append(newImg('/Content/Images/loading-128.gif'));
             $('div#{dlgSelect} ul').empty().append(tempLi);
-            Nagu.CM.search($('#{tbName}').val(), $("div#{dlgSelect}").attr('typeId')).done(function (cs) {
+            Nagu.CM.search($('#{tbName}').val(), {
+                typeId: $("div#{dlgSelect}").attr('typeId')
+            }).done(function (cs) {
                 if (cs.length == 0) {
                     $('div#{dlgSelect} ul').empty();
                     $('div#{dlgSelect} ul').append(newLi().append('没有找到任何数据'));

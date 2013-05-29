@@ -135,7 +135,9 @@
             ulResult.empty().append(tempLi);
 
             // 开始搜索
-            Nagu.CM.search($('#tbTypeName').val(), Nagu.Owl.Class).done(function (cs) {
+            Nagu.CM.search($('#tbTypeName').val(), {
+                typeId: Nagu.Owl.Class
+            }).done(function (cs) {
                 if (cs.length == 0) {
                     ulResult.empty().append(newLi().append('没有找到任何数据'));
                     return;
