@@ -23,41 +23,14 @@ $(function () {
     dlgArticleShow = new ArticleShowDialog();
     dlgSearchDialog = new SearchConceptDialog();
     dlgSelectDialog = new SelectConceptDialog();
-    
 
-    // 检查用户是否已登录
-    Nagu.MM.getMe().done(function (me) {
-        if (me.ret == 0) { // 已登录
-            afterNaguLogin(me);
-        } else { // 未登录
-            naguLogout();
-        }
-    })
-
-    // 显示二维码
-    try {
-        $("#qrcode").qrcode({
-            width: 150,
-            height: 150,
-            text: window.location.href
-        });
-    } catch (e) { }
-
-    $('#btnClearStorage').btnCleanStorage();
-
-    //$('.dropdown-toggle').dropdown()
-});
-
-/********************************************************************************************************************************/
-function getConcept() {
-    var dtd = $.Deferred();
 
     // 获取Concept信息,显示与登录无关的信息
     Nagu.CM.get(curConcept).done(function (concept) {
-        $('#fn').text(concept.FriendlyNames[0]);
+        $('#fn').text(concept.FriendlyNames[0] + '(ID：' + concept.ConceptId + ')');
+        $('title').text(concept.FriendlyNames[0] + ' - 纳谷概念云');
         $('.brand').text(concept.FriendlyNames[0]);
         $('#desc').text(concept.Descriptions[0]);
-        $('#id').text(concept.ConceptId);
 
         // 显示类型下拉列表
         $.each(concept.TypeFss, function (i, typeFs) {
@@ -74,7 +47,7 @@ function getConcept() {
                 divPane.conceptType(typeFs);
             });
         });
-        
+
 
 
         // 初始化本地存储信息：
@@ -98,10 +71,42 @@ function getConcept() {
         if (seconds > 0 || text != '') text += seconds + '秒';
         $('#ttlText').text(text);
 
-        dtd.resolve();
+        $('#btnFlushConcept').attr('data-original-title', '当前Concept正在本地存储，' + text + '之后过期，您也可以现在立即刷新');
+        $('#btnFlushConcept').tooltip({
+            html: true
+        });
     });
 
-    //cdp.show($('#detail'));
+    
+
+    // 检查用户是否已登录
+    Nagu.MM.getMe().done(function (me) {
+        if (me.ret == 0) { // 已登录
+            afterNaguLogin(me);
+        } else { // 未登录
+            naguLogout();
+        }
+    })
+
+    // 显示二维码
+    try {
+        $('.qrcode').show();
+        $("#qrcode").qrcode({
+            width: 150,
+            height: 150,
+            text: window.location.href
+        });
+    } catch (e) { }
+
+    $('#btnClearStorage').btnCleanStorage();
+
+});
+
+/********************************************************************************************************************************/
+function getConcept() {
+    var dtd = $.Deferred();
+
+    
     return dtd.promise();
 }
 
@@ -188,8 +193,8 @@ function afterNaguLogin(me) {
     $('.nagu-logged').show();
     $('.nagu-logout').hide();
 
-    // 显示“帐户信息”
-    $('#accountInfo').text(me.Name).attr('href', '/apps/public/concept.html?id=' + me.Id);
+    // 显示“我的帐户”
+    $('#accountInfo').attr('href', '/apps/public/concept.html?id=' + me.Id);
 
     // 如果QQ已绑定，显示QQ图标。
     if (me.QcOpenId != '') {

@@ -22,6 +22,35 @@
         <div class="form-horizontal">
             <div class="accordion" id="accordion2">
 
+                <!-- from favorite -->
+                <div class="accordion-group hide" id='dlgAddPropertyValue_accordionFavorite'>
+                    <div class="accordion-heading">
+                        <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#dlgAddPropertyValue_collapseFavorite">
+                            从我的收藏中选取
+                        </a>
+                    </div>
+                    <div id="dlgAddPropertyValue_collapseFavorite" class="accordion-body collapse" style="height: 0px;">
+                        <div class="accordion-inner">
+                            <div class="control-group">
+                                <label class="control-label" for="dlgapv-favorite-group">收藏分组</label>
+                                <div class="controls">
+                                    <select id="dlgapv-favorite-group">
+                                       <option value="">数据正在加载，请稍候</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <label class="control-label" for="dlgapv-favorite">收藏的Concept</label>
+                                <div class="controls">
+                                    <select id="dlgapv-favorite">
+                                        <option value="">请选择分组</option>
+                                    </select>
+                                    </div>
+                                </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Concept -->
                 <div class="accordion-group hide" id='{accordionConcept}'>
                     <div class="accordion-heading">
@@ -131,6 +160,7 @@
 
         // 初始化“可见范围”
         Dialog.InitAppList($('#{listApps}'));
+        Dialog.InitFavoriteGroupSelect($('#dlgapv-favorite-group'), $('#dlgapv-favorite'));
 
         var dialog = $('#{dlgAddPropertyValue}');
 
