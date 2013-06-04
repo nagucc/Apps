@@ -176,6 +176,8 @@ function afterNaguLogin(me) {
         })
     });
 
+    renderFavoriteList();
+
 
     $('.nagu-logged').show();
     $('.nagu-logout').hide();
@@ -191,8 +193,42 @@ function afterNaguLogin(me) {
 
 }
 
-
-
+// 初始化“收藏到...”下拉菜单
+function renderFavoriteList() {
+    //var liFavoriteGroupBegin = $('#favoriteList-begin');
+    //liFavoriteGroupBegin.next().remove();
+    var ulFavorite = $('#favoriteList');
+    ulFavorite.children().not('.const').remove();
+    Nagu.MM.favoriteGroup().done(function (groupFss) {
+        $.each(groupFss, function (i, groupFs) {
+            if (groupFs.Object.ConceptId == Nagu.Concepts.SystemTypeBag) return;
+            var li = newLi().appendTo(ulFavorite);
+            $.when(
+                Nagu.MM.isFavorite(curConcept, groupFs.Object.ConceptId),
+                Nagu.CM.get(groupFs.Object.ConceptId)
+                ).done(function (bFavorite, group) {
+                    li.appendConcept(group.ConceptId).done(function (c) {
+                        if (bFavorite) {
+                            li.find('a').prepend($('<i/>').addClass('icon-ok'));
+                            li.find('a').attr('title', '已经收藏到这个分组，单击取消收藏');
+                            li.find('a').click(function () {
+                                Nagu.MM.removeFavorite(curConcept, group.ConceptId).done(function () {
+                                    renderFavoriteList();
+                                });
+                            });
+                        } else {
+                            li.find('a').prepend($('<i/>').addClass('icon-download-alt'));
+                            li.find('a').click(function () {
+                                Nagu.MM.favorite(curConcept, group.ConceptId).done(function (fs) {
+                                    renderFavoriteList();
+                                });
+                            });
+                        }
+                    });
+                });
+        });
+    });
+}
 
 // 当QQ登录成功之后：
 function afterQCLogin(reqData, opts) {
