@@ -230,6 +230,15 @@ function renderFavoriteList() {
     });
 }
 
+function createFavoriteGroup() {
+    var name = $.trim(prompt('请输入分组名称：'));
+    if (name) {
+        Nagu.MM.createFavoriteGroup(name).done(function (group, fs) {
+            renderFavoriteList();
+        });
+    }
+}
+
 // 当QQ登录成功之后：
 function afterQCLogin(reqData, opts) {
     QC.api("get_user_info").success(function (s) {
