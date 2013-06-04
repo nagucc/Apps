@@ -1,7 +1,7 @@
 ﻿var curUser, curConcept;
 var host = "";
-var addTypeDialog, addValueDialog, createConceptDialog, cdp, dlgSelectDialog, dlgSearchDialog, dlgArticleShow;
-var dlgLogin;
+var addTypeDialog, addValueDialog, createConceptDialog, cdp,  dlgSearchDialog, dlgArticleShow;
+var dlgLogin, dlgSelectDialog;
 
 // 全局变量
 var renderValues;
@@ -14,29 +14,56 @@ $(function () {
     var mode = getRequest()['mode'];
     if (mode == 'debug') $('#divDebug').show();
 
-    // 用于显示Concept详细信息的回调函数.
-    renderValues = ConceptDetailPanel.getFunction_renderRichValues(function () {
-        Nagu.CM.flush(curConcept);
-        cdp.showDetail();
-    });
+    
 
     dlgArticleShow = new ArticleShowDialog();
     dlgSearchDialog = new SearchConceptDialog();
-    dlgSelectDialog = new SelectConceptDialog();
+
+    // 此处取消注释会出错，原因？
+    //dlgSelectDialog = new SelectConceptDialog();
+
+    showConcept();
+    
+    
+
+    // 检查用户是否已登录
+    Nagu.MM.getMe().done(function (me) {
+        if (me.ret == 0) { // 已登录
+            afterNaguLogin(me);
+        } else { // 未登录
+            naguLogout();
+        }
+    })
+
+    // 显示二维码
+    try {
+        $('.qrcode').show();
+        $("#qrcode").qrcode({
+            width: 150,
+            height: 150,
+            text: window.location.href
+        });
+    } catch (e) { }
+
+    $('#btnClearStorage').btnCleanStorage();
+
+});
 
 
+function showConcept() {
     // 获取Concept信息,显示与登录无关的信息
     Nagu.CM.get(curConcept).done(function (concept) {
-        $('#fn').text(concept.FriendlyNames[0] + '(ID：' + concept.ConceptId + ')');
+        $('#fn').text(concept.FriendlyNames[0]);
         $('title').text(concept.FriendlyNames[0] + ' - 纳谷概念云');
         $('.brand').text(concept.FriendlyNames[0]);
         $('#desc').text(concept.Descriptions[0]);
 
         // 显示类型下拉列表
+        var ul = $('#typeMenu');
         $.each(concept.TypeFss, function (i, typeFs) {
             if (typeFs.Object.ConceptId == Nagu.Concepts.NaguConcept) return;
-            var ul = $('#typeMenu');
-            var li = $('<li/>').appendTo(ul);
+            if (ul.find('li.' + typeFs.StatementId).size() > 0) return;
+            var li = $('<li/>').addClass(typeFs.StatementId).appendTo(ul);
             var a = $('<a/>').attr('data-toggle', 'tab');
             a.append($('<i></i>').addClass('icon-th-large')).appendTo(li);
 
@@ -77,39 +104,9 @@ $(function () {
         });
     });
 
-    
-
-    // 检查用户是否已登录
-    Nagu.MM.getMe().done(function (me) {
-        if (me.ret == 0) { // 已登录
-            afterNaguLogin(me);
-        } else { // 未登录
-            naguLogout();
-        }
-    })
-
-    // 显示二维码
-    try {
-        $('.qrcode').show();
-        $("#qrcode").qrcode({
-            width: 150,
-            height: 150,
-            text: window.location.href
-        });
-    } catch (e) { }
-
-    $('#btnClearStorage').btnCleanStorage();
-
-});
-
-/********************************************************************************************************************************/
-function getConcept() {
-    var dtd = $.Deferred();
-
-    
-    return dtd.promise();
 }
 
+/********************************************************************************************************************************/
 // 当nagu未登录或用户退出之后
 function naguLogout() {
     $('.nagu-logged').hide();
@@ -122,12 +119,9 @@ function naguLogout() {
         });
     }
 
-    cdp = new ConceptDetailPanel(curConcept);
 
     $('#info').conceptShow(curConcept);
     $('#properties').conceptProperties(curConcept);
-    $('#type1').conceptInfoFromTypes(curConcept);
-    getConcept();
 }
 
 
@@ -142,7 +136,7 @@ function logout() {
 function afterNaguLogin(me) {
 
     // 初始化“添加/删除收藏”按钮
-    $('#btnFavorite').btnFavorite(curConcept);
+    //$('#btnFavorite').btnFavorite(curConcept);
 
     // 初始化对话框:
     if (createConceptDialog === undefined) {
@@ -158,23 +152,16 @@ function afterNaguLogin(me) {
 
     if (addTypeDialog === undefined) {
         addTypeDialog = new AddTypeDialog({
-            onTypeAdded: addPropertyValueDialog_added
+            onTypeAdded: addTypeDialog_onTypeAdded
         });
     }
     
 
     // 显示Concept的详细信息:
     createConceptDialog.opts.onAdded = createConceptDialog_onUpdated;
-    cdp = new ConceptDetailPanel(curConcept, {
-        renderTitle: ConceptDetailPanel.getFunction_RenderRichTitle(createConceptDialog),
-        renderValues: renderValues,
-        renderProperty: ConceptDetailPanel.get_renderProperty3({
-            dlgAddPropertyValue: addValueDialog
-        }),
-        renderPropertyValues: ConceptDetailPanel.get_renderPropertyValues2({
-            articleShowDialog: dlgArticleShow
-        })
-    });
+
+    // 用于显示Concept详细信息的回调函数.
+    renderValues = ConceptDetailPanel.get_renderValues();
 
     $('#info').conceptShow(curConcept, {
         renderTitle: ConceptDetailPanel.getFunction_RenderRichTitle(createConceptDialog),
@@ -202,7 +189,6 @@ function afterNaguLogin(me) {
         $('#accountInfo').prepend(qqimg);
     }
 
-    getConcept();
 }
 
 
@@ -273,16 +259,22 @@ function createConceptDialog_onCreated(concept) {
 
 function addTypeDialog_onTypeAdded(fs) {
     // 刷新缓存,重新findBySP
-    Nagu.SM.flush('', fs.Subject.ConceptId, Nagu.Concepts.RdfType, '', curUserId);
-    $('#myConcepts li.active').find('a').click();
+    Nagu.CM.flush(curConcept);
+    $('#properties').empty().conceptProperties(curConcept, {
+        renderProperty: ConceptDetailPanel.get_renderProperty3({
+            dlgAddPropertyValue: addValueDialog
+        }),
+        renderPropertyValues: ConceptDetailPanel.get_renderPropertyValues2({
+            articleShowDialog: dlgArticleShow
+        })
+    });
+    showConcept();
 }
 
 
 function addPropertyValueDialog_added(fs) {
     // 刷新缓存
     PvsFromBaseClass[fs.Subject.ConceptId] = undefined;
-    cdp.showFromTypes();
-    cdp.showProperties();
 }
 
 
@@ -296,10 +288,4 @@ function dlgSelectDialog_selected_addProperty(propertyId, appId) {
 
 function dlgSelectDialog_select_open(conceptId, appId) {
     window.location = '?id=' + conceptId;
-}
-
-
-
-function test(eventData) {
-    alert(eventData);
 }
