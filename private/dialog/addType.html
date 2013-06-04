@@ -115,7 +115,7 @@
             var subjectId = dialog.attr('subjectId');
             var typeId = select.val();
             var appId = $('#{listApps}').val();
-            AddTypeDialog.AddType(subjectId, typeId, { appId: appId }).done(function () {
+            AddTypeDialog.AddType(subjectId, typeId, { appId: appId }).done(function (fs) {
                 select.val('');
                 dialog.toggle('hide');
             });
