@@ -169,7 +169,7 @@ function afterNaguLogin(me) {
     });
     $('#properties').conceptProperties(curConcept,{
         renderProperty: ConceptDetailPanel.get_renderProperty3({
-            dlgAddPropertyValue: addValueDialog
+            //dlgAddPropertyValue: addValueDialog
         }),
         renderPropertyValues: ConceptDetailPanel.get_renderPropertyValues2({
             articleShowDialog: dlgArticleShow
@@ -323,11 +323,21 @@ function addPropertyValueDialog_added(fs) {
 }
 
 
+// 添加属性之后发生：
 function dlgSelectDialog_selected_addProperty(propertyId, appId) {
     Nagu.CM.addProperty(curConcept, propertyId, {
         appId: appId
     }).done(function (fs) {
-        cdp.showProperties();
+        // 刷新缓存,重新findBySP
+        Nagu.CM.flush(curConcept);
+        $('#properties').empty().conceptProperties(curConcept, {
+            renderProperty: ConceptDetailPanel.get_renderProperty3({
+                dlgAddPropertyValue: addValueDialog
+            }),
+            renderPropertyValues: ConceptDetailPanel.get_renderPropertyValues2({
+                articleShowDialog: dlgArticleShow
+            })
+        });
     });
 }
 
