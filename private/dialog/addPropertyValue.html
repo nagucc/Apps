@@ -15,7 +15,9 @@
                 <label class="control-label">
                     <i class="icon-lock"></i>
                     可见范围
-                    <select id="{listApps}"></select>
+                    <select class="select-list-apps" id="{listApps}">
+                        <option value="" class="const">公开</option>
+                    </select>
                 </label>
             </div>
         </div>
@@ -153,13 +155,13 @@
 <script type="text/javascript">
     $(document).ready(function () {
         $("#{dlgAddPropertyValue}").modal({
-            backdrop: false,
-            keyboard: false,
+            backdrop: true,
+            keyboard: true,
             show: false
         });
 
         // 初始化“可见范围”
-        Dialog.InitAppList($('#{listApps}'));
+        Dialog.InitAppList($('#{dlgAddPropertyValue}').find('.select-list-apps'));
         Dialog.InitFavoriteGroupSelect($('#dlgapv-favorite-group'), $('#dlgapv-favorite'));
 
         var dialog = $('#{dlgAddPropertyValue}');
