@@ -71,6 +71,8 @@ function showConcept() {
             Nagu.CM.get(typeFs.Object.ConceptId).done(function (type) {
                 a.attr('href', '#type-pane-' + type.ConceptId).append(type.FriendlyNames[0]);
                 divPane.attr('id', 'type-pane-' + type.ConceptId);
+
+                // 显示相关类型的属性及值
                 divPane.conceptType(typeFs);
             });
         });
@@ -168,13 +170,14 @@ function afterNaguLogin(me) {
         renderValues: renderValues
     });
     $('#properties').conceptProperties(curConcept,{
-        renderProperty: ConceptDetailPanel.get_renderProperty3({
-            //dlgAddPropertyValue: addValueDialog
-        }),
+        renderProperty: ConceptDetailPanel.get_renderProperty3(),
         renderPropertyValues: ConceptDetailPanel.get_renderPropertyValues2({
             articleShowDialog: dlgArticleShow
         })
     });
+
+    // 显示“我的收藏”
+    renderMyFavoriteGroups();
 
     renderFavoriteList();
 
@@ -237,6 +240,49 @@ function createFavoriteGroup() {
             renderFavoriteList();
         });
     }
+}
+
+function renderMyFavoriteGroups() {
+    var ph = $('#myFavoriteGroups');
+
+    // 1. 显示“未分组”的收藏列表
+    var ungroupLi = B.li().addClass('dropdown-submenu').appendTo(ph);
+    var ungroupA = B.a().text('未分组').appendTo(ungroupLi);
+    var ungroupUl = B.ul().addClass('dropdown-menu').appendTo(ungroupLi);
+    Nagu.MM.favoriteConcepts().done(function (fss) {
+        $.each(fss, function (i, fs) {
+            var li = B.li().appendTo(ungroupUl);
+            li.appendConcept(fs.Object.ConceptId).done(function (c) {
+                li.find('a').attr('href', '/apps/public/concept.html?id=' + c.ConceptId);
+            });
+        });
+    });
+    // 2. 加入一个分隔条
+    B.li().addClass('divider').appendTo(ph);
+
+    // 3. 循环显示各个收藏分组：
+    Nagu.MM.favoriteGroup().done(function (fss) {
+        $.each(fss, function (i, groupFs) {
+            // 跳过“系统预定义类型”分组
+            if (groupFs.Object.ConceptId == Nagu.Concepts.SystemTypeBag) return;
+
+            var groupLi = B.li().addClass('dropdown-submenu').appendTo(ph);
+            groupLi.appendConcept(groupFs.Object.ConceptId);
+            var groupUl = B.ul().addClass('dropdown-menu').appendTo(groupLi);
+            Nagu.MM.favoriteConcepts(groupFs.Object.ConceptId).done(function (fss) {
+                if (fss.length == 0) {
+                    groupUl.append(B.li().append(B.a().text('无')));
+                } else {
+                    $.each(fss, function (i, fs) {
+                        var li = B.li().appendTo(groupUl);
+                        li.appendConcept(fs.Object.ConceptId).done(function (c) {
+                            li.find('a').attr('href', '/apps/public/concept.html?id=' + c.ConceptId);
+                        });
+                    });
+                }
+            });
+        });
+    });
 }
 
 // 当QQ登录成功之后：

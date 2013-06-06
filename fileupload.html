@@ -11,19 +11,27 @@
     $(function () {
         $('#fileupload').fileupload({
             dataType: 'jsonp',
-            url: 'https://graph.qq.com/t/add_pic_t ',
+            url: 'http://nagu.cc/qq/add_pic_t ',
             done: function (e, data) {
                 $.each(data.result.files, function (index, file) {
                     $('<p/>').text(file.name).appendTo(document.body);
                 });
             }
+        }).bind('fileuploaddone', function (e, data) {
+            /* ... */
+            console.log(data);
         });
+
+        $('#ifr').load(function () {
+            //alert($(this).contents().text());
+        });
+
     });
 
 
 
     function up2() {
-        $('#fileupload').fileupload('add', {
+        $('#fileupload').fileupload('send', {
             fileInput: $('#fileupload2'),
             formData: {
                 oauth_consumer_key: '100330589',
@@ -42,5 +50,14 @@
 <input type="submit" onclick="up2();" />
 
 <form id="fileupload" method="post" enctype="multipart/form-data"></form>
+
+    <br /><br />
+    <form id="Form1" target="ifr" action="/qq/add_pic_t" method="post" enctype="multipart/form-data">
+        <input type="file" name="pic" />
+        <input type="hidden" name="content" value="cont" />
+        <input type="submit" />
+    </form>
+
+    <iframe id="ifr" name="ifr"></iframe>
 </body> 
 </html>
