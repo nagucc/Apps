@@ -1,0 +1,288 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>数据抓取器@纳谷概念云</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../../Content/bootstrap/2.3.2/css/bootstrap.css" rel="stylesheet" type="text/css" />
+    <link href="../../Content/bootstrap/2.3.2/css/bootstrap-responsive.min.css" rel="stylesheet"
+        type="text/css" />
+    <style type="text/css">
+        .tab-content, .dl-horizontal dt
+        {
+            overflow: visible;
+        }
+        .pv-nav-pills
+        {
+            margin-bottom: 0;
+        }
+        .nav-pills li span
+        {
+            padding-top: 8px;
+            padding-bottom: 8px;
+            margin-top: 2px;
+            margin-bottom: 2px;
+            -webkit-border-radius: 5px;
+            -moz-border-radius: 5px;
+            border-radius: 5px;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+
+            <a class="brand" href="#">Concept详情</a>
+            <div class="nav-collapse">
+                <ul class="nav">
+                    <li>
+                        <a href="/apps/index.html">
+                            <i class="icon-chevron-left icon-white"></i>
+                            纳谷概念云
+                        </a>
+                    </li>
+                    <li class="nagu-logged hide">
+                        <a href="javascript:void(0)"
+                            onclick="createConceptDialog.toggle('', {h3:'创建新Concept', onAdded:createConceptDialog_onCreated});">
+                            <i class="icon-pencil icon-white"></i>
+                            创建Concept
+                        </a>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)" 
+                            onclick="dlgSearchDialog.toggle({selected: dlgSelectDialog_select_open});">
+                            <i class="icon-search icon-white"></i>
+                            查找Concept
+                        </a>
+                    </li>
+                    <li>
+                      <a href="javascript:void(0)" id="btnClearStorage"></a>
+                  </li>
+                </ul>
+                <ul class="nav pull-right">
+                    <li class=" nagu-logout" style="display: none"><a href="#" onclick="dlgLogin.toggle();">
+                        <i class="icon-user icon-white"></i>
+                        登录</a></li>
+                    <li class="nagu-logged hide dropdown">
+                        
+                        <a href="#" data-toggle="dropdown">
+                            <i class="icon-adjust icon-white"></i>
+                            我的收藏
+                        </a>
+                        <ul class="dropdown-menu" id="myFavoriteGroups"></ul>
+                    </li>
+                    <li class="nagu-logged" style="display: none"><a id="accountInfo">我的帐户</a>
+                    </li>
+                    <li class="nagu-logged" style="display: none"><a href="javascript:void(0)" id="btnLogout"
+                        onclick="logout();">
+                        <i class="icon-off icon-white"></i>
+                        注销</a></li>
+                </ul>
+            </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container" style="padding-top:60px;">
+        <div class="row">
+            <div class="span10 offset1">
+                <h2>1. 配置条目容器及格式</h2>
+                <div class="form-horizontal">
+                    <div class="control-group">
+                        <label class="control-label">条目容器ID：</label>
+                        <div class="controls">
+                            <input class="span4" onchange="checkBag(this);" 
+                                value="d07c8cb7-8fe8-4a33-9923-ef17c3392651"
+                                placeholder="输入条目容器ID" />
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <label class="control-label">条目类型ID：</label>
+                        <div class="controls">
+                            <input class="span4" onchange="checkClass(this);"
+                                value="68f52804-8fa2-4d82-b5ba-55d0750fc41e" 
+                                placeholder="输入条目类型ID" />
+                        </div>
+                    </div>
+                </div>
+
+                <h2>2. 配置数据源</h2>
+                <div class="form-horizontal">
+                    <div class="control-group">
+                        <label class="control-label">Url: </label>
+                        <div class="controls">
+                            <input id="url" class="span8" 
+                                value="http://zh.wikipedia.org/wiki/%E4%BA%91%E5%8D%97%E7%9C%81%E9%AB%98%E7%AD%89%E5%AD%A6%E6%A0%A1%E5%88%97%E8%A1%A8" 
+                                placeholder="输入将抓取数据的网页地址" />
+                        </div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label class="control-label">过滤代码：</label>
+                        <div class="controls">
+                            <input class="span6" id="code" 
+                                value="find('tr').slice(1,21)"
+                                placeholder="输入body的其他过滤代码，比如：find('#type');" />
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <label class="control-label">条目名称选取代码：</label>
+                        <div class="controls">
+                            <input class="span6" id="fnCode" 
+                                value="children().eq(1).text()"
+                                placeholder="输入body的其他过滤代码，比如：find('#type');" />
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <label class="control-label">条目简介选取代码：</label>
+                        <div class="controls">
+                            <input class="span6" id="descCode" 
+                                value="children().eq(1).text()"
+                                placeholder="输入body的其他过滤代码，比如：find('#type');" />
+                        </div>
+                    </div>
+                </div>
+
+                <h2>3. 数据条目预览</h2>
+                <div class="form-horizontal">
+                    <div class="control-group">
+                        <button class="btn btn-primary" onclick="preview();">点击预览数据条目</button>
+                    </div>
+                </div>
+                <table  class="table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>名称</th>
+                            <th>简介</th>
+                        </tr>
+                    </thead>
+                    <tbody id="itemTable">
+
+                    </tbody>
+                </table>
+                <div id="objPre">
+
+                </div>
+
+                <h2>4. 全数据预览</h2>
+                <div>
+                    <pre id="preHtml">
+                    </pre>
+                </div>
+                
+                <iframe class="hide" id="ifr"></iframe>
+            </div>
+        </div>
+
+        <footer class="footer"> 
+        <p>本系统是由na57开发的测试系统，所有数据目前只作为测试使用。</p>
+        <p>系统所有数据均存储于nagu.cc概念云系统中，所有数据通过RDF三元组的形式进行组织。</p>
+      </footer>
+        <div class="hide" id="divDebug">
+            <textarea cols="10" rows="10" disabled id="txtDebug"></textarea>
+        </div>
+    </div>
+
+
+    <script src="../../Content/bootstrap/js/assets/jquery-1.8.2.min.js" type="text/javascript"></script> 
+    
+    <script src="../../Content/bootstrap/2.3.2/js/bootstrap.js" type="text/javascript"></script>
+    
+    <script src="../../Content/js/jquery.qrcode.min.js" type="text/javascript"></script>
+    <script src="../../Content/js/jquery/fileupload/vendor/jquery.ui.widget.js" type="text/javascript"></script>
+    <script src="../../Content/js/jquery/fileupload/jquery.fileupload.js" type="text/javascript"></script>
+    <script src="../../Content/js/jquery/fileupload/jquery.iframe-transport.js" type="text/javascript"></script>
+
+    <script src="../../Content/lib/jStorage/jstorage.min.js" type="text/javascript"></script>
+    <script src="/Content/js/messengerjs/messenger.js" type="text/javascript" ></script> 
+
+    
+    <script src="../../Content/js/js-helper.js" type="text/javascript"></script>
+    <script src="../../Content/js/jquery-helper.js" type="text/javascript"></script>
+    <script src="../../Content/js/bootstrap-helper.js" type="text/javascript"></script>
+    <script src="../../Content/js/nagu-helper.js" type="text/javascript"></script>
+    <script src="../../Content/js/apps-helper.js" type="text/javascript"></script>
+    <script src="../../Content/js/bootstarp-dropdownmenu.js" type="text/javascript"></script>
+    <script src="../../Content/js/nagu-bs-accordion.js" type="text/javascript"></script>
+    <script src="js/concept.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        $(function () {
+            $('input').change();
+        });
+        function preview() {
+            var url = $('#url').val();
+            var code = $('#code').val();
+            $('#ifr').unbind().load(function () {
+                var body = $(this.contentWindow.document.body);
+
+                if (code != '') eval('body = body.' + code);
+
+                // 显示筛选数据的数目：
+                $('#code').next('span').remove();
+                $('#code').after(B.span().addClass('label label-success').text('选中数据量：' + body.size()));
+
+                // 预览选出来的每一个条目
+                var ph = $('#objPre').empty();
+                var fnCode = $('#fnCode').val();
+                var descCode = $('#descCode').val();
+                var tbody = $('#itemTable');
+                $.each(body, function (i, objPh) {
+                    var pre = $('<pre/>').appendTo(ph);
+                    pre.append($(objPh).html());
+
+                    // 添加数据到条目表格中：
+                    var tr = B.tr().appendTo(tbody);
+                    B.td().text(i + 1).appendTo(tr);
+
+                    var fn, desc;
+                    eval('fn = $(objPh).' + fnCode);
+                    var inputFn = B.input().val(fn);
+                    B.td().append(inputFn).appendTo(tr);
+
+                    eval('desc = $(objPh).' + descCode);
+                    var inputDesc = B.input().val(desc);
+                    B.td().append(inputDesc).appendTo(tr);
+
+
+                });
+            });
+            
+            $('#ifr').attr('src', '/func/wrap/?url=' + url);
+        }
+
+        function checkBag(sender) {
+            var ph = $(sender);
+            var bagId = ph.val();
+            Nagu.CM.get(bagId).done(function (bag) {
+                ph.next('span').remove();
+                ph.after(B.span().addClass('label label-success').text('当前容器：'+ bag.FriendlyNames[0]));
+            }).fail(function () {
+                ph.next('span').remove();
+                ph.after(B.span().addClass('label label-warning').text('未能找到容器，请确保ID正确'));
+            });
+        }
+
+        function checkClass(sender) {
+            var ph = $(sender);
+            var classId = ph.val();
+            Nagu.CM.get(classId).done(function (cla) {
+                ph.next('span').remove();
+                ph.after(B.span().addClass('label label-success').text('当前条目类型：' + cla.FriendlyNames[0]));
+            }).fail(function () {
+                ph.next('span').remove();
+                ph.after(B.span().addClass('label label-warning').text('未能找到类型，请确保ID正确'));
+            });
+        }
+    </script>
+</body>
+</html>
