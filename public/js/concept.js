@@ -54,7 +54,10 @@ function showConcept() {
     // 获取Concept信息,显示与登录无关的信息
     Nagu.CM.get(curConcept).done(function (concept) {
         $('#fn').text(concept.FriendlyNames[0]);
-        $('title').text(concept.FriendlyNames[0] + ' - 纳谷概念云');
+
+        try{ // 下面语句在IE下异常。
+            $('title').text(concept.FriendlyNames[0] + ' - 纳谷概念云');
+        } catch (e) { }
         $('.brand').text(concept.FriendlyNames[0]);
         $('#desc').text(concept.Descriptions[0]);
 
@@ -76,34 +79,32 @@ function showConcept() {
                 divPane.conceptType(typeFs);
             });
         });
+    });
 
+    // 初始化本地存储信息：
+    var days = 0, hours = 0, minutes = 0, seconds = 0;
+    var text = '';
+    var ttl = Math.floor($.jStorage.getTTL('concept_' + curConcept) / 1000);
+    days = Math.floor(ttl / 86400);
+    ttl -= days * 86400;
 
+    hours = Math.floor(ttl / 3600);
+    ttl -= hours * 3600;
 
-        // 初始化本地存储信息：
-        var days = 0, hours = 0, minutes = 0, seconds = 0;
-        var text = '';
-        var ttl = Math.floor($.jStorage.getTTL('concept_' + curConcept) / 1000);
-        days = Math.floor(ttl / 86400);
-        ttl -= days * 86400;
+    minutes = Math.floor(ttl / 60);
+    ttl -= minutes * 60;
 
-        hours = Math.floor(ttl / 3600);
-        ttl -= hours * 3600;
+    seconds = ttl;
 
-        minutes = Math.floor(ttl / 60);
-        ttl -= minutes * 60;
+    if (days > 0) text += days + '天';
+    if (hours > 0 || text != '') text += hours + '小时';
+    if (minutes > 0 || text != '') text += minutes + '分';
+    if (seconds > 0 || text != '') text += seconds + '秒';
+    $('#ttlText').text(text);
 
-        seconds = ttl;
-
-        if (days > 0) text += days + '天';
-        if (hours > 0 || text != '') text += hours + '小时';
-        if (minutes > 0 || text != '') text += minutes + '分';
-        if (seconds > 0 || text != '') text += seconds + '秒';
-        $('#ttlText').text(text);
-
-        $('#btnFlushConcept').attr('data-original-title', '当前Concept正在本地存储，' + text + '之后过期，您也可以现在立即刷新');
-        $('#btnFlushConcept').tooltip({
-            html: true
-        });
+    $('#btnFlushConcept').attr('data-original-title', '当前Concept正在本地存储，' + text + '之后过期，您也可以现在立即刷新');
+    $('#btnFlushConcept').tooltip({
+        html: true
     });
 
 }

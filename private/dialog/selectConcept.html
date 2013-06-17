@@ -32,25 +32,6 @@
     </div>
 </div>
 
-<style>
-    .ui-autocomplete {
-        max-height: 100px;
-        overflow-y: auto;
-        /* prevent horizontal scrollbar */
-        overflow-x: hidden;
-    }
-    /* IE 6 doesn't support max-height
-        * we use height instead, but this forces the menu to always be this tall
-        */
-    * html .ui-autocomplete {
-        height: 100px;
-    }
-    
-    .ui-autocomplete-loading {
-        background: white url('/Content/jqueryui/ui-anim_basic_16x16.gif') right center no-repeat;
-    }
-</style>
-
 <script type="text/javascript">
     $("#{dlgSelect}").modal({
             backdrop: false,
@@ -70,9 +51,7 @@
             $('div#{dlgSelect} h4').show();
             var tempLi = newLi().append(newImg('/Content/Images/loading-128.gif'));
             $('#{result}').empty().append(tempLi);
-            Nagu.CM.search($('#{tbName}').val(), {
-                $("div#{dlgSelect}").attr('typeId')
-            }).done(function (cs) {
+            Nagu.CM.search($('#{tbName}').val()).done(function (cs) {
                 if (cs.length == 0) {
                     $('#{result}').empty().append(newLi().append('没有找到任何数据'));
                     return;
@@ -81,11 +60,10 @@
                     clearBefore: true,
                     pageSize: 5,
                     renderItem: function (concept, li) {
-                        var a = newA().appendTo(li);
-                        a.appendConcept(concept.ConceptId);
-                        a.click(function () {
+                        li.appendConcept(concept.ConceptId);
+                        li.find('a').click(function () {
                             var conceptId = li.attr('ConceptId');
-                            $.when(SelectConceptDialog.selected(concept.conceptId, appId)).done(function () {
+                            $.when(SelectConceptDialog.selected(conceptId)).done(function () {
                                 $("div#{dlgSelect} input").val("");
                                 $("div#{dlgSelect}").modal('hide');
                             });
