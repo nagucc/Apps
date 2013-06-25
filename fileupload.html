@@ -28,7 +28,89 @@
 
     });
 
+    function bulkCreate() {
+        var fss = new Array();
+        fss.push({
+            SubjectId: '0db2cb4c-eb31-4159-bb2d-699cc2a876dc',
+            SType: 0,
+            PredicateId: '0db2cb4c-eb31-4159-bb2d-699cc2a876dc',
+            ObjectId: '0db2cb4c-eb31-4159-bb2d-699cc2a876dc',
+            OType: 0,
+            AppId: '0db2cb4c-eb31-4159-bb2d-699cc2a876dc'
+        });
 
+        fss.push({
+            SubjectId: '0db2cb4c-eb31-4159-bb2d-699cc2a876dc',
+            SType: 0,
+            PredicateId: '0db2cb4c-eb31-4159-bb2d-699cc2a876dc',
+            ObjectId: '0db2cb4c-eb31-4159-bb2d-699cc2a876dc',
+            OType: 0,
+            AppId: '0db2cb4c-eb31-4159-bb2d-699cc2a876dc'
+        });
+
+        fss.push({
+            SubjectId: '0db2cb4c-eb31-4159-bb2d-699cc2a876dc',
+            SType: 0,
+            PredicateId: '0db2cb4c-eb31-4159-bb2d-699cc2a876dc',
+            ObjectId: '0db2cb4c-eb31-4159-bb2d-699cc2a876dc',
+            OType: 0,
+            AppId: '0db2cb4c-eb31-4159-bb2d-699cc2a876dc'
+        });
+        var params = { fss: fss };
+
+        //alert($.param(params));
+        $('#paramResult').text(SerializeJsonToStr(fss));
+        
+        $.ajax('/statementApi/bulkCreate', {
+            dataType: 'jsonp',
+            success: function (data) {
+                alert(data);
+            },
+            data: { fss: SerializeJsonToStr(fss) },
+            type: 'post'
+
+        }).done(function(data){
+            $('#paramResult').text(data);
+        });
+    }
+
+    function SerializeJsonToStr(oJson) {
+        if (typeof (oJson) == typeof (false)) {
+            return oJson;
+        }
+        if (oJson == null) {
+            return "null";
+        }
+        if (typeof (oJson) == typeof (0))
+            return oJson.toString();
+        if (typeof (oJson) == typeof ('') || oJson instanceof String) {
+            oJson = oJson.toString();
+            oJson = oJson.replace(/\r\n/, '\\r\\n');
+            oJson = oJson.replace(/\n/, '\\n');
+            oJson = oJson.replace(/\"/, '\\"');
+            return '"' + oJson + '"';
+        }
+        if (oJson instanceof Array) {
+            var strRet = "[";
+            for (var i = 0; i < oJson.length; i++) {
+                if (strRet.length > 1)
+                    strRet += ",";
+                strRet += SerializeJsonToStr(oJson[i]);
+            }
+            strRet += "]";
+            return strRet;
+        }
+        if (typeof (oJson) == typeof ({})) {
+            var strRet = "{";
+            for (var p in oJson) {
+                if (strRet.length > 1)
+                    strRet += ",";
+                strRet += '"' + p.toString() + '":' + SerializeJsonToStr(oJson[p]);
+            }
+            strRet += "}";
+            return strRet;
+        }
+    }
 
     function up2() {
         $('#fileupload').fileupload('send', {
@@ -57,7 +139,9 @@
         <input type="hidden" name="content" value="cont" />
         <input type="submit" />
     </form>
-
+    <h3>批量创建语句测试</h3>
+    <button onclick="bulkCreate();">创建</button>
+    <textarea id="paramResult"></textarea>
     <iframe id="ifr" name="ifr"></iframe>
 </body> 
 </html>
