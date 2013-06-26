@@ -15,7 +15,7 @@ $(function () {
             naguLogout();
         }
     }).fail();
-    showApps();
+    //showApps();
 
     if ($.jStorage && $.jStorage.storageAvailable()) {
         var size = $.jStorage.storageSize();
