@@ -403,13 +403,113 @@ function catchItem(index, item, data, urlIndex) {
     ensureConceptExist(fn, desc).done(function (c) {
         $.when(dtdProperty).done(function (fss) {
             properties = fss;
-            $.when(catchItemPv(c, item, data)).done(function () {
+            $.when(/*catchItemPv(c, item, data)*/catchItemPv2(c, item, data, fss)).done(function () {
                 $('#result_item_index').text(++itemDone);
                 dtd.resolve();
             });
         });
     });
     return dtd.promise();
+}
+
+// 使用批量创建语句，一次性插入所有属性值。
+function catchItemPv2(c, item, data, properties) {
+    var dtds = [];
+
+    // 3. 确保概念具有指定的类型
+    dtds.push(ensureConceptType(c.ConceptId));
+
+    var dtdPvs = [];
+    // 生成每一个属性值的语句：
+    var statements = [];
+    $.each(properties, function (i, property) {
+        var propertyId = property.Object.ConceptId;
+        var pv = getPv2(item, propertyId, data);
+        if (pv.value == '') {
+            return;
+        }
+        var dtd = $.Deferred();
+        dtdPvs.push(dtd);
+
+        var statTplt = {
+            SubjectId: c.ConceptId,
+            SType: Nagu.MType.Concept,
+            PredicateId: propertyId,
+            AppId: ''
+        };  
+        switch (pv.process) {
+            case '0': // 发现同名概念就使用
+                
+                break;
+            case '1': // 作为文本使用
+                var statement = {
+                    Object: pv.value,
+                    OType: Nagu.MType.Literal
+                };
+                statement = $.extend(statTplt, statement);
+                statements.push(statement);
+                dtd.resolve(statement);
+                break;
+            case '2': // 无论如何创建新概念
+                Nagu.Cm.create(pv.value, pv.value).done(function (pv2) {
+                    var statement = {
+                        Object: pv2.ConceptId,
+                        OType: Nagu.MType.Concept
+                    };
+                    statement = $.extend(statTplt, statement);
+                    statements.push(statement);
+                    dtd.resolve(statement);
+                });
+                break;
+            case '4': //发现同名概念则使用，否则当作文本添加
+                if (conceptIds[pv.value] !== undefined) { //已存在
+                    var statement = {
+                        Object: conceptIds[pv.value],
+                        OType: Nagu.MType.Concept
+                    };
+                    statement = $.extend(statTplt, statement);
+                    statements.push(statement);
+                    dtd.resolve(statement);
+                } else if (conceptStatus[pv.value] == Status.NotExist) { //不存在
+                    var statement = {
+                        Object: pv.value,
+                        OType: Nagu.MType.Literal
+                    };
+                    statement = $.extend(statTplt, statement);
+                    statements.push(statement);
+                    dtd.resolve(statement);
+                } else { //不知道存不存在
+                    Nagu.CM.search(pv.value).done(function (cs) {
+                        if (cs.length > 0) {
+                            conceptIds[pv.value] = cs[0].ConceptId;
+                            conceptStatus[pv.value] = Status.Exist;
+                        } else {
+                            conceptStatus[pv.value] = Status.NotExist;
+                        }
+                        var statement = {
+                            Object: cs.length > 0 ? cs[0].ConceptId : pv.value,
+                            OType: cs.length > 0 ? Nagu.MType.Concept : Nagu.MType.Literal
+                        };
+                        statement = $.extend(statTplt, statement);
+                        statements.push(statement);
+                        dtd.resolve(statement);
+                    });
+                }
+                break;
+        }
+
+    });
+
+    var dtd2 = $.Deferred();
+    dtds.push(dtd2);
+
+    $.when.apply($, dtdPvs).done(function (a1, a2, a3, a4, a5) {
+        Nagu.SM.bulkCreate(statements).done(function (fss) {
+            dtd2.resolve();
+        });
+    });
+    return $.when.apply($, dtds);
+
 }
 
 // 根据当前td为当前概念添加属性值
