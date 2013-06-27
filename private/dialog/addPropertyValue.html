@@ -1,7 +1,7 @@
 ﻿<div class="modal hide" id="{dlgAddPropertyValue}">
     <div class="modal-header">
         <a class="close" data-dismiss="modal">×</a>
-        <h3>标题</h3>
+        <h3></h3>
     </div>
     <div class="modal-body">
         <div class="hide alert alert-error">
@@ -47,6 +47,13 @@
                                     <select id="dlgapv-favorite">
                                         <option value="">请选择分组</option>
                                     </select>
+                                    </div>
+                                </div>
+                            <div class="control-group">
+                                <div class="controls">
+                                    <button class="btn btn-primary"
+                                        onclick="addPvFromFavorite();">
+                                        确定</button>
                                     </div>
                                 </div>
                         </div>
@@ -280,6 +287,19 @@
         });
     }
     
+
+    function addPvFromFavorite() {
+        var subjectId = $('#{dlgAddPropertyValue}').attr('subjectId');
+        var predicateId = $('#{dlgAddPropertyValue}').attr('predicateId');
+        var pvId = $('#dlgapv-favorite').val();
+        var appId = $('#{listApps}').val();
+
+        AddPropertyValueDialog.AddConceptValue(subjectId, predicateId, pvId, {
+            appId: appId
+        }).done(function () {
+            $('#{dlgAddPropertyValue}').modal('hide');
+        });
+    }
 
     function addPropertyValue34532532453245325() {
         var onPropertyValueAdded = null;
