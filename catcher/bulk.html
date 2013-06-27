@@ -237,6 +237,34 @@
                             </div>
                         </div>
 
+                        <!-- 数据源URL生成程序 -->
+                        <div class="control-group">
+                            <label class="control-label">URL生成代码：</label>
+                            <div class="controls">
+                                <div>请输入URL生成方法的函数体：function(sourceUrlTplt, start, step, end, phLength, sourceUrls) </div>
+                                <textarea class="span6" id="urlGetterCode"
+                                    rows="10"
+                                    placeholder="请输入URL生成方法的函数体" >
+// 必须返回Deferred对象
+var dtd = $.Deferred();
+for (var i = start; i < end + 1; i = i + step) {
+    sourceUrls.push(sourceUrlTplt.replace(/{p1}/g, i));
+}
+dtd.resolve();
+return dtd.promise();
+                                </textarea>
+                                <button class="btn-primary btn"
+                                    onclick="getUrls()">
+                                    生成数据源Url</button>
+                                <div>
+                                    每次读取
+                                    <input id="bulkUrlCount" value="1"/>
+                                    个Url，以减少请求数量
+                                </div>
+                            </div>
+                        </div>
+
+
                         <div class="control-group">
                             <div class="controls">
                                 <button class="btn btn-large"
@@ -247,7 +275,8 @@
                                     onclick="$('#stepSaveProject').tab('show');">
                                     <i class="icon-file icon-white"></i>
                                     保存项目</button>
-                                <button class="btn btn-large btn-primary"
+                                <button class="btn btn-large btn-primary" disabled
+                                    id="btnFinishSourceCfg"
                                     onclick="finishSourceCfg();">
                                     <i class="icon-chevron-right icon-white"></i>
                                     好了，下一步</button>
@@ -259,60 +288,6 @@
                     <div class="tab-pane form-horizontal" id="tabCodeCfg">
 
                         <h2>3. 设置取值代码</h2>
-                        <!--<h3>3.1 数据源过滤代码</h3>
-                        <div class="control-group">
-                            <label class="control-label">数据源过滤代码：</label>
-                            <div class="controls">
-                                <input class="span6" id="sourceSelectCode"
-                                    value="body.find('#list_r').children().slice(1)"
-                                    placeholder="输入body的过滤代码，比如：body.find('#type');" />
-                                <button class="btn btn-primary" onclick="previewSourceData();">预览过滤结果</button>
-                                <div>
-                                    <span>返回值：</span>
-                                    <span class="label label-info">jQuery对象</span>
-                                    <br />
-                                    <span>可用参数：</span>
-                                    <span class="label label-info">body</span>
-                                </div>
-                                <div id="sourceDataSize"></div>
-                            </div>
-                        </div>
-
-                        <h3>3.2 条目概念取值代码</h3>
-                        <div class="control-group" id="propertyCodeTemplate">
-                            <label class="control-label">条目名称选取代码：</label>
-                            <div class="controls">
-                                <input class="span6" id="fnCode"
-                                    value="dataItem.find('.xw-on').text() == ''?'':$.trim(data.split('<title>',2)[1].split('-',1)) + dataItem.find('.xw-on').text()"
-                                    placeholder="输入条目名称选取代码，比如：dataItem.children().eq(1).text()" />
-                                <button class="btn btn-primary" onclick="previewFn();">预览结果</button>
-                                <div id="propertyCodeRef">
-                                    <span>返回值：</span>
-                                    <span class="label label-info">字符串</span>
-                                    <br />
-                                    <span>可用参数：</span>
-                                    <span class="label label-info">dataItem</span>
-                                </div>
-                                <div id="previewFnResult"></div>
-                            </div>
-                        </div>
-                        <div class="control-group">
-                            <label class="control-label">条目简介选取代码：</label>
-                            <div class="controls">
-                                <input class="span6" id="descCode"
-                                    value="$.trim(data.split('<title>',2)[1].split('-',1)) + dataItem.find('.xw-on').text()"
-                                    placeholder="输入条目简介选取代码，比如：dataItem.children().eq(1).text()" />
-                                <button class="btn btn-primary" onclick="previewDesc();">预览结果</button>
-                                <div>
-                                    <span>返回值：</span>
-                                    <span class="label label-info">字符串</span>
-                                    <br />
-                                    <span>可用参数：</span>
-                                    <span class="label label-info">dataItem</span>
-                                </div>
-                                <div id="previewDescResult"></div>
-                            </div>
-                        </div>-->
 
                         <div class="control-group">
                             <label class="control-label">条目取值代码：</label>
@@ -497,7 +472,7 @@ $.each(shis, function(i, shi){
                         <div class="control-group">
                             <label class="control-label">可见范围：</label>
                             <div class="controls">
-                                <select id="listApps2">
+                                <select id="listApps2" disabled>
                                     <option value="" class="const">公开</option>
                                 </select>
                             </div>

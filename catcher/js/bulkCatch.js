@@ -6,6 +6,7 @@ var sourceHtmls = [];
 
 // 获取HTML时返回的DTD对象：
 var dtdGetHtmls = [];
+var dtdBulkGetHtmls = [];
 
 // 获取“实例包含的属性”时返回的DTD对象：
 var dtdProperty;
@@ -25,7 +26,7 @@ Status.ExistAndBag = 2;
 
 var urlData = undefined;
 
-var dlgLogin, dlgSelect, curProject;
+var dlgLogin, dlgSelect, curProject, curUser;
 
 Nagu.Catcher = {
     Project: '1c932f69-5fce-4b70-8e30-33eba57177a9', // 类，描述项目
@@ -37,6 +38,7 @@ Nagu.Catcher = {
     UrlStepLength: '40790f80-7998-41b0-a1f9-775cec070870', // 步长
     UrlEndIndex: '1492559d-cab1-48e1-8b13-335413494561', // 结束序号
     UrlParamLength: '0567f125-1da9-445b-a36b-ac682e85ffc3', // 占位符长度
+    UrlGetterCode: '35ee73e3-f8a7-4e57-8c58-8b049402b00d',
     ItemGetterCode: '53ff7b16-1062-43aa-a9fb-d2767869b33c', // 条目取值代码
     ItemPvGetterCodeClass: 'e7810347-48f1-445d-bf78-57600a322e55', // 条目属性值取值代码类
     ItemPvGetterCode: '4fbd3a36-5235-46f7-a3cd-44eea82d4a6c', // 条目属性值取值代码
@@ -51,6 +53,7 @@ $(function () {
     Nagu.MM.getMe().done(function (me) {
         if (me.ret == 0) { // 已登录
             afterNaguLogin(me);
+            curUser = me.Id;
         } else { // 未登录
             naguLogout();
         }
@@ -70,30 +73,61 @@ $(function () {
 
 });
 
-// 完成数据源配置
-function finishSourceCfg() {
+
+function getUrls() {
     // 获取参数
     var sourceUrlTplt = $('#sourceUrlTplt').val();
     var step = new Number($('#urlStep').val());
-    var startIndex = new Number($('#urlStartIndex').val());
-    var endIndex = new Number($('#urlEndIndex').val());
+    if (step < 1) step = 1;
+    var start = new Number($('#urlStartIndex').val());
+    var end = new Number($('#urlEndIndex').val());
     var phLength = new Number($('#urlPhLength').val());
     sourceUrls = [];
-    dtdGetHtmls = [];
+    
 
     // 生成URL：
-    for (var i = startIndex; i < endIndex + 1; i = i + step) {
-        sourceUrls.push(sourceUrlTplt.replace(/{p1}/g, i));
-    }
+    var urlGetterCode = $('#urlGetterCode').val();
+    var urlGetter = function (sourceUrlTplt, start, step, end, phLength, sourceUrls) { };
+    eval('urlGetter = function (sourceUrlTplt, start, step, end, phLength, sourceUrls){' + urlGetterCode + '};');
+    $.when(urlGetter(sourceUrlTplt, start, step, end, phLength, sourceUrls))
+        .then(function () {
+            $('#btnFinishSourceCfg').removeAttr('disabled');
+            alert('抓取URL成功，共抓取' + sourceUrls.length + '个URL');
+        });
+}
 
+// 完成数据源配置
+function finishSourceCfg() {
     // 获取源HTML：
+    dtdGetHtmls = [];
     for (var i = 0; i < sourceUrls.length; i++) {
         dtdGetHtmls[i] = $.post('/func/wrap/?url=' + sourceUrls[i]).done(function (html) {
-            sourceHtmls[i] = html;
+            //sourceHtmls[i] = html;
+            sourceHtmls[sourceUrls[i]] = html;
         }).fail(function () {
-            sourceHtmls[i] = 'error';
+            //sourceHtmls[i] = 'error';
+            sourceHtmls[sourceUrls[i]] = 'error';
         });
     }
+
+    // 使用批量方法获得HTML(TODO)
+    /*dtdBulkGetHtmls = [];
+    var bulkCount = $('#bulkUrlCount').val();
+    var j = 0;
+    while (j < sourceUrls.length) {
+        var urls = [];
+        for (var k = 0; j < sourceUrls.length && k < bulkCount; k++, j++) {
+            urls.push(sourceUrls[j]);
+        }
+        dtdBulkGetHtmls = $.post('/func/bulkWrap', {
+            urls: SerializeJsonToStr(urls)
+        }).done(function (data) {
+            for (var i = 0; i < data.length; i++) {
+                if (data[i].ret == 0) sourceUrls[data[i].url] = data[i].content;
+                else sourceUrls[data[i].url] = 'error';
+            }
+        });
+    }*/
 
     itemsFromUrl = new Array();
 
@@ -688,7 +722,7 @@ function saveProject() {
     if(pFn == '') return;
 
     var pDesc = $('#projectDesc').val();
-    var pAppId = $('listApps2').val();
+    var pAppId = curUser;//$('#listApps2').val();
     var itemTypeId = $('#itemTypeId').val();
     var itemProcess = $('#itemProcess').val();
     var appIdForS = $('#listApps').val();
@@ -698,6 +732,8 @@ function saveProject() {
     var urlEndIndex = $('#urlEndIndex').val();
     var urlParamLength = $('#urlPhLength').val();
     var itemGetterCode = $('#itemGetter').val();
+    var urlGetterCode = $('#urlGetterCode').val();
+
 
     $.when(PM.getOrNew(curProject, pFn, {
         appId: pAppId
@@ -711,7 +747,8 @@ function saveProject() {
         PM.resetUrlStepLength(p.ConceptId, urlStepLength, { appId: pAppId }),
         PM.resetUrlEndIndex(p.ConceptId, urlEndIndex, { appId: pAppId }),
         PM.resetUrlParamLength(p.ConceptId, urlParamLength, { appId: pAppId }),
-        PM.resetItemGetterCode(p.ConceptId, itemGetterCode, { appId: pAppId })
+        PM.resetItemGetterCode(p.ConceptId, itemGetterCode, { appId: pAppId }),
+        PM.resetUrlGetterCode(p.ConceptId, urlGetterCode, { appId: pAppId })
         ).done(function () {
             // 更新左边导航条,TODO:出处无法显示新保存的项目
             //listProjects().done(function () {
@@ -771,6 +808,7 @@ function showProject(pFsId) {
         $('#urlEndIndex').val('');
         $('#urlPhLength').val('');
         $('#itemGetter').val('');
+        $('#urlGetterCode').val('');
 
         PM.get(pFs.Subject.ConceptId).done(function (project) {
             // 设置条目类型及附属内容：
@@ -783,6 +821,7 @@ function showProject(pFsId) {
             $('#urlEndIndex').val(project.UrlEndIndex);
             $('#urlPhLength').val(project.UrlParamLength);
             $('#itemGetter').val(project.ItemGetterCode);
+            $('#urlGetterCode').val(project.UrlGetterCode);
         });
     });
 }
@@ -1036,6 +1075,30 @@ ProjectManager.prototype.resetUrlParamLength = function (pid, urlParamLength, op
     return dtd.promise();
 };
 
+ProjectManager.prototype.resetUrlGetterCode = function (pid, urlGetterCode, options) {
+    var dtd = $.Deferred();
+    var defaults = {
+        appId: ''
+    };
+    options = $.extend(defaults, options);
+    Nagu.SM.findBySP(pid, Nagu.MType.Concept, Nagu.Catcher.UrlGetterCode, options).done(function (fss) {
+        //设置是否需要重置值的标识：
+        var needReset = true;
+        for (var i = 0; i < fss.length; i++) {
+            if (fss[i].Object.Value != urlGetterCode)
+                Nagu.SayM.dontSay(fss[i].StatementId);
+            else needReset = false;
+        }
+        if (needReset)
+            Nagu.CM.addLiteralPropertyValue(pid, Nagu.Catcher.UrlGetterCode, urlGetterCode, options).done(function (fs) {
+                dtd.resolve(fs);
+            });
+        else dtd.resolve();
+    });
+    return dtd.promise();
+};
+
+
 ProjectManager.prototype.resetItemGetterCode = function (pid, itemGetterCode, options) {
     var dtd = $.Deferred();
     var defaults = {
@@ -1098,6 +1161,8 @@ ProjectManager.prototype.get = function (pid) {
                 case Nagu.Catcher.ItemGetterCode:
                     project.ItemGetterCode = pv.Value[0].Object.Value;
                     break;
+                case Nagu.Catcher.UrlGetterCode:
+                    project.UrlGetterCode = pv.Value[0].Object.Value;
             }
                 
         });
