@@ -38,7 +38,7 @@ Nagu.Catcher = {
     UrlStepLength: '40790f80-7998-41b0-a1f9-775cec070870', // 步长
     UrlEndIndex: '1492559d-cab1-48e1-8b13-335413494561', // 结束序号
     UrlParamLength: '0567f125-1da9-445b-a36b-ac682e85ffc3', // 占位符长度
-    UrlGetterCode: '35ee73e3-f8a7-4e57-8c58-8b049402b00d',
+    UrlGetterCode: '35ee73e3-f8a7-4e57-8c58-8b049402b00d', // 数据源Url的抓取代码
     ItemGetterCode: '53ff7b16-1062-43aa-a9fb-d2767869b33c', // 条目取值代码
     ItemPvGetterCodeClass: 'e7810347-48f1-445d-bf78-57600a322e55', // 条目属性值取值代码类
     ItemPvGetterCode: '4fbd3a36-5235-46f7-a3cd-44eea82d4a6c', // 条目属性值取值代码

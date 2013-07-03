@@ -1,0 +1,181 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Concept@纳谷概念云</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../../Content/bootstrap/2.3.2/css/bootstrap.css" rel="stylesheet" type="text/css" />
+    <link href="../../Content/bootstrap/2.3.2/css/bootstrap-responsive.min.css" rel="stylesheet" type="text/css" />
+    <script src="../../Content/bootstrap/js/assets/jquery-1.8.2.min.js" type="text/javascript"></script> 
+</head>
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+
+            <a class="brand" href="/apps/index.html">纳谷概念云</a>
+            
+
+            <div class="nav-collapse">
+                <ul class="nav">
+                    <li>
+                        <a href="javascript:void(0)" id="btnClearStorage"></a>
+                    </li>
+                </ul>
+
+                <ul class="nav pull-right">
+                    
+                    <li class="nagu-logout" style="display: none"><a href="#" onclick="dlgLogin.toggle();">
+                        <i class="icon-user icon-white"></i>
+                        登录</a></li>
+                    <li class="nagu-logged" style="display: none"><a id="accountInfo">我的帐户</a></li>
+                    <li class="nagu-logged" style="display: none">
+                        <a href="javascript:void(0)" id="btnLogout" onclick="logout();">
+                            <i class="icon-off icon-white"></i>
+                            注销</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container" style="padding-top:40px;">
+        <div class="row">
+            <div class="span10 offset1">
+                <div class="modal-header">
+                    
+                    <h3>新增捐款明细</h3>
+                    <span><i>输入捐款单的详细信息，即可在捐款查询系统中查询到。</i></span>
+                </div>
+                <div class="modal-body">
+                    <div class="form-horizontal">
+                        <!-- 捐款人 -->
+                        <div class="control-group" id="donorName">
+                            <label for="donorName" class="control-label">捐款人名称</label>
+                            <div class="controls">
+                                <input placeholder="请在此输入捐款人名称..." onchange="searchDonor();"/>
+                                <span class="badge-important badge"></span> 
+                                <br />
+                                <select>
+                                    <option class="const" value="">请从其中选择最恰当的那个</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- 捐款对象 -->
+                        <div class="control-group" id="Div1">
+                            <label for="donorName" class="control-label">捐款人名称</label>
+                            <div class="controls">
+                                <input placeholder="请在此输入捐款人名称..." onchange="searchDonor();"/>
+                                <span class="badge-important badge"></span> 
+                                <br />
+                                <select>
+                                    <option class="const" value="">请从其中选择最恰当的那个</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- 捐助项目 -->
+                        <div class="control-group" id="Div2">
+                            <label for="donorName" class="control-label">捐款人名称</label>
+                            <div class="controls">
+                                <input placeholder="请在此输入捐款人名称..." onchange="searchDonor();"/>
+                                <span class="badge-important badge"></span> 
+                                <br />
+                                <select>
+                                    <option class="const" value="">请从其中选择最恰当的那个</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- 捐款方式 -->
+                        <div class="control-group" id="Div3">
+                            <label for="donorName" class="control-label">捐款人名称</label>
+                            <div class="controls">
+                                <input placeholder="请在此输入捐款人名称..." onchange="searchDonor();"/>
+                                <span class="badge-important badge"></span> 
+                                <br />
+                                <select>
+                                    <option class="const" value="">请从其中选择最恰当的那个</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- 金额 -->
+                        <div class="control-group" id="Div4">
+                            <label for="donorName" class="control-label">捐款人名称</label>
+                            <div class="controls">
+                                <input placeholder="请在此输入捐款人名称..." onchange="searchDonor();"/>
+                                <span class="badge-important badge"></span> 
+                                <br />
+                                <select>
+                                    <option class="const" value="">请从其中选择最恰当的那个</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- 备注 -->
+                        <div class="control-group">
+                            <div class="controls">
+                                <button onclick="search();" class="btn">搜索</button>
+                                <button class="btn btn-primary nagu-logged hide" href="javascript:void(0)" onclick="createConceptDialog.toggle('', {h3:'创建新Concept'})">
+                                    <i class="icon-pencil icon-white"></i>
+                                    创建新Concept
+                                </button>
+                            </div>
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer"> 
+        <p class="pull-right"><a href="#">回到顶端</a></p>
+        <p>本系统是由na57开发的测试系统，所有数据目前只作为测试使用。</p>
+        <p>系统所有数据均存储于nagu.cc概念云系统中，所有数据通过RDF三元组的形式进行组织。</p>
+      </footer>
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    <script src="../../Content/bootstrap/2.3.2/js/bootstrap.js" type="text/javascript"></script>
+
+    <script src="../../Content/js/jquery.qrcode.min.js" type="text/javascript"></script>
+
+    <script src="../../Content/js/js-helper.js" type="text/javascript"></script>
+    <script src="../../Content/js/jquery-helper.js" type="text/javascript"></script>
+    <script src="../../Content/js/bootstrap-helper.js" type="text/javascript"></script>
+    <script src="../../Content/js/nagu-helper.js" type="text/javascript"></script>
+    <script src="../../Content/js/apps-helper.js" type="text/javascript"></script>
+    <script src="../../Content/js/bootstarp-dropdownmenu.js" type="text/javascript"></script>
+    <script src="../../Content/js/nagu-bs-accordion.js" type="text/javascript"></script>
+
+    <script src="../../Content/lib/jStorage/jstorage.min.js" type="text/javascript"></script>
+    <script src="js/index.js" type="text/javascript"></script>
+    
+    <img class="hide" src="/Content/Images/loading-128.gif" />
+    
+</body>
+</html>
