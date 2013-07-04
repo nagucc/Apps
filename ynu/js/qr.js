@@ -26,7 +26,7 @@ $(function () {
 
     // 显示名称
     Nagu.CM.get(curConcept).done(function (c) {
-        $('h1').text(c.FriendlyNames[0]);
+        $('h2').text(c.FriendlyNames[0]);
         for (var i = 0; i < c.TypeFss.length; i++) {
             if (c.TypeFss[i].Object.ConceptId == Nagu.Ynu.Class) return;
         }
@@ -46,14 +46,13 @@ $(function () {
 
         // 逐条显示用户内容
         $.each(pvs, function (i, fs) {
-            var div = B.div().appendTo($('.alert'));
+            var div = B.div().appendTo($('.alert')).attr('pvFor',fs.StatementId);
             var h5 = B.h5().appendTo(div).appendMorpheme(fs.Object);
             var h6 = B.h6().appendTo(div);
             Nagu.SayM.saidBy(fs.StatementId).done(function (sayFss) {
-
                 // 逐个显示用户痕迹
                 $.each(sayFss, function (j, sayFs) {
-                    var img = B.img().height('30').width('30').appendTo(h6);
+                    var img = B.img().height('30').width('30').prependTo(h6);
                     Nagu.MM.getUserInfo(sayFs.Subject.ConceptId).done(function (user) {
                         if (user.ret == 0) {
                             img.attr('src',user.FigureUrls[0])
@@ -62,8 +61,6 @@ $(function () {
                 });
             });
         });
-        
-
     });
 
 });
@@ -73,5 +70,22 @@ function saySomething() {
     if (text == '') return;
 
     Nagu.CM.addLiteralPropertyValue(curConcept, Nagu.Ynu.Message, text).done(function (fs) {
+        var div = $('.alert div[pvFor="' + fs.StatementId + '"]');
+        if (div.size() == 0) {
+            div = B.div().prependTo($('.alert')).attr('pvFor', fs.StatementId);
+            B.h5().appendTo(div).appendMorpheme(fs.Object);
+            B.h6().appendTo(div);
+        } else {
+            var div2 = div.clone().prependTo($('.alert'));
+            div.remove();
+            div = div2;
+        }
+        var h6 = div.find('h6');
+        Nagu.MM.getMe().done(function (me) {
+            var img = B.img().height('30').width('30').appendTo(h6);
+            img.attr('src', me.FigureUrls[0])
+        });
+        $('input').val('');
+        
     });
 }
