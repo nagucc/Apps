@@ -1,0 +1,44 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title></title>
+</head>
+<body>
+    <form method="post" action="/wxapi/createMenu/">
+        AppId: <input id="id" name="id" /><br />
+        AppSecret：<input id="secret" name="secret" /><br />
+        <textarea id="menu" name="menu" rows="20" cols="30">
+ {
+     "button":[
+      {
+           "name":"应用",
+           "sub_button":[
+            {
+               "type":"click",
+               "name":"共享联系人",
+               "key":"contactGroupList"
+            },
+            {
+               "type":"click",
+               "name":"捐款查询",
+               "key":"donationQuery"
+            }]
+       },
+     {	
+          "type":"click",
+          "name":"推荐",
+          "key":"V1001_TODAY_MUSIC"
+      },
+      {
+           "type":"click",
+           "name":"我的纳谷",
+           "key":"other"
+      }]
+ }
+        
+        </textarea>
+        <input type="submit" />
+    </form>
+</body>
+</html>

@@ -24,14 +24,14 @@
                         <a href="javascript:void(0)"
                             onclick="createConceptDialog.toggle('', {h3:'创建新Concept', onAdded:createConceptDialog_onCreated});">
                             <i class="icon-pencil icon-white"></i>
-                            创建Concept
+                            创建概念
                         </a>
                     </li>
                     <li>
                         <a href="javascript:void(0)" 
                             onclick="dlgSearchDialog.toggle({selected: dlgSelectDialog_select_open});">
                             <i class="icon-search icon-white"></i>
-                            查找Concept
+                            查找概念
                         </a>
                     </li>
                     <li>
@@ -65,8 +65,21 @@
     <div class="container">
         <div class="row">
             <div class="span10">
-                <div>                     <h2>数据加载中...</h2>                     <hr>                     <p id="intro">数据加载中...</p>                     <div class="alert alert-info"></div>
-                </div>         <div class="nagu-logged hide">             <input type="text" class="span12" id="content" placeholder="说点什么吧...">             <button class="btn" onclick="saySomething();">加上一句</button>             <!--<button class="btn">到此一游</button>-->         </div>                 <div class="nagu-logout">                 <a class="nagu-btn-qqlogin" href="" id="btnQqLogin">                     <img src="/Content/qq/Connect_logo_3.png" />                 </a>             </div>
+                <div>
+                    <h2>数据加载中...</h2>
+                    <hr>
+                    <p id="intro">数据加载中...</p>
+                    <div class="alert alert-info"></div>
+                </div>
+        <div class="nagu-logged hide">
+            <input type="text" class="span12" id="content" placeholder="说点什么吧...">
+            <button class="btn" onclick="saySomething();">加上一句</button>
+        </div>
+                <div class="nagu-logout">
+                <a class="nagu-btn-qqlogin" href="" id="btnQqLogin">
+                    <img src="/Content/qq/Connect_logo_3.png" />
+                </a>
+            </div>
             </div>
         </div>
         <footer class="footer"> 
@@ -78,8 +91,6 @@
     
     <script src="/Content/bootstrap/2.3.2/js/bootstrap.js" type="text/javascript"></script>
     
-    <script src="/Content/js/jquery.qrcode.min.js" type="text/javascript"></script>
-
     <script src="/Content/lib/jStorage/jstorage.min.js" type="text/javascript"></script>
 
     
@@ -91,6 +102,5 @@
     <script src="/Content/js/bootstarp-dropdownmenu.js" type="text/javascript"></script>
     <script src="/Content/js/nagu-bs-accordion.js" type="text/javascript"></script>
     <script src="js/qr.js" type="text/javascript"></script>
-    
 </body>
 </html>

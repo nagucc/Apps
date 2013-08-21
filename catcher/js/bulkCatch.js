@@ -469,7 +469,7 @@ function catchItemPv2(c, item, data, properties) {
             SubjectId: c.ConceptId,
             SType: Nagu.MType.Concept,
             PredicateId: propertyId,
-            AppId: ''
+            AppId: $('#listApps').val()
         };  
         switch (pv.process) {
             case '0': // 发现同名概念就使用
@@ -722,6 +722,8 @@ function saveProject() {
     if(pFn == '') return;
 
     var pDesc = $('#projectDesc').val();
+
+    // 当前仅支持可见范围为“私有”
     var pAppId = curUser;//$('#listApps2').val();
     var itemTypeId = $('#itemTypeId').val();
     var itemProcess = $('#itemProcess').val();

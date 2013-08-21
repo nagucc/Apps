@@ -1,0 +1,212 @@
+﻿
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>联系人群组</title>
+        <link href="../../Content/lib/jqtouch/css/apple.css" rel="stylesheet" />
+        <link rel=”icon” href=”/favicon.ico” mce_href=”/favicon.ico” type=”image/x-icon”>
+<link rel=”shortcut icon” href=”/favicon.ico” mce_href=”/favicon.ico” type=”image/x-icon”>
+        <style type="text/css" media="screen">
+            #jqt.fullscreen #home .info {
+                display: none;
+            }
+            div#jqt #about {
+                padding: 100px 10px 40px;
+                text-shadow: rgba(0, 0, 0, 0.3) 0px -1px 0;
+                color: #999;
+                font-size: 13px;
+                text-align: center;
+                background: #161618;
+            }
+            div#jqt #about p {
+                margin-bottom: 8px;
+            }
+            div#jqt #about a {
+                color: #fff;
+                font-weight: bold;
+                text-decoration: none;
+            }
+
+            div#item #itemValues li a
+            {
+                display: inline;
+            }
+            div#item #itemValues li div
+            {
+                float:right;
+            }
+            /*div#item #itemValues li img
+            {
+                width:24px;
+                height:24px;
+            }*/
+
+            div#contact .itemValue
+            {
+                float:right;
+                margin-right:15px;
+                width:60%;
+                overflow-x:hidden
+            }
+
+        </style>
+    </head>
+    <body>
+        <div id="jqt">
+            <div id="home" class="current">
+                <div class="toolbar">
+                    <h1>加载中...</h1>
+                    <a class="button slideup nagu-logout" id="btnLogin" href="#" style="">登录</a>
+                </div>
+                <div class="scroll">
+                    <ul id="contactList" class="rounded"></ul>
+                    <ul class="individual">
+                        <li><a href="#">新增联系人</a></li>
+                        <li><a href="#">添加星标</a></li>
+                    </ul>
+                    <ul class="individual">
+                        <li><a href="#">举报&报错</a></li>
+                        <li><a href="#">意见反馈</a></li>
+                        </ul>
+                    <div class="info">
+                        <p>Add this page to your home screen <br>for a richer experience.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="contact">
+                <div class="toolbar">
+                    <h1>联系人名称</h1>
+                    <a class="back" href="#home">联系人</a>
+                </div>
+                <div class="scroll">
+                    <ul class="rounded" id="itemList">
+                        <li class="forward" id="property_bd640461-41d2-4009-862e-0ebcd2d77b2c">
+                            移动电话
+                            <a  href="#item" class="itemValue"></a>
+                        </li>
+                        <li class="forward" id="property_282c7749-1d94-41d2-afa0-45ca4e61b87d">
+                            办公电话
+                            <a  href="#item" class="itemValue"></a>
+                        </li>
+                        <li class="forward" id="property_653a0707-2e03-4e93-937f-6168ddcc6723">
+                            电子邮件
+                            <a class="itemValue" href="#item">
+                            </a>
+                        </li>
+                        <!--<li class="forward">
+                            地址
+                            <a class="itemValue" href="#item">
+                            </a>
+                        </li>-->
+                    </ul>
+                </div>
+                <h2>其他信息</h2>
+                <div class="scroll">
+                    <!--<ul class="rounded" id="otherItemList"></ul>-->
+                    <a target="_blank" id="btnGoConcept" class="whiteButton">查看完整信息</a>
+                </div>
+            </div>
+
+            <div id="item">
+                <div class="toolbar">
+                    <h1>属性名称</h1>
+                    <a class="back" href="#home">联系人</a>
+                </div>
+                <div class="scroll">
+                    <ul class="rounded" id="itemValues">
+                        <!--<li>
+                            12345678909
+                            <div style="float:right;width:80px;">
+                                <a style="display:inline"  href="tel:33333333">
+                                    <img src="/Content/Images/glyphicons/glyphicons_048_dislikes.png" />
+                                </a>
+                                <a style="display:inline;margin-left:10px;" href="tel:23453252">
+                                <img width="24px" height="24px" src="images/call.png" />
+                            </a>
+                            </div>
+                            
+                        </li>-->
+                        <li>
+                            <a href="tel:ddd">12345678909</a>
+                            <div>
+                                <a>
+                                    <img src="/Content/Images/glyphicons/glyphicons_048_dislikes.png" />
+                                </a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div id="addPv">
+                <div class="toolbar">
+                    <h1>添加新值</h1>
+                    <a class="back" href="#home">列表</a>
+                </div>
+                <div class="scroll">
+                    <ul class="rounded" id="Ul1">
+                        <li class="forward" id="Li1">
+                            手机号码
+                            <a  href="#item" class="itemValue"></a>
+                        </li>
+                        <li class="forward" id="Li2">
+                            电子邮件
+                            <a class="itemValue" href="#item"></a>
+                        </li>
+                        <li class="forward">
+                            地址
+                            <a class="itemValue" href="#item"></a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div id="addContact">
+                <div class="toolbar">
+                    <h1>添加联系人</h1>
+                    <a class="back" href="#home">列表</a>
+                </div>
+                <h2>添加现有联系人</h2>
+                <div class="scroll">
+                    <ul class="rounded">
+                        <li class="forward" id="Li3">
+                            手机号码
+                            <a  href="#item" class="itemValue"></a>
+                        </li>
+                        <li class="forward" id="Li4">
+                            电子邮件
+                            <a class="itemValue" href="#item"></a>
+                        </li>
+                        <li class="forward">
+                            地址
+                            <a class="itemValue" href="#item"></a>
+                        </li>
+                    </ul>
+                </div>
+                <h2>添加新联系人</h2>
+            </div>
+        </div>
+
+
+
+        <script src="../../Content/bootstrap/js/assets/jquery-1.8.2.min.js" type="text/javascript"></script> 
+        <script src="../../Content/lib/jqtouch/jqtouch.min.js"></script>
+        <script src="../../Content/lib/jqtouch/jqtouch-jquery.js"></script>
+        
+    
+    <script src="/Content/lib/json2.js" type="text/javascript"></script>
+    <script src="../../Content/lib/jStorage/jstorage.min.js" type="text/javascript"></script>
+
+    
+    <script src="../../Content/js/js-helper.js" type="text/javascript"></script>
+    <script src="../../Content/js/jquery-helper.js" type="text/javascript"></script>
+    <script src="../../Content/js/bootstrap-helper.js" type="text/javascript"></script>
+    <script src="../../Content/js/nagu-helper.js" type="text/javascript"></script>
+    <script src="../../Content/js/apps-helper.js" type="text/javascript"></script>
+    <script src="../../Content/js/bootstarp-dropdownmenu.js" type="text/javascript"></script>
+    <script src="../../Content/js/nagu-bs-accordion.js" type="text/javascript"></script>
+    <script src="js/group.js" type="text/javascript"></script>
+    </body>
+</html>

@@ -16,30 +16,6 @@ $(document).ready(function () {
     curFamily = getRequest()['id'];
 
     getFamilies2().done(function () {
-        try {
-            QC.Login({
-                btnId: "qqLoginBtn",
-                scope: "all",
-                size: "A_M"
-            }, afterQCLogin);
-        } catch (e) {
-
-        }
-        
-//        WB2.anyWhere(function (W) {
-//            W.widget.connectButton({
-//                id: "wb_connect_btn",
-//                type: '3,2',
-//                callback: {
-//                    login: function (o) {
-//                        alert(o.screen_name)
-//                    },
-//                    logout: function () {
-//                        alert('logout');
-//                    }
-//                }
-//            });
-//        });
     });
 });
  

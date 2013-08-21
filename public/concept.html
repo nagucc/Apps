@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <title>Concept详情@纳谷概念云</title>
+    <title>概念详情@纳谷概念云</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="../../Content/bootstrap/2.3.2/css/bootstrap.css" rel="stylesheet" type="text/css" />
     <link href="../../Content/bootstrap/2.3.2/css/bootstrap-responsive.min.css" rel="stylesheet"
@@ -45,14 +45,14 @@
                         <a href="javascript:void(0)"
                             onclick="createConceptDialog.toggle('', {h3:'创建新Concept', onAdded:createConceptDialog_onCreated});">
                             <i class="icon-pencil icon-white"></i>
-                            创建Concept
+                            创建概念
                         </a>
                     </li>
                     <li>
                         <a href="javascript:void(0)" 
                             onclick="dlgSearchDialog.toggle({selected: dlgSelectDialog_select_open});">
                             <i class="icon-search icon-white"></i>
-                            查找Concept
+                            查找概念
                         </a>
                     </li>
                     <li>
@@ -170,8 +170,8 @@
         </div>
 
         <footer class="footer"> 
-        <p>本系统是由na57开发的测试系统，所有数据目前只作为测试使用。</p>
-        <p>系统所有数据均存储于nagu.cc概念云系统中，所有数据通过RDF三元组的形式进行组织。</p>
+            <hr />
+        <p> &copy;2009-2013 通海纳谷信息技术有限公司 版权所有 </p>
       </footer>
         <div class="hide" id="divDebug">
             <textarea cols="10" rows="10" disabled id="txtDebug"></textarea>
@@ -184,12 +184,8 @@
     <script src="../../Content/bootstrap/2.3.2/js/bootstrap.js" type="text/javascript"></script>
     
     <script src="../../Content/js/jquery.qrcode.min.js" type="text/javascript"></script>
-    <script src="../../Content/js/jquery/fileupload/vendor/jquery.ui.widget.js" type="text/javascript"></script>
-    <script src="../../Content/js/jquery/fileupload/jquery.fileupload.js" type="text/javascript"></script>
-    <script src="../../Content/js/jquery/fileupload/jquery.iframe-transport.js" type="text/javascript"></script>
-
+    <script src="/Content/lib/json2.js" type="text/javascript"></script>
     <script src="../../Content/lib/jStorage/jstorage.min.js" type="text/javascript"></script>
-    <script src="/Content/js/messengerjs/messenger.js" type="text/javascript" ></script> 
 
     
     <script src="../../Content/js/js-helper.js" type="text/javascript"></script>
@@ -201,6 +197,5 @@
     <script src="../../Content/js/nagu-bs-accordion.js" type="text/javascript"></script>
     <script src="js/concept.js" type="text/javascript"></script>
     
-    <script type="text/javascript" src="http://qzonestyle.gtimg.cn/qzone/openapi/qc_loader.js" data-appid="100321920"  charset="utf-8"></script>
 </body>
 </html>

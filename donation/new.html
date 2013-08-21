@@ -49,87 +49,79 @@
         <div class="row">
             <div class="span10 offset1">
                 <div class="modal-header">
-                    
+
                     <h3>新增捐款明细</h3>
                     <span><i>输入捐款单的详细信息，即可在捐款查询系统中查询到。</i></span>
                 </div>
-                <div class="modal-body">
-                    <div class="form-horizontal">
-                        <!-- 捐款人 -->
-                        <div class="control-group" id="donorName">
-                            <label for="donorName" class="control-label">捐款人名称</label>
-                            <div class="controls">
-                                <input placeholder="请在此输入捐款人名称..." onchange="searchDonor();"/>
-                                <span class="badge-important badge"></span> 
-                                <br />
-                                <select>
-                                    <option class="const" value="">请从其中选择最恰当的那个</option>
-                                </select>
-                            </div>
+                <div class="form-horizontal">
+                    <!-- 捐款人 -->
+                    <div class="control-group" id="donorName">
+                        <label for="donorName" class="control-label">捐款人名称</label>
+                        <div class="controls">
+                            <input placeholder="请在此输入捐款人名称..." onchange="searchDonor();" />
+                            <span class="badge-important badge"></span>
+                            <br />
+                            <select class="hide">
+                                <option class="const" value="">请从其中选择最恰当的那个</option>
+                            </select>
                         </div>
+                    </div>
 
-                        <!-- 捐款对象 -->
-                        <div class="control-group" id="Div1">
-                            <label for="donorName" class="control-label">捐款人名称</label>
-                            <div class="controls">
-                                <input placeholder="请在此输入捐款人名称..." onchange="searchDonor();"/>
-                                <span class="badge-important badge"></span> 
-                                <br />
-                                <select>
-                                    <option class="const" value="">请从其中选择最恰当的那个</option>
-                                </select>
-                            </div>
+                    <!-- 捐款对象 -->
+                    <div class="control-group" id="Div1">
+                        <label for="donorName" class="control-label">捐款对象</label>
+                        <div class="controls">
+                            <input placeholder="请在此输入捐款对象名称..." onchange="searchObject();" />
+                            <span class="badge-important badge"></span>
+                            <br />
+                            <select class="hide">
+                                <option class="const" value="">请从其中选择最恰当的那个</option>
+                            </select>
                         </div>
+                    </div>
 
-                        <!-- 捐助项目 -->
-                        <div class="control-group" id="Div2">
-                            <label for="donorName" class="control-label">捐款人名称</label>
-                            <div class="controls">
-                                <input placeholder="请在此输入捐款人名称..." onchange="searchDonor();"/>
-                                <span class="badge-important badge"></span> 
-                                <br />
-                                <select>
-                                    <option class="const" value="">请从其中选择最恰当的那个</option>
-                                </select>
-                            </div>
+                    <!-- 捐助项目 -->
+                    <div class="control-group" id="Div2">
+                        <label for="donorName" class="control-label">捐助项目</label>
+                        <div class="controls">
+                            <input placeholder="请在此输入捐助项目名称..." onchange="searchProject();" />
+                            <span class="badge-important badge"></span>
+                            <br />
+                            <select class="hide">
+                                <option class="const" value="">请从其中选择最恰当的那个</option>
+                            </select>
                         </div>
+                    </div>
 
-                        <!-- 捐款方式 -->
-                        <div class="control-group" id="Div3">
-                            <label for="donorName" class="control-label">捐款人名称</label>
-                            <div class="controls">
-                                <input placeholder="请在此输入捐款人名称..." onchange="searchDonor();"/>
-                                <span class="badge-important badge"></span> 
-                                <br />
-                                <select>
-                                    <option class="const" value="">请从其中选择最恰当的那个</option>
-                                </select>
-                            </div>
+                    <!-- 捐款方式 -->
+                    <div class="control-group" id="Div3">
+                        <label for="donorName" class="control-label">捐款方式</label>
+                        <div class="controls">
+                            <select>
+                                <option class="const" value="现金">现金</option>
+                                <option class="const" value="银行转帐">银行转帐</option>
+                                <option class="const" value="支付宝">支付宝</option>
+                                <option class="const" value="其他">其他</option>
+                            </select>
                         </div>
+                    </div>
 
-                        <!-- 金额 -->
-                        <div class="control-group" id="Div4">
-                            <label for="donorName" class="control-label">捐款人名称</label>
-                            <div class="controls">
-                                <input placeholder="请在此输入捐款人名称..." onchange="searchDonor();"/>
-                                <span class="badge-important badge"></span> 
-                                <br />
-                                <select>
-                                    <option class="const" value="">请从其中选择最恰当的那个</option>
-                                </select>
-                            </div>
+                    <!-- 金额 -->
+                    <div class="control-group" id="Div4">
+                        <label for="donorName" class="control-label">金额</label>
+                        <div class="controls">
+                            <input placeholder="请在此输入捐款金额..." onchange="searchDonor();" />
                         </div>
+                    </div>
 
-                        <!-- 备注 -->
-                        <div class="control-group">
-                            <div class="controls">
-                                <button onclick="search();" class="btn">搜索</button>
-                                <button class="btn btn-primary nagu-logged hide" href="javascript:void(0)" onclick="createConceptDialog.toggle('', {h3:'创建新Concept'})">
-                                    <i class="icon-pencil icon-white"></i>
-                                    创建新Concept
-                                </button>
-                            </div>
-                            </div>
+                    <!-- 备注 -->
+                    <div class="control-group">
+                        <div class="controls">
+                            <button class="btn btn-primary nagu-logged hide" href="javascript:void(0)" onclick="createConceptDialog.toggle('', {h3:'创建新Concept'})">
+                                <i class="icon-pencil icon-white"></i>
+                                确定添加
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

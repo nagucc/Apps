@@ -1,4 +1,8 @@
 ﻿var createConceptDialog, dlgLogin;
+
+// url指定的捐款人、捐款对象
+var donorId, objectId, donorName;
+
 var dtdDonor = $.Deferred();
 Nagu.Donation = {
     Class: '0dbc4a78-3910-4821-bceb-7848219e016e', // 捐款信息类
@@ -14,8 +18,7 @@ Nagu.Donation = {
 
 
 $(function () {
-    // 设置焦点
-    $('#donorName').focus();
+    
     Nagu.MM.getMe().done(function (me) {
         if (me.ret == 0) {
             afterNaguLogin(me);
@@ -28,6 +31,22 @@ $(function () {
     $('#btnClearStorage').btnCleanStorage();
 
     if ($('#donorName').val() != '') searchDonor();
+
+    donorId = getRequest()['donorId'];
+    donorName = getRequest()['donorName'];
+    if (donorId !== undefined && donorId != '') {
+        doSearch();
+        Nagu.CM.get(donorId).done(function (c) {
+            $('#donorName').val(c.FriendlyNames[0]);
+        });
+    } else if (donorName !== undefined && donorName != '') {
+        $('#donorName').val(donorName);
+    } else {
+        // 设置焦点
+        $('#donorName').focus();
+    }
+    objectId = getRequest()['objectId'];
+    
 });
 
 
@@ -63,67 +82,75 @@ function searchDonor() {
 }
 
 function search() {
-    var table = $('table');
-    table.find('tr').slice(1).remove();
+    
     $.when(dtdDonor).then(function () {
         var select = $('#multiDonors').find('select');
         if (select.val() == null) {
             alert('未找到“' + $('#donorName').val() + '”的捐款信息');
-        }else if(select.val() == ''){
+        } else if (select.val() == '') {
             alert('请先从同名的捐款人中选择一个');
             select.focus();
-            return;
+        } else {
+            donorId = select.val();
+            doSearch();
         }
-        
-        Nagu.SM.findByPO(Nagu.Donation.Donor, select.val(), Nagu.MType.Concept)
-            .done(function (fss) {
-                var options = {
-                    appended: function (cid, a) {
-                        a.attr('href', '/apps/public/concept.html?id=' + cid);
-                    }
-                }
-                $.each(fss, function (i, fs) {
-                    var tr = B.tr().appendTo(table);
-                    B.td().text(i+1).appendTo(tr);
-                    B.td().text(' ').appendTo(tr);
-                    var tdDonor = B.td().appendTo(tr);
-                    tdDonor.appendConcept(select.val(), options);
-                    B.td().text(' ').appendTo(tr);
-                    B.td().text(' ').appendTo(tr);
-                    B.td().text(' ').appendTo(tr);
-                    B.td().text(' ').appendTo(tr);
-                    propertyValuesFormBaseClass(fs.Subject.ConceptId,
-                        Nagu.MType.Concept,Nagu.Donation.Class).done(function(pvs){
-                            var td;
-                            $.each(pvs, function (j, pv) {
-                                switch (pv.Key) {
-                                    case Nagu.Donation.Date:
-                                            td = tr.children().eq(1);
-                                        break;
-                                    case Nagu.Donation.Object:
-                                            td = tr.children().eq(3);
-                                        break;
-                                    case Nagu.Donation.Form:
-                                            td = tr.children().eq(4);
-                                        break;
-                                    case Nagu.Donation.Amount:
-                                            td = tr.children().eq(5);
-                                        break;
-                                    case Nagu.Donation.Project:
-                                            td = tr.children().eq(6);
-                                        break;
-                                    case Nagu.Donation.Note:
-                                        td = tr.children().eq(7);
-                                        break;
-                                    default:
-                                        td = null;
-                                }
-                                if (td != null && pv.Value.length > 0) {
-                                    td.empty().appendMorpheme(pv.Value[0].Object, options);
-                                }
-                            });
-                        });
-                });
-            });
     });
+}
+
+function doSearch() {
+    var table = $('table');
+    table.find('tr').slice(1).remove();
+    
+
+    Nagu.SM.findByPO(Nagu.Donation.Donor, donorId, Nagu.MType.Concept)
+        .done(function (fss) {
+            var options = {
+                appended: function (cid, a) {
+                    a.attr('href', '/apps/public/concept.html?id=' + cid);
+                }
+            }
+            $.each(fss, function (i, fs) {
+                var tr = B.tr().appendTo(table);
+                B.td().text(i + 1).addClass('hidden-phone').appendTo(tr);
+                B.td().text(' ').appendTo(tr);
+                var tdDonor = B.td().addClass('hidden-phone').appendTo(tr);
+                tdDonor.appendConcept(donorId, options);
+                B.td().text(' ').appendTo(tr);
+                B.td().text(' ').appendTo(tr);
+                B.td().text(' ').appendTo(tr);
+                B.td().text(' ').appendTo(tr);
+
+                propertyValuesFormBaseClass(fs.Subject.ConceptId,
+                    Nagu.MType.Concept, Nagu.Donation.Class).done(function (pvs) {
+                        var td;
+                        $.each(pvs, function (j, pv) {
+                            switch (pv.Key) {
+                                case Nagu.Donation.Date:
+                                    td = tr.children().eq(1);
+                                    break;
+                                case Nagu.Donation.Object:
+                                    td = tr.children().eq(3);
+                                    break;
+                                case Nagu.Donation.Form:
+                                    td = tr.children().eq(4).addClass('hidden-phone');
+                                    break;
+                                case Nagu.Donation.Amount:
+                                    td = tr.children().eq(5);
+                                    break;
+                                case Nagu.Donation.Project:
+                                    td = tr.children().eq(6).addClass('hidden-phone');
+                                    break;
+                                case Nagu.Donation.Note:
+                                    td = tr.children().eq(7).addClass('hidden-phone');
+                                    break;
+                                default:
+                                    td = null;
+                            }
+                            if (td != null && pv.Value.length > 0) {
+                                td.empty().appendMorpheme(pv.Value[0].Object, options);
+                            }
+                        });
+                    });
+            });
+        });
 }

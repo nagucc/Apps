@@ -8,26 +8,47 @@
     <script type="text/javascript">
 
 
+        function createMenu() {
+            var param = {
+                "button": [
+                {
+                    "name": "应用",
+                    "sub_button": [
+                      {
+                          "type": "click",
+                          "name": "共享联系人",
+                          "key": "contactGroupList"
+                      },
+                      {
+                          "type": "click",
+                          "name": "赞一下我们",
+                          "key": "V1001_GOOD"
+                      }]
+                },
+                 {
+                     "type": "click",
+                     "name": "我的纳谷",
+                     "key": "V1001_TODAY_SINGER"
+                 }]
+            };
+            $.ajax({
 
-        $(document).ready(function(){
-            $.ajax({ 
-
-                //使用iPad新浪微博客户端的Appkey
-                url: 'http://api.weibo.com/2/short_url/shorten.json?source=2849184197&url_long=http://nagu.cc',  
-                type: "GET",
+                url: 'https://api.weixin.qq.com/cgi-bin/menu/create?access_token=zKxPpSHcm04VepavYftjbZIgMh6B6tY5G2eUgvtv848zaMrWU2K4sxkC6O-bsP1gw_D1ScUOLWPpP750flJqg18liuPE-NIcFkmBDmofGzyRYcB20sk1CFH9w7zC4MIDpRnvvDS_5KLaYN32Ukylzg',
+                type: "POST",
                 dataType: "jsonp", //使用JSONP方法进行AJAX
                 cache: false,
+                data: param,
                 success: function (data) {
-                    alert(data.data.urls[0].url_short); //处理返回数据，显示到网页上 
+                    alert(data.errcode); //处理返回数据，显示到网页上 
                 }
             });
-        });
+        }
 
 
 
 </script>
 </head>
 <body>
-
+    <a href="#" onclick="createMenu();">CreateMenu</a>
 </body>
 </html>
