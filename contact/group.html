@@ -78,19 +78,22 @@
             <div id="contact">
                 <div class="toolbar">
                     <h1>联系人名称</h1>
-                    <a class="back" href="#home">联系人</a>
+                    <a class="back" href="#">返回</a>
                 </div>
-                <div class="scroll">
+                <div class="scroll" id="contactFixedInfo">
                     <ul class="rounded" id="itemList">
-                        <li class="forward" id="property_bd640461-41d2-4009-862e-0ebcd2d77b2c">
+                        <li class="forward"
+                            id="property_bd640461-41d2-4009-862e-0ebcd2d77b2c">
                             移动电话
                             <a  href="#item" class="itemValue"></a>
                         </li>
-                        <li class="forward" id="property_282c7749-1d94-41d2-afa0-45ca4e61b87d">
+                        <li class="forward" style="display:none"
+                            id="property_282c7749-1d94-41d2-afa0-45ca4e61b87d">
                             办公电话
                             <a  href="#item" class="itemValue"></a>
                         </li>
-                        <li class="forward" id="property_653a0707-2e03-4e93-937f-6168ddcc6723">
+                        <li class="forward" style="display:none"
+                            id="property_653a0707-2e03-4e93-937f-6168ddcc6723">
                             电子邮件
                             <a class="itemValue" href="#item">
                             </a>
@@ -102,11 +105,16 @@
                         </li>-->
                     </ul>
                 </div>
-                <h2>其他信息</h2>
-                <div class="scroll">
-                    <!--<ul class="rounded" id="otherItemList"></ul>-->
-                    <a target="_blank" id="btnGoConcept" class="whiteButton">查看完整信息</a>
+
+                <h2>下级联系人</h2>
+                <div class="scroll" >
+                    <ul id="contact_subGroup" class="rounded"></ul>
                 </div>
+                <!--<h2>其他信息</h2>
+                <div class="scroll">
+                    <ul class="rounded" id="otherItemList"></ul>
+                    <a target="_blank" id="btnGoConcept" class="whiteButton">查看完整信息</a>
+                </div>-->
             </div>
 
             <div id="item">

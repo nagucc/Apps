@@ -1,5 +1,13 @@
 ﻿var jQT, curGroup, wxmId;
 
+// 指示是否隐藏公共联系人
+var bHidePublic = true;
+
+// 用于访问特定微信应用资源的Key，这里应该是一个只读Key。
+var gKey;
+
+// 描述联系人主从关系的表：
+var contactsMS = new Array();
 
 $(function () {
     Nagu.Contact = {
@@ -22,6 +30,7 @@ $(function () {
 
     curGroup = getRequest()['id'];
     wxmId = getRequest()['wxm'];
+    gKey = getRequest()['gkey'];
     if (curGroup !== undefined && curGroup != null & curGroup != '') {
         showGroup(curGroup);
     }
@@ -37,7 +46,14 @@ $(function () {
 
 function showGroup(gid) {
     $('#home h1').appendConcept(gid, { container: $('#home h1') });
+
+    // 显示组内联系人
     Nagu.SM.findByPO(Nagu.Contact.BelongsTo, gid).done(function (fss) {
+        if (bHidePublic) {
+            fss = $.grep(fss, function (fs, i) {
+                return fs.AppId != Nagu.App.Public;
+            });
+        }
         $('#contactList').statementList(fss, {
             clearBefore: true,
             renderItem: function (fs, li) {
@@ -56,18 +72,37 @@ function showContact(cid) {
     // 显示标题
     $('#contact h1').appendConcept(cid, { container: $('#contact h1') });
 
+    // 设置“返回”按钮
+    // 如果不存在主从关系，则设置返回“群组”首页。
+    if (contactsMS[cid] === undefined) {
+        $('#contact .back').unbind().attr('href', '#home');
+    } else {
+        $('#contact .back').unbind().attr('href', '#contact').click(function () {
+            showContact(contactsMS[cid]);
+        });
+    }
+    
     // 清除各个字段的值
     var as = $('#itemList li a').size();
     $.each($('#itemList li a'),function(i,a){
         $(a).text('');
     });
 
-    // 显示各个数据字段
+    // 初始化显示样式
+    $('#contactFixedInfo').hide();
+    $('#contactFixedInfo').find('li').hide();
+    $('#contact_subGroup').hide();
+    $('#contact_subGroup').find('ul').empty();
+    // 显示各个固定数据字段
     Nagu.CM.pvsFromType(cid, Nagu.Contact.ContactClass).done(function (pvs) {
         $.each(pvs, function (i, pv) {
             var li = $('#property_' + pv.Key);
             if (li.size() == 0) return;
+
+            // 如果存在属性值，则显示。
             if (pv.Value.length > 0) {
+                li.show();
+                $('#contactFixedInfo').show();
                 li.find('a').text(pv.Value[0].Object.Value).attr('href','#item');
                 li.unbind().click(function () {
                     showItem(pv.Key, pv, cid);
@@ -82,30 +117,26 @@ function showContact(cid) {
         });
     });
 
+    // 显示“下级联系人”列表
+    Nagu.SM.findByPO(Nagu.Contact.BelongsTo, cid, Nagu.MType.Concept).done(function (fss) {
+        if (fss.length == 0) return;
+
+        // 维护"联系人"主从关系表
+        $.each(fss, function (i, fs) {
+            contactsMS[fss.Subject.ConceptId] = cid;
+        });
+        $('#contact_subGroup').show().statementList(fss, {
+            clearBefore: true,
+            renderItem: function (fs, li) {
+                li.addClass('forward').appendMorpheme(fs.Subject);
+                li.find('a').attr('href', '#contact').click(function () {
+                    showContact(fs.Subject.ConceptId);
+                });
+            }
+        });
+    });
     // 显示“其他信息”
     $('#btnGoConcept').attr('href', '/apps/public/concept.html?id=' + cid);
-    //Nagu.CM.getPropertiesAndValues(cid).done(function (pvs) {
-    //    $.each(pvs, function (i, pv) {
-    //        // 无属性值则不显示
-    //        if (pv.Values.length == 0) return;
-
-    //        var li = B.li().addClass('forward').appendTo($('#otherItemList'));
-    //        li.attr('id', 'property_' + pv.Key);
-    //        var a = B.a().addClass('itemValue').attr('href', '#item');
-
-    //        // 显示属性名称
-    //        Nagu.CM.get(pv.Key.ConceptId).done(function (c) {
-    //            li.prepend(c.FriendlyNames[0]);
-    //            li.append(a);
-    //        });
-
-    //        // 显示属性值
-    //        a.text(pv.Value[0].Object.Value).attr('href', '#item');
-    //        li.unbind().click(function () {
-    //            showItem(pv.Key, pv, cid);
-    //        });
-    //    });
-    //});
 }
 
 function showItem(propertyId, pv, cid) {

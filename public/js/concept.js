@@ -59,23 +59,43 @@ function showConcept() {
         $('#desc').text(concept.Descriptions[0]);
 
         // 显示类型下拉列表
+        var curType = getRequest()['type'];
         var ul = $('#typeMenu');
-        $.each(concept.TypeFss, function (i, typeFs) {
-            if (typeFs.Object.ConceptId == Nagu.Concepts.NaguConcept) return;
-            if (ul.find('li.' + typeFs.StatementId).size() > 0) return;
-            var li = $('<li/>').addClass(typeFs.StatementId).appendTo(ul);
-            var a = $('<a/>').attr('data-toggle', 'tab');
-            a.append($('<i></i>').addClass('icon-th-large')).appendTo(li);
+        Nagu.CM.types(curConcept).done(function (typeFss) {
+            $.each(typeFss, function (i, typeFs) {
+                var typeId = typeFs.Object.ConceptId;
+                if (typeId == Nagu.Concepts.NaguConcept) return;
+                if (ul.find('li.' + typeFs.StatementId).size() > 0) return;
+                var li = $('<li/>').addClass(typeFs.StatementId).appendTo(ul);
 
-            var divPane = $('<div/>').addClass('tab-pane').appendTo($('.tab-content'));
-            Nagu.CM.get(typeFs.Object.ConceptId).done(function (type) {
-                a.attr('href', '#type-pane-' + type.ConceptId).append(type.FriendlyNames[0]);
-                divPane.attr('id', 'type-pane-' + type.ConceptId);
+                var a = B.a().attr('data-toggle', 'tab')
+                                .attr('href', '#type-pane-' + typeId);
+                
+                li.appendConcept(typeId, {
+                    container: a,
+                    appended: function (cid, a) {
+                        if (typeFs.AppId == Nagu.App.Public) {
+                            a.prepend($('<i></i>').addClass('icon-th-large')).appendTo(li);
+                        } else {
+                            a.prepend($('<i></i>').addClass('icon-lock')).appendTo(li);
+                        }
+                    }
+                });
 
+                var divPane = B.div().addClass('tab-pane').appendTo($('.tab-content'))
+                divPane.attr('id', 'type-pane-' + typeId);
                 // 显示相关类型的属性及值
                 divPane.conceptType(typeFs);
+
+                // 显示指定的类型
+                if (curType == typeId) {
+                    a.tab('show');
+                }
+
             });
         });
+        
+
     });
 
     // 初始化本地存储信息：

@@ -8,10 +8,21 @@
             <strong>出错啦！</strong>
             <ul class="error-list">
             </ul>
-            </div>
+        </div>
 
         <form class="form-horizontal">
 
+            <div class="control-group">
+                <label for="{listApps}" class="control-label">
+                    <i class="icon-lock"></i>
+                    可见范围
+                </label>
+                <div class="controls">
+                    <select class="select-list-apps" id="{listApps}">
+                        <option value="" class="const">公开</option>
+                    </select>
+                </div>
+            </div>
             <div class="control-group">
                 <label for="{txtConceptName}" class="control-label">名称</label>
                 <div class="controls">
@@ -42,6 +53,9 @@
         show: false
     });
 
+    // 初始化“可见范围”
+    Dialog.InitAppList($('#{listApps}'));
+
     function createConcept__etrewgasdgret() {
         //1. 数据验证
         var alert = $("div#{dlgCreateConcept} div.alert");
@@ -51,9 +65,9 @@
         var hasError = false;
 
         var id = $("div#{dlgCreateConcept}").attr("conceptId");
-        var appId = $("div#{dlgCreateConcept}").attr("appId");
         var fn = $("#{txtConceptName}").val();
         var desc = $("#{txtConceptDesc}").val();
+        var appId = $("#{listApps}").val();
 
         var hasId = (id !== undefined && id != "")
         var emptyFn = (fn === undefined || fn == "");
