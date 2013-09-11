@@ -2,7 +2,6 @@
 var host = "";
 var addTypeDialog, addValueDialog, createConceptDialog, cdp,  dlgSearchDialog, dlgArticleShow;
 var dlgLogin, dlgSelectDialog;
-
 // 全局变量
 var renderValues;
 
@@ -33,14 +32,7 @@ $(function () {
     })
 
     // 显示二维码
-    try {
-        $('.qrcode').show();
-        $("#qrcode").qrcode({
-            width: 150,
-            height: 150,
-            text: window.location.href
-        });
-    } catch (e) { }
+    generateQr(location.href);
 
     $('#btnClearStorage').btnCleanStorage();
 
@@ -59,7 +51,6 @@ function showConcept() {
         $('#desc').text(concept.Descriptions[0]);
 
         // 显示类型下拉列表
-        var curType = getRequest()['type'];
         var ul = $('#typeMenu');
         Nagu.CM.types(curConcept).done(function (typeFss) {
             $.each(typeFss, function (i, typeFs) {
@@ -70,7 +61,10 @@ function showConcept() {
 
                 var a = B.a().attr('data-toggle', 'tab')
                                 .attr('href', '#type-pane-' + typeId);
-                
+                a.on('shown', function (e) {
+                    // 显示二维码
+                    generateQr(e.target.toString());
+                })
                 li.appendConcept(typeId, {
                     container: a,
                     appended: function (cid, a) {
@@ -88,7 +82,7 @@ function showConcept() {
                 divPane.conceptType(typeFs);
 
                 // 显示指定的类型
-                if (curType == typeId) {
+                if (location.hash == '#type-pane-' + typeId) {
                     a.tab('show');
                 }
 
@@ -407,4 +401,32 @@ function dlgSelectDialog_selected_addProperty(propertyId, appId) {
 
 function dlgSelectDialog_select_open(conceptId, appId) {
     window.location = '?id=' + conceptId;
+}
+
+function generateQr(url) {
+    $.ajax('http://955.cc/short/', {
+        dataType: 'jsonp',
+        data: {
+            format: 'jsonp',
+            url: url
+        },
+        success: function (data) {
+            if (data.errno == 0) {
+                var img = B.img().attr('src', data.url + '.qr');
+                $("#qrcode").empty().append(img);
+            } else {
+                // 显示二维码
+                try {
+                    $("#qrcode").empty().qrcode({
+                        width: 150,
+                        height: 150,
+                        text: url
+                    });
+                } catch (e) {
+                    $('#qrcode').text('当前浏览器不支持生成二维码');
+                }
+            }
+        },
+        type: 'post'
+    });
 }
