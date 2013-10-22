@@ -57,7 +57,7 @@ function showConcept() {
                 var typeId = typeFs.Object.ConceptId;
                 if (typeId == Nagu.Concepts.NaguConcept) return;
                 if (ul.find('li.' + typeFs.StatementId).size() > 0) return;
-                var li = $('<li/>').addClass(typeFs.StatementId).appendTo(ul);
+                var li = B.li().addClass(typeFs.StatementId).appendTo(ul);
 
                 var a = B.a().attr('data-toggle', 'tab')
                                 .attr('href', '#type-pane-' + typeId);
@@ -69,9 +69,9 @@ function showConcept() {
                     container: a,
                     appended: function (cid, a) {
                         if (typeFs.AppId == Nagu.App.Public) {
-                            a.prepend($('<i></i>').addClass('icon-th-large')).appendTo(li);
+                            a.prepend(B.li().addClass('icon-th-large')).appendTo(li);
                         } else {
-                            a.prepend($('<i></i>').addClass('icon-lock')).appendTo(li);
+                            a.prepend(B.li().addClass('icon-lock')).appendTo(li);
                         }
                     }
                 });
@@ -88,8 +88,8 @@ function showConcept() {
 
             });
         });
-        
-
+    }).fail(function () {
+        alert('ee');
     });
 
     // 初始化本地存储信息：

@@ -6,13 +6,15 @@ var sourceHtmls = [];
 
 // 获取HTML时返回的DTD对象：
 var dtdGetHtmls = [];
-var dtdBulkGetHtmls = [];
+var dtdGetHtmlStates = [];
 
 // 获取“实例包含的属性”时返回的DTD对象：
 var dtdProperty;
 
 // 从各个Url里面取出来的条目。
 var itemsFromUrl = new Array();
+
+var reader;
 
 var propertyFss = [];
 var bagType = undefined;
@@ -73,7 +75,7 @@ $(function () {
 
 });
 
-
+// 获取用于抓取数据的Url地址集合
 function getUrls() {
     // 获取参数
     var sourceUrlTplt = $('#sourceUrlTplt').val();
@@ -96,43 +98,136 @@ function getUrls() {
         });
 }
 
-// 完成数据源配置
+// 完成数据源配置，获取数据
 function finishSourceCfg() {
     // 获取源HTML：
+
+    var bulkCount = parseInt($('#bulkUrlCount').val());
+
     dtdGetHtmls = [];
+    dtdGetHtmlStates = [];
     for (var i = 0; i < sourceUrls.length; i++) {
-        dtdGetHtmls[i] = $.post('/func/wrap/?url=' + sourceUrls[i]).done(function (html) {
-            //sourceHtmls[i] = html;
-            sourceHtmls[sourceUrls[i]] = html;
-        }).fail(function () {
-            //sourceHtmls[i] = 'error';
-            sourceHtmls[sourceUrls[i]] = 'error';
-        });
+        dtdGetHtmls[i] = $.Deferred();
     }
 
-    // 使用批量方法获得HTML(TODO)
-    /*dtdBulkGetHtmls = [];
-    var bulkCount = $('#bulkUrlCount').val();
+    // 使用HtmlReader
+    reader = new HtmlReader({
+        bulkCount: bulkCount,
+        urls: sourceUrls
+    });
+
+    
+    $.when(reader.read()).done(function (data) {
+        dtdGetHtmls = data.dtds;
+        dtdGetHtmlStates = data.states;
+        sourceHtmls = data.htmls
+    });
+
+    /*
+    
+
+    // 使用批量方法获得HTML
     var j = 0;
     while (j < sourceUrls.length) {
-        var urls = [];
-        for (var k = 0; j < sourceUrls.length && k < bulkCount; k++, j++) {
-            urls.push(sourceUrls[j]);
-        }
-        dtdBulkGetHtmls = $.post('/func/bulkWrap', {
-            urls: SerializeJsonToStr(urls)
-        }).done(function (data) {
+        var urls = sourceUrls.slice(j, Math.min(j + bulkCount, sourceUrls.length));
+        
+        Nagu.F.bulkWrap(urls).done(function (data) {
+            var dtd = $.Deferred();
             for (var i = 0; i < data.length; i++) {
-                if (data[i].ret == 0) sourceUrls[data[i].url] = data[i].content;
-                else sourceUrls[data[i].url] = 'error';
+                if (data[i].ret == 0) {
+                    sourceHtmls[data[i].url] = data[i].content;
+                    dtd.resolve(data[i].content);
+                    dtdGetHtmlStates[$.inArray(data[i].url, sourceUrls)] = 'resolved';
+                }
+                else {
+                    sourceHtmls[data[i].content] = 'error';
+                    dtd.resolve('error');
+                    dtdGetHtmlStates[$.inArray(data[i].url, sourceUrls)] = 'rejected';
+                }
+                dtdGetHtmls[$.inArray(data[i].url, sourceUrls)] = dtd.promise();
+            }
+        }).fail(function () {
+            var dtd = $.Deferred();
+            for (var i = 0; i < urls.length; i++) {
+                dtd.resolve('error');
+                dtdGetHtmls[i + j] = dtd.promise();
+                dtdGetHtmlStates[i + j] = 'rejected';
             }
         });
-    }*/
+        
+        j = j + bulkCount;
+    }
+    */
 
     itemsFromUrl = new Array();
 
     // 转到下一步
     $('#tab1 a').eq(2).tab('show');
+}
+
+function reLoadDataFromUrl() {
+
+    // 使用批量方法获得HTML
+    var bulkCount = parseInt($('#bulkUrlCount').val());
+    var j = 0;
+    var dtds = [];
+    while (j < sourceUrls.length) {
+        var i = 0, k = 0;
+        var urls = [];
+        while (i < bulkCount && j < sourceUrls.length) {
+            if (dtdGetHtmls[j].state() == 'rejected') {
+                $('.pagination ul').find('a[index="' + j + '"]').text('loading...');
+                dtdGetHtmls[i] = $.Deferred();
+                urls.push(sourceUrls[j]);
+                i++;
+            }
+            j++;
+            continue;
+        }
+        dtds[k] = $.Deferred();
+        Nagu.F.bulkWrap(urls).done(function (data) {
+            for (var i = 0; i < data.length; i++) {
+                if (data[i].ret == 0) {
+                    sourceHtmls[data[i].url] = data[i].content;
+                    var ind = $.inArray(data[i].url,dtdGetHtmls);
+                    dtdGetHtmls[ind].resolve(data[i].content);
+                }
+                else {
+                    sourceHtmls[data[i].url] = 'error';
+                    dtdGetHtmls[$.inArray(data[i].url,dtdGetHtmls)].reject();
+                }
+            }
+            dtds[k].resolve();
+        });
+        k++;
+    }
+
+    // 重新显示界面
+    $.when.apply($, dtds).always(function () {
+        var successCount = 0, failCount = 0;
+        $.each(dtdGetHtmls, function (i, dtd) {
+            var a = $('.pagination ul').find('a[index="' + i + '"]');
+            if (a.text() == 'loading...') {
+                if (dtd.state() == 'resolved') {
+                    a.text(i + 1).click(function () {
+                        previewItemsFromUrl($(this).attr('index'));
+                    });
+                    successCount++;
+                } else {
+                    failCount++;
+                }
+            } else {
+                successCount++;
+            }
+        });
+        // 显示读取Url结果
+        info.empty().text('已成功读取' + successCount + '个数据源，失败' + failCount + '个。');
+        if (failCount > 0) {
+            info.append(B.a().attr('href', '#').text('重新加载').click(function () {
+                reLoadDataFromUrl();
+            }));
+        }
+    });
 }
 
 // 完成条目类型配置
@@ -164,19 +259,37 @@ function finishItemTypeCfg() {
     $('#stepSourceCfg').tab('show');
 }
 
-// 完成条目取值代码设置
+// 完成条目取值代码设置，进入预览界面
 function finishItemCodeCfg() {
     $('.pagination ul').empty();
+    var info = $('#tabItemPreview .info');
+    var successCount = 0; failCount = 0;
     $.each(dtdGetHtmls, function (i, dtd) {
         var a = B.a().attr('index', i).attr('href', '#').text('loading...');
         $('.pagination ul').append(B.li().append(a));
         $.when(dtd).done(function (data) {
-            a.text(i + 1).click(function () {
-                previewItemsFromUrl($(this).attr('index'));
-            });
+            if (data == 'error') {
+                a.text('读取失败');
+                failCount++;
+            } else {
+                a.text(i + 1).click(function () {
+                    previewItemsFromUrl($(this).attr('index'));
+                });
+                successCount++;
+            }
         }).fail(function () {
-            a.remove();
+            alert('代码不能到这里！');
         });
+    });
+
+    // 显示Url读取结果
+    $.when.apply($, dtdGetHtmls).done(function () {
+        info.empty().text('已成功读取' + successCount + '个数据源，失败' + failCount + '个。');
+        if (failCount > 0) {
+            info.append(B.a().attr('href', '#').text('重新加载').click(function () {
+                reLoadDataFromUrl();
+            }));
+        }
     });
 
     // 生成预览数据的表格
@@ -195,7 +308,7 @@ function finishItemCodeCfg() {
 }
 
 
-// 完成所有条目数据预览
+// 完成所有条目数据预览，进入数据汇总
 var itemCount = 0;
 function finishPreview() {
     itemCount = 0;
@@ -230,15 +343,21 @@ function finishSummary() {
 }
 
 // 依据名称检索概念是否存在，并将结果显示到指定的div中。
-var itemSearching=0, itemSearched=0;
+var itemSearching = 0, itemSearched = 0;
+var dtdSearchConcepts = [];
 function searchFn(fn, div) {
     div.text('概念查找结果：');
     if (conceptIds[fn] !== undefined) {
         B.spanLabelInfo().text('概念存在').appendTo(div);
         return;
     }
-    $('#itemSearchResult').text('正在检查概念是否存在，' + ++itemSearching + '个正在检查, ' + itemSearched + '个已完成。');
-    Nagu.CM.search(fn).done(function (cs) {
+
+    if (dtdSearchConcepts[fn] === undefined) {
+        $('#itemSearchResult').text('正在检查概念是否存在，' + ++itemSearching + '个正在检查, ' + itemSearched + '个已完成。');
+        dtdSearchConcepts[fn] = Nagu.CM.search(fn);
+    }
+    
+    $.when(dtdSearchConcepts[fn]).done(function (cs) {
         if (cs.length == 1) {
             B.spanLabelInfo().text('概念存在').appendTo(div);
             conceptStatus[fn] = Status.Exist;
@@ -310,14 +429,17 @@ function previewItems() {
 function previewItemsFromUrl(index) {
     var tbody = $('#itemTable').empty();
     $('#tabItemPreview').find('h3').text('当前数据源：' + (Number(index) + 1) + '/' + dtdGetHtmls.length);
-    $.when(dtdGetHtmls[index], dtdProperty).done(function (a1, fss) {
-        var data = a1[0];
-        //var body = getSourceObject(data);
+    $.when(dtdGetHtmls[index], dtdProperty).done(function (data, fss) {
+        //var data = a1[0];
         if (itemsFromUrl[index] === undefined) {
             itemsFromUrl[index] = new Array();
             getItems(data, itemsFromUrl[index]);
         }
+        
+        
+        //var fns = [];
         $.each(itemsFromUrl[index], function (i, item) {
+            //if ($.inArray(item.fn, fn) < 0) fns.push(item.fn);
 
             // 添加序号到条目表格中：
             var tr = B.tr().appendTo(tbody);
@@ -326,9 +448,14 @@ function previewItemsFromUrl(index) {
             // 添加概念名称到表格中
             var fn = item.fn;
             var div = B.div();
+
+            // 每当概念名称被改变时，马上搜索概念是否存在。
             var inputFn = B.input().val(fn).change(function () {
                 searchFn($(this).val(), div);
-            }).change();
+            });
+            // 首次初始化搜索；
+            inputFn.change();
+
             var desc = item.desc;
             var inputDesc = B.input().val(desc);
             B.td().append(inputFn).append(div).append(inputDesc).appendTo(tr);
@@ -349,6 +476,8 @@ function previewItemsFromUrl(index) {
             });
 
         });
+
+        // 检查当前页面的主概念是否存在：
     });
 }
 
@@ -406,28 +535,236 @@ function catchData() {
     }
 }
 
-function catchFromUrl(index, data) {
-    var dtds = [];
 
+//function catchFromUrl(index, data) {
+//    var dtds = [];
+
+//    if (itemsFromUrl[index] === undefined) {
+//        itemsFromUrl[index] = new Array();
+//        getItems(data, itemsFromUrl[index]);
+//    }
+//    $.each(itemsFromUrl[index], function (i, item) {
+//        dtds.push(catchItem(i, item, data, index));
+//    });
+//    return $.when.apply($, dtds);
+//}
+
+
+//function catchItem(index, item, data, urlIndex) {
+//    var dtd = $.Deferred();
+
+//    var fn = item.fn;
+//    var desc = item.desc;
+
+//    if (fn == '') {
+//        $('#errorList').append(B.li().append('第' + (urlIndex + 1) + '个URL(' + sourceUrls[index] + ')中的第'+(index+1)+'个条目名称为空。'));
+//        $('#result_item_fail').text(++itemFail);
+//        dtd.resolve();
+//        return dtd.promise();
+//    }
+
+//    // 1. 创建或找到已存在的概念
+//    ensureConceptExist(fn, desc).done(function (c) {
+//        $.when(dtdProperty).done(function (fss) {
+//            properties = fss;
+//            $.when(/*catchItemPv(c, item, data)*/catchItemPv2(c, item, data, fss)).done(function () {
+//                $('#result_item_index').text(++itemDone);
+//                dtd.resolve();
+//            });
+//        });
+//    });
+//    return dtd.promise();
+//}
+
+//// 使用批量创建语句，一次性插入所有属性值。
+//function catchItemPv2(c, item, data, properties) {
+//    var dtds = [];
+
+//    var appId = $('#listApps').val();
+//    var statements = [];
+//    // 3. 确保概念具有指定的类型
+//    //dtds.push(ensureConceptType(c.ConceptId));
+//    statements.push({
+//        SubjectId: c.ConceptId,
+//        SType: Nagu.MType.Concept,
+//        PredicateId: Nagu.Concepts.RdfType,
+//        Object: itemType.ConceptId,
+//        OType: Nagu.MType.Concept,
+//        AppId: appId
+//    });
+//    var dtdPvs = [];
+//    // 生成每一个属性值的语句：
+    
+//    $.each(properties, function (i, property) {
+//        var propertyId = property.Object.ConceptId;
+//        var pv = getPv2(item, propertyId, data);
+//        if (pv.value == '') {
+//            return;
+//        }
+//        var dtd = $.Deferred();
+//        dtdPvs.push(dtd);
+
+//        var statTplt = {
+//            SubjectId: c.ConceptId,
+//            SType: Nagu.MType.Concept,
+//            PredicateId: propertyId,
+//            AppId: appId
+//        };  
+//        switch (pv.process) {
+//            case '0': // 发现同名概念就使用
+                
+//                break;
+//            case '1': // 作为文本使用
+//                var statement = {
+//                    Object: pv.value,
+//                    OType: Nagu.MType.Literal
+//                };
+//                statement = $.extend(statTplt, statement);
+//                statements.push(statement);
+//                dtd.resolve(statement);
+//                break;
+//            case '2': // 无论如何创建新概念
+//                Nagu.Cm.create(pv.value, pv.value).done(function (pv2) {
+//                    var statement = {
+//                        Object: pv2.ConceptId,
+//                        OType: Nagu.MType.Concept
+//                    };
+//                    statement = $.extend(statTplt, statement);
+//                    statements.push(statement);
+//                    dtd.resolve(statement);
+//                });
+//                break;
+//            case '4': //发现同名概念则使用，否则当作文本添加
+//                if (conceptIds[pv.value] !== undefined) { //已存在
+//                    var statement = {
+//                        Object: conceptIds[pv.value],
+//                        OType: Nagu.MType.Concept
+//                    };
+//                    statement = $.extend(statTplt, statement);
+//                    statements.push(statement);
+//                    dtd.resolve(statement);
+//                } else if (conceptStatus[pv.value] == Status.NotExist) { //不存在
+//                    var statement = {
+//                        Object: pv.value,
+//                        OType: Nagu.MType.Literal
+//                    };
+//                    statement = $.extend(statTplt, statement);
+//                    statements.push(statement);
+//                    dtd.resolve(statement);
+//                } else { //不知道存不存在
+//                    Nagu.CM.search(pv.value).done(function (cs) {
+//                        if (cs.length > 0) {
+//                            conceptIds[pv.value] = cs[0].ConceptId;
+//                            conceptStatus[pv.value] = Status.Exist;
+//                        } else {
+//                            conceptStatus[pv.value] = Status.NotExist;
+//                        }
+//                        var statement = {
+//                            Object: cs.length > 0 ? cs[0].ConceptId : pv.value,
+//                            OType: cs.length > 0 ? Nagu.MType.Concept : Nagu.MType.Literal
+//                        };
+//                        statement = $.extend(statTplt, statement);
+//                        statements.push(statement);
+//                        dtd.resolve(statement);
+//                    });
+//                }
+//                break;
+//        }
+
+//    });
+
+//    var dtd2 = $.Deferred();
+//    dtds.push(dtd2);
+
+//    $.when.apply($, dtdPvs).done(function (a1, a2, a3, a4, a5) {
+//        Nagu.SM.bulkCreate(statements).done(function (fss) {
+//            dtd2.resolve();
+//        });
+//    });
+//    return $.when.apply($, dtds);
+
+//}
+
+
+
+
+// 首先创建所有属性的语句，然后使用批量创建。
+
+// 待创建的语句集合
+var creatingFss = [];
+function catchData3() {
+
+    // 初始化抓取结果界面
+    itemDone = 0;
+    itemFail = 0;
+    itemCreating = 0;
+    itemCreated = 0;
+    $('#result_url_count').text(dtdGetHtmls.length);
+    var urlDone = 0;
+    $('#result_url_index').text(urlDone);
+    $('#result_item_fail').text(urlDone);
+    $('#errorList').empty();
+
+    var dtds = [];
+    // 逐个url抓取
+    $.each(dtdGetHtmls, function (i, dtdGetHtml) {
+        dtds[i] = $.Deferred();
+        $.when(dtdGetHtmls[i]).done(function (data) {
+            $.when(catchFromUrl3(i, data)).done(function (fss) {
+                dtds[i].resolve(fss);
+            }).fail(function () {
+                dtds[i].resolve([]);
+            });
+        }).fail(function () {
+            $('#errorList').append(B.li().append('第' + (i + 1) + '个URL抓取失败：' + sourceUrls[i]));
+            dtds[i].resolve([]);
+        }).always(function () {
+            $('#result_url_index').text(++urlDone);
+        });
+    });
+
+    // 批量创建语句
+    var statements = [];
+    $.when.apply($, dtds).done(function () {
+        var dtds2 = [];
+        var i = 0;
+        while (i < creatingFss.length) {
+            var subs = creatingFss.slice(i, i + 6);
+            dtds2.push(Nagu.SM.bulkCreate(subs));
+            i += 6;
+        }
+        $.when.apply($, dtds2).always(function () {
+            if (urlDone == dtdGetHtmls.length) alert('抓取完成');
+        });
+    });
+
+}
+
+function catchFromUrl3(index, data) {
     if (itemsFromUrl[index] === undefined) {
         itemsFromUrl[index] = new Array();
         getItems(data, itemsFromUrl[index]);
     }
+
+    var dtds = [];
     $.each(itemsFromUrl[index], function (i, item) {
-        dtds.push(catchItem(i, item, data, index));
+        dtds[i] = catchItem3(i, item, data, index);
     });
-    return $.when.apply($, dtds);
+
+    var dtd = $.Deferred();
+    $.when.apply($, dtds).always(function () {
+        dtd.resolve();
+    });
+    return dtd.promise();
 }
 
-
-function catchItem(index, item, data, urlIndex) {
-    var dtd = $.Deferred();
-
+function catchItem3(index, item, data, urlIndex) {
     var fn = item.fn;
     var desc = item.desc;
 
+    var dtd = $.Deferred();
     if (fn == '') {
-        $('#errorList').append(B.li().append('第' + (urlIndex + 1) + '个URL(' + sourceUrls[index] + ')中的第'+(index+1)+'个条目名称为空。'));
+        $('#errorList').append(B.li().append('第' + (urlIndex + 1) + '个URL(' + sourceUrls[index] + ')中的第' + (index + 1) + '个条目名称为空。'));
         $('#result_item_fail').text(++itemFail);
         dtd.resolve();
         return dtd.promise();
@@ -435,9 +772,8 @@ function catchItem(index, item, data, urlIndex) {
 
     // 1. 创建或找到已存在的概念
     ensureConceptExist(fn, desc).done(function (c) {
-        $.when(dtdProperty).done(function (fss) {
-            properties = fss;
-            $.when(/*catchItemPv(c, item, data)*/catchItemPv2(c, item, data, fss)).done(function () {
+        $.when(dtdProperty).done(function (properties) {
+            $.when(catchItemPv3(c, item, data, properties)).done(function () {
                 $('#result_item_index').text(++itemDone);
                 dtd.resolve();
             });
@@ -446,53 +782,44 @@ function catchItem(index, item, data, urlIndex) {
     return dtd.promise();
 }
 
-// 使用批量创建语句，一次性插入所有属性值。
-function catchItemPv2(c, item, data, properties) {
-    var dtds = [];
+function catchItemPv3(c, item, data, properties) {
+    var appId = $('#listApps').val();
+    
 
-    // 3. 确保概念具有指定的类型
-    dtds.push(ensureConceptType(c.ConceptId));
-
-    var dtdPvs = [];
     // 生成每一个属性值的语句：
-    var statements = [];
+    var dtds = [];
     $.each(properties, function (i, property) {
         var propertyId = property.Object.ConceptId;
         var pv = getPv2(item, propertyId, data);
         if (pv.value == '') {
             return;
         }
-        var dtd = $.Deferred();
-        dtdPvs.push(dtd);
-
         var statTplt = {
             SubjectId: c.ConceptId,
             SType: Nagu.MType.Concept,
             PredicateId: propertyId,
-            AppId: $('#listApps').val()
-        };  
+            AppId: appId
+        };
+        dtds[i] = $.Deferred();
         switch (pv.process) {
-            case '0': // 发现同名概念就使用
-                
-                break;
             case '1': // 作为文本使用
                 var statement = {
                     Object: pv.value,
                     OType: Nagu.MType.Literal
                 };
                 statement = $.extend(statTplt, statement);
-                statements.push(statement);
-                dtd.resolve(statement);
+                creatingFss.push(statement);
+                dtds[i].resolve(statement);
                 break;
             case '2': // 无论如何创建新概念
-                Nagu.Cm.create(pv.value, pv.value).done(function (pv2) {
+                Nagu.CM.create(pv.value, pv.value).done(function (pv2) {
                     var statement = {
                         Object: pv2.ConceptId,
                         OType: Nagu.MType.Concept
                     };
                     statement = $.extend(statTplt, statement);
-                    statements.push(statement);
-                    dtd.resolve(statement);
+                    creatingFss.push(statement);
+                    dtds[i].resolve(statement);
                 });
                 break;
             case '4': //发现同名概念则使用，否则当作文本添加
@@ -502,16 +829,16 @@ function catchItemPv2(c, item, data, properties) {
                         OType: Nagu.MType.Concept
                     };
                     statement = $.extend(statTplt, statement);
-                    statements.push(statement);
-                    dtd.resolve(statement);
+                    creatingFss.push(statement);
+                    dtds[i].resolve(statement);
                 } else if (conceptStatus[pv.value] == Status.NotExist) { //不存在
                     var statement = {
                         Object: pv.value,
                         OType: Nagu.MType.Literal
                     };
                     statement = $.extend(statTplt, statement);
-                    statements.push(statement);
-                    dtd.resolve(statement);
+                    creatingFss.push(statement);
+                    dtds[i].resolve(statement);
                 } else { //不知道存不存在
                     Nagu.CM.search(pv.value).done(function (cs) {
                         if (cs.length > 0) {
@@ -525,26 +852,32 @@ function catchItemPv2(c, item, data, properties) {
                             OType: cs.length > 0 ? Nagu.MType.Concept : Nagu.MType.Literal
                         };
                         statement = $.extend(statTplt, statement);
-                        statements.push(statement);
-                        dtd.resolve(statement);
+                        creatingFss.push(statement);
+                        dtds[i].resolve(statement);
                     });
                 }
                 break;
         }
-
     });
 
-    var dtd2 = $.Deferred();
-    dtds.push(dtd2);
-
-    $.when.apply($, dtdPvs).done(function (a1, a2, a3, a4, a5) {
-        Nagu.SM.bulkCreate(statements).done(function (fss) {
-            dtd2.resolve();
+    var dtd = $.Deferred();
+    $.when.apply($, dtds).done(function () {
+        // 3. 确保概念具有指定的类型
+        creatingFss.push({
+            SubjectId: c.ConceptId,
+            SType: Nagu.MType.Concept,
+            PredicateId: Nagu.Concepts.RdfType,
+            Object: itemType.ConceptId,
+            OType: Nagu.MType.Concept,
+            AppId: appId
         });
+        dtd.resolve();
     });
-    return $.when.apply($, dtds);
+    return dtd.promise();
 
 }
+
+
 
 // 根据当前td为当前概念添加属性值
 function catchItemPv(c, item, data) {
@@ -727,7 +1060,7 @@ function saveProject() {
     var pAppId = curUser;//$('#listApps2').val();
     var itemTypeId = $('#itemTypeId').val();
     var itemProcess = $('#itemProcess').val();
-    var appIdForS = $('#listApps').val();
+    var appIdForS = $('#listApps').val() == '' ? Nagu.App.Public : $('#listApps').val();
     var urlTemplate = $('#sourceUrlTplt').val();
     var urlStartIndex = $('#urlStartIndex').val();
     var urlStepLength = $('#urlStep').val();
@@ -1175,6 +1508,63 @@ ProjectManager.prototype.get = function (pid) {
 };
 
 
+function saveProject2() {
+
+    var pFn = $('#projectFn').val();
+    if (pFn == '') return;
+
+    var pDesc = $('#projectDesc').val();
+
+    // 当前仅支持可见范围为“私有”
+    var pAppId = curUser;//$('#listApps2').val();
+    var itemTypeId = $('#itemTypeId').val();
+    var itemProcess = $('#itemProcess').val();
+    var appIdForS = $('#listApps').val();
+    var urlTemplate = $('#sourceUrlTplt').val();
+    var urlStartIndex = $('#urlStartIndex').val();
+    var urlStepLength = $('#urlStep').val();
+    var urlEndIndex = $('#urlEndIndex').val();
+    var urlParamLength = $('#urlPhLength').val();
+    var itemGetterCode = $('#itemGetter').val();
+    var urlGetterCode = $('#urlGetterCode').val();
+
+
+    $.when(PM.getOrNew(curProject, pFn, {
+        appId: pAppId
+    })).done(function (p, fs) {
+        var statTplt = {
+            SubjectId: p.ConceptId,
+            SType: Nagu.MType.Concept,
+            //PredicateId: propertyId,
+            //Object: ,
+            //OType: ,
+            AppId: appId
+        };
+
+
+
+        $.when(PM.renew(p.ConceptId, pFn, pDesc, { appId: pAppId }),
+        PM.resetItemType(p.ConceptId, itemTypeId, { appId: pAppId }),
+        PM.resetItemProcess(p.ConceptId, itemProcess, { appId: pAppId }),
+        PM.resetAppIdForS(p.ConceptId, appIdForS, { appId: pAppId }),
+        PM.resetUrlTemplate(p.ConceptId, urlTemplate, { appId: pAppId }),
+        PM.resetUrlStartIndex(p.ConceptId, urlStartIndex, { appId: pAppId }),
+        PM.resetUrlStepLength(p.ConceptId, urlStepLength, { appId: pAppId }),
+        PM.resetUrlEndIndex(p.ConceptId, urlEndIndex, { appId: pAppId }),
+        PM.resetUrlParamLength(p.ConceptId, urlParamLength, { appId: pAppId }),
+        PM.resetItemGetterCode(p.ConceptId, itemGetterCode, { appId: pAppId }),
+        PM.resetUrlGetterCode(p.ConceptId, urlGetterCode, { appId: pAppId })
+        ).done(function () {
+            // 更新左边导航条,TODO:出处无法显示新保存的项目
+            //listProjects().done(function () {
+            //    curProject = p.ConceptId;
+            //});
+            alert('保存完成，将在刷新页面后生效。');
+            window.location = '/apps/catcher/bulk.html?id=' + p.ConceptId;
+        });
+
+    });
+}
 
 var PM = new ProjectManager();
 
@@ -1191,3 +1581,82 @@ function dlgSelect_selected(conceptId) {
         $('#summary_itemType').text(c.FriendlyNames[0]);
     });
 }
+
+
+
+
+function HtmlReader(options) {
+    var defaults = {
+        bulkCount: 1,
+        urls: []
+    }
+    options = $.extend(defaults, options);
+    this.bulkCount = options.bulkCount;
+    this.sourceUrls = options.urls;
+
+    var dtdGetHtmls = [];
+    var dtdGetHtmlStates = [];
+    $.each(this.sourceUrls, function (i, url) {
+        dtdGetHtmls[i] = $.Deferred();
+        dtdGetHtmlStates[i] = 'pending';
+    });
+    this.dtdGetHtmls = dtdGetHtmls;
+    this.dtdGetHtmlStates = dtdGetHtmlStates;
+}
+
+// 开始读取数据
+// 返回Deferred对象。
+HtmlReader.prototype.read = function () {
+    var dtdGetHtmls = this.dtdGetHtmls;
+    var dtdGetHtmlStates = this.dtdGetHtmlStates;
+    var sourceUrls = this.sourceUrls;
+    var htmls = [];
+    var bulkCount = this.bulkCount;
+    // 使用批量方法获得HTML
+    var j = 0;
+    while (j < this.sourceUrls.length) {
+        var urls = sourceUrls.slice(j, Math.min(j + this.bulkCount, this.sourceUrls.length));
+        Nagu.F.bulkWrap(urls).done(function (data) {
+            var dtd = $.Deferred();
+            for (var i = 0; i < data.length; i++) {
+                var ind = $.inArray(data[i].url, sourceUrls);
+                if (data[i].ret == 0) {
+                    htmls[ind] = data[i].content;
+                    dtd.resolve(data[i].content);
+                    dtdGetHtmlStates[ind] = 'resolved';
+                }
+                else {
+                    htmls[ind] = 'error';
+                    dtd.resolve('error');
+                    dtdGetHtmlStates[ind] = 'rejected';
+                }
+                dtdGetHtmls[ind] = dtd.promise();
+            }
+        }).fail(function () {
+            var dtd = $.Deferred();
+            for (var i = 0; i < urls.length; i++) {
+                dtd.resolve('error');
+                dtdGetHtmls[i + j] = dtd.promise();
+                dtdGetHtmlStates[i + j] = 'rejected';
+            }
+        });
+
+        j = j + bulkCount;
+    }
+
+    this.dtdGetHtmls = dtdGetHtmls;
+    this.dtdGetHtmlStates = dtdGetHtmlStates;
+    
+    var dtd = $.Deferred();
+    $.when.apply($, dtdGetHtmls).done(function () {
+        dtd.resolve({
+            dtds: dtdGetHtmls,
+            states: dtdGetHtmlStates,
+            htmls: htmls
+        });
+    });
+    return dtd.promise();
+};
+
+HtmlReader.prototype.readFailed = function () {
+};

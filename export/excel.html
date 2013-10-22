@@ -1,11 +1,9 @@
 ﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <title>批量数据抓取器@纳谷概念云</title>
+    <title>导出数据至Excel@纳谷概念云</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="../../Content/bootstrap/2.3.2/css/bootstrap.css" rel="stylesheet" type="text/css" />
-    <link href="../../Content/bootstrap/2.3.2/css/bootstrap-responsive.min.css" rel="stylesheet"
-        type="text/css" />
     <style type="text/css">
         .icon-chevron-right
         {
@@ -43,9 +41,15 @@
                 <span class="icon-bar"></span>
             </a>
 
-            <a class="brand" href="#">纳谷概念云</a>
+            <a class="brand" href="#">导出数据至Excel</a>
             <div class="nav-collapse">
                 <ul class="nav">
+                    <li>
+                        <a href="/apps/index.html">
+                            <i class="icon-chevron-left icon-white"></i>
+                            纳谷概念云
+                        </a>
+                    </li>
                     <li>
                       <a href="javascript:void(0)" id="btnClearStorage"></a>
                   </li>
@@ -68,15 +72,12 @@
 
     <div class="container" style="padding-top:60px;">
         <div class="row">
-            <h1>批量数据抓取程序</h1>
-        </div>
-        <div class="row">
             <div class="span3">
+                <h3>导出程序</h3>
                 <button class="btn btn-primary hide nagu-logged"
                     onclick="newProject();">
                     创建新项目</button>
-                <ul id="projectList" class="nav nav-stacked nav-pills">
-                </ul>
+                <ul id="projectList" class="nav nav-stacked nav-pills"></ul>
             </div>
             <div class="span9 hide">
                 <ul class="nav nav-tabs nagu-tab hide" id="tab1">
@@ -344,7 +345,6 @@ $.each(shis, function(i, shi){
                     <div class="tab-pane" id="tabItemPreview">
                         <h2>4. 条目数据预览</h2>
                         <h3>当前数据源：</h3>
-                        <div class="info"></div>
                         <div class="pagination">
                             <ul></ul>
                         </div>
@@ -396,7 +396,7 @@ $.each(shis, function(i, shi){
                                     <i class="icon-file icon-white"></i>
                                     保存项目</button>
                                 <button class="btn btn-large btn-primary"
-                                    onclick="$('#tab1 a').eq(5).tab('show');catchData3();">
+                                    onclick="$('#tab1 a').eq(5).tab('show');catchData();">
                                     <i class="icon-chevron-right icon-white"></i>
                                     好了，开始抓取数据</button></dd>
                         </dl>

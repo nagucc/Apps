@@ -2,10 +2,10 @@
 
 $(function () {
 
-    var mode = getRequest()['mode'];
-    if (mode == 'debug') $('#divDebug').show();
+    //var mode = getRequest()['mode'];
+    //if (mode == 'debug') $('#divDebug').show();
 
-    log('index ready');
+    //log('index ready');
     // 检查用户是否已登录
     Nagu.MM.getMe().done(function (me) {
         log('me.ret: ' + me.ret);

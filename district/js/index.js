@@ -26,14 +26,24 @@ function initClass1() {
             var option = B.option().val(fs.Object.ConceptId).text('loading...')
                 .appendTo(select);
             Nagu.CM.get(fs.Object.ConceptId).done(function (c) {
-                option.text(c.FriendlyNames[0]);
+                option.text(c.FriendlyNames.sort(function (a, b) {
+                    return a.length - b.length;
+                })[0]);
             });
         });
     });
 }
 
 
-function initClassN(fatherId, target) {
+function initClassN(fatherId, target, $this) {
+    if (fatherId != '') {
+        $this.next('a').removeAttr('disabled');
+        $this.next('a').attr('href', '/apps/public/concept.html?id=' + fatherId);
+    } else {
+        $this.next('a').attr('disabled', 'disabled');
+    }
+    if (target == null) return;
+
     target.empty();
     if (fatherId == '') {
         B.option().text('请选择上级区划').appendTo(target);
@@ -41,6 +51,7 @@ function initClassN(fatherId, target) {
         return;
     }
 
+    // 通过“上级直属区划”属性搜索
     var propertyId = '27fb2392-cebe-4ef6-9018-655c7c08b84c';
     B.option().text('加载中...').appendTo(target);
     Nagu.SM.findByPO(propertyId, fatherId, Nagu.MType.Concept).done(function (fss) {
@@ -51,25 +62,27 @@ function initClassN(fatherId, target) {
             var option = B.option().val(fs.Subject.ConceptId).text('loading...')
                 .appendTo(target);
             Nagu.CM.get(fs.Subject.ConceptId).done(function (c) {
-                option.text(c.FriendlyNames[0]);
+                option.text(c.FriendlyNames.sort(function (a, b) {
+                    return a.length - b.length;
+                })[0]);
             });
         });
     });
 }
 
 // 当nagu未登录或用户退出之后
-function naguLogout() {
-    $('.nagu-logged').hide();
-    $('.nagu-logout').show();
+//function naguLogout() {
+//    $('.nagu-logged').hide();
+//    $('.nagu-logout').show();
 
-    if (dlgLogin === undefined) {
-        dlgLogin = new LoginDialog({
-            success: function (me) {
-            }
-        });
-    }
-    dlgLogin.modal('show');
-}
+//    if (dlgLogin === undefined) {
+//        dlgLogin = new LoginDialog({
+//            success: function (me) {
+//            }
+//        });
+//    }
+//    dlgLogin.modal('show');
+//}
 
 // 当nagu登录成功之后
 function afterNaguLogin(me) {

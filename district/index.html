@@ -80,8 +80,9 @@
                         <label class="control-label">省（区、直辖市）</label>
                         <div class="controls">
                             <select class="span4" id="class1" 
-                                onchange="initClassN($(this).val(),$('#class2'));">
+                                onchange="initClassN($(this).val(),$('#class2'), $(this));">
                             </select>
+                            <a class="btn" target="_blank" disabled>查看详情</a>
                         </div>
                     </div>
 
@@ -89,18 +90,21 @@
                         <label class="control-label">市（地区）</label>
                         <div class="controls">
                             <select class="span4" id="class2" 
-                                onchange="initClassN($(this).val(),$('#class3'));" >
+                                onchange="initClassN($(this).val(),$('#class3'), $(this));" >
                                 <option>请先选择上级区划</option>
                             </select>
+                            <a class="btn" target="_blank" disabled>查看详情</a>
                         </div>
                     </div>
 
                     <div class="control-group" >
                         <label class="control-label">县（区）</label>
                         <div class="controls">
-                            <select class="span4" id="class3">
+                            <select class="span4" id="class3"
+                                onchange="initClassN($(this).val(), null, $(this));" >
                                 <option>请先选择上级区划</option>
                             </select>
+                            <a class="btn" target="_blank" disabled>查看详情</a>
                         </div>
                     </div>
                     </div>
@@ -109,12 +113,8 @@
 
         <footer class="footer"> 
             <p><hr /></p>
-        <p>本系统是由na57开发的测试系统，所有数据目前只作为测试使用。</p>
-        <p>系统所有数据均存储于nagu.cc概念云系统中，所有数据通过RDF三元组的形式进行组织。</p>
+        <p>2009-2013 &copy; 纳谷概念云</p>
       </footer>
-        <div class="hide" id="divDebug">
-            <textarea cols="10" rows="10" disabled id="txtDebug"></textarea>
-        </div>
     </div>
 
 
@@ -138,6 +138,7 @@
     <script src="../../Content/js/apps-helper.js" type="text/javascript"></script>
     <script src="../../Content/js/bootstarp-dropdownmenu.js" type="text/javascript"></script>
     <script src="../../Content/js/nagu-bs-accordion.js" type="text/javascript"></script>
+    <script src="/Content/lib/jquery.jsonp-2.4.0.min.js"></script>
     <script src="js/index.js" type="text/javascript"></script>
 </body>
 </html>

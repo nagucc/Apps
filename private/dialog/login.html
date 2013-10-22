@@ -11,25 +11,6 @@
             </div>
 
         <div class="form-horizontal">
-            <!--<div class="control-group">
-                <label class="control-label">用户名</label>
-                <div class="controls">
-                    <input class="nagu-username" />
-                </div>
-            </div>
-
-            <div class="control-group">
-                <label class="control-label">密码</label>
-                <div class="controls">
-                    <input type="password"  class="nagu-password"/>
-                </div>
-            </div>
-
-            <div class="control-group">
-                <div class="controls">
-                    <button class="btn btn-primary" onclick="login0520();"><i class="icon-white icon-user"></i>登录</button>
-                </div>
-            </div>-->
 
             <div class="control-group">
                 <label class="control-label">使用第三方帐号登录</label>
@@ -37,8 +18,13 @@
                     <a class="nagu-btn-qqlogin" href="http://nagu.cc/Member/QQLogin">
                         <img src="/Content/qq/Connect_logo_3.png" />
                     </a>
+                    <br /><br />
+                    <a class="nagu-btn-weiboLogin" href="http://nagu.cc/Member/WeiboLogin">
+                        <img src="/Content/lib/weibo/login240.png" />
+                    </a>
                 </div>
             </div>
+
 
             <div class="control-group">
                 <label class="control-label">微信扫描二维码添加关注后用微信登录</label>
@@ -69,6 +55,9 @@
 
         var url = 'http://nagu.cc/Member/QQLogin?returnUrl=' + window.location.href;
         dialog.find('.nagu-btn-qqlogin').attr('href', url);
+
+        var wburl = 'http://nagu.cc/Member/WeiboLogin?returnUrl=' + window.location.href;
+        dialog.find('.nagu-btn-weiboLogin').attr('href', wburl);
 
         
 
