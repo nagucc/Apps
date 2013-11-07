@@ -16,9 +16,6 @@
                 
 
             </div>
-            <label class="checkbox hide" id='{cbOnlyMe}_ph'>
-                <input type="checkbox" userId="" id='{cbOnlyMe}' disabled="disabled" /><i class="icon-lock" />仅我可见
-            </label>
         </span>
         <h4 class='hide'>请从以下搜索结果中选择：</h4>
         <ul class="nav nav-pills"></ul>
@@ -91,6 +88,7 @@
                     pageSize: 5,
                     renderItem: function (concept, li) {
                         li.appendConcept(concept.ConceptId);
+                        li.find('a').attr('href', '/apps/public/concept.html?id=' + li.attr('ConceptId'));
                         li.find('a').click(function () {
                             var conceptId = li.attr('ConceptId');
                             SearchConceptDialog.selected(conceptId);
