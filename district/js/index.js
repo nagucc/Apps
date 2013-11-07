@@ -20,12 +20,17 @@ function initClass1() {
     var select = $('#class1').empty();
     B.option().text('加载中...').appendTo(select);
     Nagu.SM.findBySP(bagId, Nagu.MType.Concept, Nagu.Rdf.Li).done(function (fss) {
-        select.empty();
-        B.option().val('').text('请选择（' + fss.length + '）').appendTo(select);
-        $.each(fss, function (i, fs) {
-            var option = B.option().val(fs.Object.ConceptId).text('loading...')
+        var cids = [];
+        for (var i = 0; i < fss.length; i++) {
+            cids.push(fss[i].Object.ConceptId)
+        }
+        Nagu.CM.bulkGet(cids).done(function (cs) {
+            select.empty();
+            B.option().val('').text('请选择（' + cs.length + '）').appendTo(select);
+
+            $.each(cs, function (i, c) {
+                var option = B.option().val(c.ConceptId)
                 .appendTo(select);
-            Nagu.CM.get(fs.Object.ConceptId).done(function (c) {
                 option.text(c.FriendlyNames.sort(function (a, b) {
                     return a.length - b.length;
                 })[0]);
@@ -45,8 +50,8 @@ function initClassN(fatherId, target, $this) {
     if (target == null) return;
 
     target.empty();
-    if (fatherId == '') {
-        B.option().text('请选择上级区划').appendTo(target);
+    if (fatherId == '' || fatherId === undefined) {
+        B.option().text('请先选择上级区划').val('').appendTo(target);
         target.change();
         return;
     }
@@ -58,10 +63,15 @@ function initClassN(fatherId, target, $this) {
         target.empty();
         B.option().val('').text('请选择（' + fss.length + '）').appendTo(target);
         target.change();
-        $.each(fss, function (i, fs) {
-            var option = B.option().val(fs.Subject.ConceptId).text('loading...')
-                .appendTo(target);
-            Nagu.CM.get(fs.Subject.ConceptId).done(function (c) {
+
+        var cids = [];
+        for (var i = 0; i < fss.length; i++) {
+            cids.push(fss[i].Subject.ConceptId)
+        }
+        Nagu.CM.bulkGet(cids).done(function (cs) {
+            $.each(cs, function (i, c) {
+                var option = B.option().val(c.ConceptId)
+                        .appendTo(target);
                 option.text(c.FriendlyNames.sort(function (a, b) {
                     return a.length - b.length;
                 })[0]);
@@ -69,20 +79,6 @@ function initClassN(fatherId, target, $this) {
         });
     });
 }
-
-// 当nagu未登录或用户退出之后
-//function naguLogout() {
-//    $('.nagu-logged').hide();
-//    $('.nagu-logout').show();
-
-//    if (dlgLogin === undefined) {
-//        dlgLogin = new LoginDialog({
-//            success: function (me) {
-//            }
-//        });
-//    }
-//    dlgLogin.modal('show');
-//}
 
 // 当nagu登录成功之后
 function afterNaguLogin(me) {

@@ -101,12 +101,35 @@
                         <label class="control-label">县（区）</label>
                         <div class="controls">
                             <select class="span4" id="class3"
+                                onchange="initClassN($(this).val(), $('#class4'), $(this));" >
+                                <option>请先选择上级区划</option>
+                            </select>
+                            <a class="btn" target="_blank" disabled>查看详情</a>
+                        </div>
+                    </div>
+
+                    <div class="control-group" >
+                        <label class="control-label">乡（镇、街道）</label>
+                        <div class="controls">
+                            <select class="span4" id="class4"
+                                onchange="initClassN($(this).val(), $('#class5'), $(this));" >
+                                <option>请先选择上级区划</option>
+                            </select>
+                            <a class="btn" target="_blank" disabled>查看详情</a>
+                        </div>
+                    </div>
+
+                    <div class="control-group" >
+                        <label class="control-label">村（居委会）</label>
+                        <div class="controls">
+                            <select class="span4" id="class5"
                                 onchange="initClassN($(this).val(), null, $(this));" >
                                 <option>请先选择上级区划</option>
                             </select>
                             <a class="btn" target="_blank" disabled>查看详情</a>
                         </div>
                     </div>
+
                     </div>
             </div>
         </div>
