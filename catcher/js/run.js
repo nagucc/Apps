@@ -5,6 +5,12 @@ catches['#xiangs'] = [
     50000,
     20
 ];
+catches['#cuns'] = [
+    'http://nagu.cc/catcher/catchCuns',
+    1,
+    700000,
+    20
+];
 $(function () {
 
     // 检查用户是否已登录

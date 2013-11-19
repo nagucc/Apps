@@ -50,7 +50,7 @@ function initClassN(fatherId, target, $this) {
     if (target == null) return;
 
     target.empty();
-    if (fatherId == '' || fatherId === undefined) {
+    if (fatherId === undefined || fatherId == null || fatherId == '') {
         B.option().text('请先选择上级区划').val('').appendTo(target);
         target.change();
         return;
@@ -58,17 +58,24 @@ function initClassN(fatherId, target, $this) {
 
     // 通过“上级直属区划”属性搜索
     var propertyId = '27fb2392-cebe-4ef6-9018-655c7c08b84c';
-    B.option().text('加载中...').appendTo(target);
+    B.option().text('加载中...').val('').appendTo(target);
     Nagu.SM.findByPO(propertyId, fatherId, Nagu.MType.Concept).done(function (fss) {
-        target.empty();
-        B.option().val('').text('请选择（' + fss.length + '）').appendTo(target);
-        target.change();
+        if (fss.length == 0) {
+            target.empty();
+            B.option().val('').text('无下级行政区划').appendTo(target);
+            target.change();
+            return;
+        }
+        
 
         var cids = [];
         for (var i = 0; i < fss.length; i++) {
             cids.push(fss[i].Subject.ConceptId)
         }
         Nagu.CM.bulkGet(cids).done(function (cs) {
+            target.empty();
+            B.option().val('').text('请选择（' + fss.length + '）').appendTo(target);
+            target.change();
             $.each(cs, function (i, c) {
                 var option = B.option().val(c.ConceptId)
                         .appendTo(target);
