@@ -47,7 +47,6 @@ function showConcept() {
         try{ // 下面语句在IE下异常。
             $('title').text(concept.FriendlyNames[0] + ' - 纳谷概念云');
         } catch (e) { }
-        //$('.brand').text(concept.FriendlyNames[0]);
         $('#desc').text(concept.Descriptions[0]);
 
         // 显示类型下拉列表
