@@ -53,10 +53,11 @@
             show: false
         });
 
-        var url = 'http://nagu.cc/Member/QQLogin?returnUrl=' + window.location.href;
+        var host = Nagu.hosts[0];
+        var url = 'http://'+ host +'/Member/QQLogin?returnUrl=' + window.location.href;
         dialog.find('.nagu-btn-qqlogin').attr('href', url);
 
-        var wburl = 'http://nagu.cc/Member/WeiboLogin?returnUrl=' + window.location.href;
+        var wburl = 'http://'+host+'/Member/WeiboLogin?returnUrl=' + window.location.href;
         dialog.find('.nagu-btn-weiboLogin').attr('href', wburl);
 
         

@@ -1,4 +1,6 @@
-﻿var catches = [];
+﻿var dlgLogin;
+
+var catches = [];
 catches['#xiangs'] = [
     'http://nagu.cc/catcher/catchXiangs',
     1,
@@ -101,7 +103,7 @@ function naguLogout() {
             }
         });
     }
-    dlgLogin.modal('show');
+    dlgLogin.toggle('show');
 }
 
 // 当nagu登录成功之后

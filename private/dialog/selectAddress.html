@@ -1,0 +1,221 @@
+﻿<div class="modal hide" id="{dlgSelectAddress}" data-dialogType="SelectAddress">
+    <div class="modal-header">
+        <a class="close" data-dismiss="modal">×</a>
+        <h3></h3>
+    </div>
+    <div class="modal-body">
+        <div class="hide alert alert-error">
+            <strong>出错啦！</strong>
+            <ul class="error-list">
+            </ul>
+        </div>
+
+        <div class="control-group">
+            <div class="controls">
+                <label class="control-label">
+                    <i class="icon-lock"></i>
+                    可见范围
+                    <select class="select-list-apps">
+                        <option value="" class="const">公开</option>
+                    </select>
+                    <a href="/apps/private/app.html">应用管理</a>
+                </label>
+            </div>
+        </div>
+
+        <div class="form-horizontal">
+            <div class="control-group">
+                <label class="control-label">省（区、直辖市）</label>
+                <div class="controls">
+                    <select id="class1"
+                        onchange="initClassN($(this).val(),$('#class2'), $(this));">
+                    </select>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">市（地区）</label>
+                <div class="controls">
+                    <select id="class2" data-shangji="#class1"
+                        onchange="initClassN($(this).val(),$('#class3'), $(this));">
+                        <option>请先选择上级区划</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">县（区）</label>
+                <div class="controls">
+                    <select id="class3" data-shangji="#class2"
+                        onchange="initClassN($(this).val(), $('#class4'), $(this));">
+                        <option>请先选择上级区划</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">乡（镇、街道）</label>
+                <div class="controls">
+                    <select id="class4" data-shangji="#class3"
+                        onchange="initClassN($(this).val(), $('#class5'), $(this));">
+                        <option>请先选择上级区划</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">村（居委会）</label>
+                <div class="controls">
+                    <select id="class5" data-shangji="#class4"
+                        onchange="initClassN($(this).val(), null, $(this));">
+                        <option>请先选择上级区划</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">街道地址</label>
+                <div class="controls">
+                    <input />
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div class="modal-footer">
+        
+        <a href="#" class="btn" data-dismiss="modal">取消</a>
+        <button class="btn btn-primary" onclick="selectAddress3243lkdsfj4435()">确定</button>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#{dlgSelectAddress}").modal({
+            backdrop: true,
+            keyboard: true,
+            show: false
+        });
+
+        // 初始化“可见范围”
+        Dialog.InitAppList($('#{dlgSelectAddress}').find('.select-list-apps'));
+        Dialog.InitFavoriteGroupSelect($('#dlgapv-favorite-group'), $('#dlgapv-favorite'));
+
+        var dialog = $('#{dlgSelectAddress}');
+
+        // 对话框打开时的处理事件
+        dialog.on('show', function (eventData) {
+            // 由于show事件会在对话框内多个控件被触发
+            // 所以此处需要判断触发事件的控件：
+            if (eventData.target.id != '{dlgSelectAddress}') return;
+        });
+    });
+
+    // 初始化省份列表
+    function initClass1() {
+        var bagId = '3526eba0-79de-4298-88df-e0a28e3a9828';
+
+        // 初始化列表数据
+        var select = $('#class1').empty();
+        B.option().text('加载中...').appendTo(select);
+
+        // 获取列表
+        Nagu.SM.findBySP(bagId, Nagu.MType.Concept, Nagu.Rdf.Li).done(function (fss) {
+            var cids = [];
+            for (var i = 0; i < fss.length; i++) {
+                cids.push(fss[i].Object.ConceptId)
+            }
+            Nagu.CM.bulkGet(cids).done(function (cs) {
+
+                // 填充数据
+                select.empty();
+                B.option().val('').text('请选择（' + cs.length + '）').appendTo(select);
+
+                $.each(cs, function (i, c) {
+                    var option = B.option().val(c.ConceptId)
+                        .appendTo(select)
+                        .text(c.FriendlyNames.sort(function (a, b) { // 选择最短名称填充
+                        return a.length - b.length;
+                    })[0]);
+                });
+            });
+        });
+    }
+
+    // 初始化次级区划列表
+    function initClassN(fatherId, target, $this) {
+        // 生成本级地址字符串
+        //$('#{dlgSelectAddress}').find(':text').text(getAddressPre('#' + $this.attr('id')));
+
+        if (target == null) return;
+
+        // 清空数据
+        target.empty();
+        if (fatherId === undefined || fatherId == null || fatherId == '') {
+            B.option().text('请先选择上级区划').val('').appendTo(target);
+            target.change();
+            return;
+        }
+
+        // 通过“直属上级区划”属性搜索
+        var propertyId = '27fb2392-cebe-4ef6-9018-655c7c08b84c';
+        B.option().text('加载中...').val('').appendTo(target);
+
+        // 获取列表
+        Nagu.SM.findByPO(propertyId, fatherId, Nagu.MType.Concept).done(function (fss) {
+            if (fss.length == 0) {
+                target.empty();
+                B.option().val('').text('无下级行政区划').appendTo(target);
+                target.change();
+                return;
+            }
+
+
+            var cids = [];
+            for (var i = 0; i < fss.length; i++) {
+                cids.push(fss[i].Subject.ConceptId)
+            }
+            // 批量获取数据
+            Nagu.CM.bulkGet(cids).done(function (cs) {
+                target.empty();
+                B.option().val('').text('请选择（' + fss.length + '）').appendTo(target);
+                //target.change();
+                $.each(cs, function (i, c) {
+                    var option = B.option().val(c.ConceptId)
+                        .appendTo(target)
+                        .text(c.FriendlyNames.sort(function (a, b) {
+                        return a.length - b.length;
+                    })[0]);
+                });
+            });
+        });
+    }
+
+    function getAddressPre(selector) {
+        var select = $(selector);
+        var address = '';
+        if (select.data('shangji')) {
+            address += getAddressPre(select.data('shangji'));
+        }
+        if (select.val() != '') {
+            address += select.text();
+        }
+        return address;
+    }
+
+    function selectAddress3243lkdsfj4435() {
+        if (SelectAddressDialog.selected) {
+            var address = {
+                provice: $('#class1').val(),
+                city: $('#class2').val(),
+                county: $('#class3').val,
+                town: $('#class4').val(),
+                country: $('class5').val(),
+                street: $("#{dlgSelectAddress}").find(':text').val()
+            };
+            SelectAddressDialog.selected.call(address, $('#{dlgSelectAddress}').find('.select-list-apps').val());
+        }
+        
+    }
+
+</script>

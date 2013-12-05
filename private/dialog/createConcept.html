@@ -36,6 +36,16 @@
                     <input type="text" id="{txtConceptDesc}" placeholder="输入待创建Concept的相关简介"/>
                 </div>
             </div>
+
+            <div class="control-group">
+                <label for="confirmationCode" class="control-label">验证码</label>
+                <div class="controls">
+                    <input type="text" id="confirmationCode" placeholder="输入右边图片上的验证码"/>
+                    <a href="#" onclick="Nagu.F.resetConfirmationCode('#confirmationCodeImg')" title="看不清？换一个">
+                        <img id="confirmationCodeImg" />
+                    </a>
+                </div>
+            </div>
         </form>
     </div>
     <div class="modal-footer">
@@ -55,6 +65,16 @@
 
     // 初始化“可见范围”
     Dialog.InitAppList($('#{listApps}'));
+
+    // 初始化验证码图片
+    //Nagu.F.resetConfirmationCode('#confirmationCodeImg');
+    // 对话框打开时的处理事件
+    $('#{dlgCreateConcept}').on('show', function (eventData) {
+        // 由于show事件会在对话框内多个控件被触发
+        // 所以此处需要判断触发事件的控件：
+        if (eventData.target.id != '{dlgCreateConcept}') return;
+        Nagu.F.resetConfirmationCode('#confirmationCodeImg');
+    });
 
     function createConcept__etrewgasdgret() {
         //1. 数据验证

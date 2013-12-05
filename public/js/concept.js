@@ -6,6 +6,7 @@ var dlgLogin, dlgSelectDialog;
 var renderValues;
 
 
+
 $(function () {
     curConcept = getRequest()['id'];
     if (curConcept === undefined || curConcept == '') return;
@@ -187,8 +188,9 @@ function afterNaguLogin(me) {
         })
     });
 
-    // 显示“我的收藏”
-    renderMyFavoriteGroups();
+    // 显示“我的收藏” 
+    // 因性能问题停用
+    //renderMyFavoriteGroups();
 
     renderFavoriteList();
 
@@ -209,8 +211,6 @@ function afterNaguLogin(me) {
 
 // 初始化“收藏到...”下拉菜单
 function renderFavoriteList() {
-    //var liFavoriteGroupBegin = $('#favoriteList-begin');
-    //liFavoriteGroupBegin.next().remove();
     var ulFavorite = $('#favoriteList');
     ulFavorite.children().not('.const').remove();
     Nagu.MM.favoriteGroup().done(function (groupFss) {
@@ -403,29 +403,19 @@ function dlgSelectDialog_select_open(conceptId, appId) {
 }
 
 function generateQr(url) {
-    $.ajax('http://955.cc/short/', {
-        dataType: 'jsonp',
-        data: {
-            format: 'jsonp',
-            url: url
-        },
-        success: function (data) {
-            if (data.errno == 0) {
-                var img = B.img().attr('src', data.url + '.qr');
-                $("#qrcode").empty().append(img);
-            } else {
-                // 显示二维码
-                try {
-                    $("#qrcode").empty().qrcode({
-                        width: 150,
-                        height: 150,
-                        text: url
-                    });
-                } catch (e) {
-                    $('#qrcode').text('当前浏览器不支持生成二维码');
-                }
-            }
-        },
-        type: 'post'
+    Nagu.F.shortenUrl(url).done(function (data) {
+            var img = B.img().attr('src', data.shortUrl + '.qr');
+            $("#qrcode").empty().append(img);
+    }).fail(function () {
+        // 在客户端生成二维码
+        try {
+            $("#qrcode").empty().qrcode({
+                width: 150,
+                height: 150,
+                text: url
+            });
+        } catch (e) {
+            $('#qrcode').text('当前浏览器不支持生成二维码');
+        }
     });
 }
