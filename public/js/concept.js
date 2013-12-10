@@ -372,7 +372,7 @@ function showRemarkItem(i, fs) {
                     figureUrl = user.FigureUrls[0];
                 }
                 B.img().css({ width: '24px', height: '24px' })
-                    .attr('title',user.Names[0])
+                    .attr('title', user.Names[0] + ' 于 ' + formatJSONDate(user.DateSaid,'yyyy-MM-dd hh:mm:ss'))
                     .attr('src', figureUrl).appendTo(td2);
             });
             td2.append('觉得有用');
