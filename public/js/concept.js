@@ -18,6 +18,7 @@ $(function () {
 
     dlgArticleShow = new ArticleShowDialog();
     dlgSearchDialog = new SearchConceptDialog();
+    dlgSelectDialog = new SelectConceptDialog();
 
     showConcept();
     
@@ -27,6 +28,7 @@ $(function () {
     Nagu.MM.getMe().done(function (me) {
         if (me.ret == 0) { // 已登录
             afterNaguLogin(me);
+            curUser = me.Id;
         } else { // 未登录
             naguLogout();
         }
@@ -89,7 +91,7 @@ function showConcept() {
             });
         });
     }).fail(function () {
-        alert('ee');
+        alert('获取概念失败');
     });
 
     // 初始化本地存储信息：
@@ -117,6 +119,9 @@ function showConcept() {
     $('#btnFlushConcept').tooltip({
         html: true
     });
+
+    // 显示“备注”
+    showRemark();
 
 }
 
@@ -335,7 +340,95 @@ function flushConcept() {
     location.reload();
 }
 
+// 在第i个位置之前显示备注项目
+function showRemarkItem(i, fs) {
+    var table = $('tbody');
+    if (i < 0) i = 0;
 
+    // 只显示属性值是文本的语句
+    if (fs.Object.Value) {
+
+        // 此语句未被显示时
+        if ($('#remark-item' + fs.StatementId).size() == 0) {
+            var tr = B.tr().attr('id', 'remark-item' + fs.StatementId);
+            if (i >= table.children().size()) {
+                table.append(tr);
+            } else {
+                table.children().eq(i).befor(tr);
+            }
+            var td1 = B.td().text(fs.Object.Value).appendTo(tr);
+            var td2 = B.td().text(' ').appendTo(tr);
+            var td3 = B.td().appendTo(tr);
+        }
+
+        // 显示用户
+        var tr = $('#remark-item' + fs.StatementId);
+        var td2 = tr.children().eq(1);
+        Nagu.SayM.saidBy(fs.StatementId).done(function (users) {
+            td2.empty();
+            $.each(users, function (i, user) {
+                var figureUrl = '/Content/Images/logo.png';
+                if (user.FigureUrls.length > 0) {
+                    figureUrl = user.FigureUrls[0];
+                }
+                B.img().css({ width: '24px', height: '24px' })
+                    .attr('title',user.Names[0])
+                    .attr('src', figureUrl).appendTo(td2);
+            });
+            td2.append('觉得有用');
+        });
+
+        // 显示操作
+        if(curUser === undefined) return;
+        var td3 = tr.children().eq(2);
+        Nagu.SayM.status(fs.StatementId).done(function (status) {
+            if (status.HasSaid) {
+                B.button().text('不再有用').attr('href', 'javascript://void(0)')
+                    .appendTo(td3).click(function () {
+                        if (window.confirm('确实不再有用了吗？')) {
+                            Nagu.SayM.dontSay(fs.StatementId).done(function (data) {
+                                tr.remove();
+                            });
+                        }
+                    });
+            } else {
+                var bg = B.divBtnGroup().appendTo(td3);
+                B.button().text('有用')//.attr('href', '#')
+                    .appendTo(bg).click(function () {
+                        Nagu.SayM.said(fs.StatementId).done(function () {
+                            tr.remove();
+                            showRemarkItem(i, fs);
+                        });
+                    });
+                B.button().text('没用')//.attr('href', '#')
+                    .appendTo(bg).click(function () {
+                        //todo
+                    });
+            }
+        });
+    }
+}
+
+function showRemark() {
+    Nagu.CM.getPropertyValues(curConcept, Nagu.Concepts.Remark).done(function (fss) {
+        $.each(fss, function (i, fs) {
+            showRemarkItem(i, fs);
+        });
+    });
+}
+
+function addRemark() {
+    var val = $.trim($('textarea').val());
+    if (val) {
+        $('#btnAddRemark').attr('disabled', 'disabled');
+        Nagu.CM.addLiteralPropertyValue(curConcept, Nagu.Concepts.Remark, val).done(function (fs) {
+            showRemarkItem(0, fs);
+            $('textarea').val('');
+            $('#btnAddRemark').removeAttr('disabled');
+        });
+        
+    }
+}
 
 
 /**  各种回调函数 ***************************************************************************/

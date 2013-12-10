@@ -127,7 +127,7 @@
                     <h4>更多操作</h4>
                     <ul class="nav nav-pills">
                         <li class="nagu-logged hide">
-                            <a href="#" onclick="dlgSearchDialog.toggle({selected: dlgSelectDialog_selected_addProperty});">
+                            <a href="#" onclick="dlgSelectDialog.toggle({selected: dlgSelectDialog_selected_addProperty});">
                                 <i class="icon-plus"></i>
                                 添加属性</a>
                         </li>
@@ -172,7 +172,15 @@
                     <div>
                     <h4>备注</h4>
                         <table class="table table-striped">
-                            <tr>
+                            <thead>
+                                <tr>
+                                    <th>内容</th>
+                                    <th>用户</th>
+                                    <th class="nagu-logged">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                            <!--<tr>
                                 <td>备注1</td>
                                 <td>用户1，用户2</td>
                                 <td><a href="#">有用</a> <a href="#">没用</a></td>
@@ -186,11 +194,16 @@
                                 <td>备注1</td>
                                 <td>用户1，用户2</td>
                                 <td><a href="#">有用</a><a href="#">没用</a></td>
-                            </tr>
+                            </tr>-->
                         </table>
-                    <textarea class="span6" rows="5"></textarea>
-                    <div>
-                    <a class="btn btn-success">提交</a>
+                    
+                        <div class="nagu-logged">
+                            <textarea class="span6" rows="5"></textarea>
+                            <div>
+                                <button id="btnAddRemark" onclick="addRemark();"
+                                    class="btn btn-success">
+                                    提交</button>
+                            </div>
                         </div>
                         </div>
                 </div>
