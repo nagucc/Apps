@@ -3,10 +3,9 @@
 <html>
     <head>
         <meta charset="UTF-8" />
-        <title>联系人群组</title>
+        <title>联系人</title>
         <link href="../../Content/lib/jqtouch/css/apple.css" rel="stylesheet" />
         <link rel=”icon” href=”/favicon.ico” mce_href=”/favicon.ico” type=”image/x-icon”>
-<link rel=”shortcut icon” href=”/favicon.ico” mce_href=”/favicon.ico” type=”image/x-icon”>
         <style type="text/css" media="screen">
             #jqt.fullscreen #home .info {
                 display: none;
@@ -54,13 +53,22 @@
     </head>
     <body>
         <div id="jqt">
-            <div id="home" class="current">
+            <!-- 启动页 -->
+            <div id="startup" class="current">
+                <img src="images/startup.png" />
+            </div>
+
+            <!-- 显示Contact列表 -->
+            <div id="home">
                 <div class="toolbar">
-                    <h1>加载中...</h1>
+                    <h1>我的联系人</h1>
                     <a class="button slideup nagu-logout" id="btnLogin" href="#" style="">登录</a>
                 </div>
                 <div class="scroll">
-                    <ul id="contactList" class="rounded"></ul>
+                    
+                    <ul id="contactList" class="rounded">
+                        <li>正在加载...</li>
+                    </ul>
                     <ul class="individual">
                         <li><a href="#">新增联系人</a></li>
                         <li><a href="#">添加星标</a></li>
@@ -75,14 +83,19 @@
                 </div>
             </div>
 
-            <div id="contact">
+            <!-- 显示联系人详细信息 -->
+            <div id="contact" >
                 <div class="toolbar">
                     <h1>联系人名称</h1>
-                    <a class="back" href="#">返回</a>
+                    <a class="back" href="#home">返回</a>
                 </div>
+
+                <!-- 基本信息 -->
                 <div class="scroll" id="contactFixedInfo">
                     <ul class="rounded" id="itemList">
-                        <li class="forward"
+                        <li class="nagu-loading">正在加载...</li>
+                        <li class="nagu-none" style="display:none">暂无数据</li>
+                        <li class="forward" style="display:none"
                             id="property_bd640461-41d2-4009-862e-0ebcd2d77b2c">
                             移动电话
                             <a  href="#item" class="itemValue"></a>
@@ -104,8 +117,15 @@
                             </a>
                         </li>-->
                     </ul>
-                </div>
 
+                    <ul class="individual">
+                        <li><a href="#">添加数据</a></li>
+                        <li><a href="#">加入首页</a></li>
+                    </ul>
+                    
+                </div>
+                <hr />
+                <!-- 下级联系人 -->
                 <h2>下级联系人</h2>
                 <div class="scroll" >
                     <ul id="contact_subGroup" class="rounded"></ul>
@@ -195,17 +215,20 @@
                 </div>
                 <h2>添加新联系人</h2>
             </div>
+
+            
         </div>
 
 
 
-        <script src="../../Content/bootstrap/js/assets/jquery-1.8.2.min.js" type="text/javascript"></script> 
-        <script src="../../Content/lib/jqtouch/jqtouch.min.js"></script>
-        <script src="../../Content/lib/jqtouch/jqtouch-jquery.js"></script>
+        <script src="http://nagucdn.sinaapp.com/Content/bootstrap/js/assets/jquery-1.8.2.min.js" type="text/javascript"></script> 
+        <script src="http://nagucdn.sinaapp.com/Content/lib/jqtouch/jqtouch.min.js"></script>
+        <script src="http://nagucdn.sinaapp.com/Content/lib/jqtouch/jqtouch-jquery.js"></script>
         
     
-    <script src="/Content/lib/json2.js" type="text/javascript"></script>
-    <script src="../../Content/lib/jStorage/jstorage.min.js" type="text/javascript"></script>
+    <script src="http://nagucdn.sinaapp.com/Content/lib/json2.js" type="text/javascript"></script>
+    <script src="http://nagucdn.sinaapp.com/Content/lib/jStorage/jstorage.min.js" type="text/javascript"></script>
+    <script src="http://nagucdn.sinaapp.com/Content/lib/jquery.jsonp-2.4.0.min.js"></script>
 
     
     <script src="../../Content/js/js-helper.js" type="text/javascript"></script>
@@ -215,7 +238,6 @@
     <script src="../../Content/js/apps-helper.js" type="text/javascript"></script>
     <script src="../../Content/js/bootstarp-dropdownmenu.js" type="text/javascript"></script>
     <script src="../../Content/js/nagu-bs-accordion.js" type="text/javascript"></script>
-    <script src="/Content/lib/jquery.jsonp-2.4.0.min.js"></script>
     <script src="js/group.js" type="text/javascript"></script>
     </body>
 </html>
