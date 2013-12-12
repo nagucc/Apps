@@ -8,6 +8,7 @@ $(function () {
         if (me.ret == 0) { // 已登录
             afterNaguLogin(me);
             curUser = me.Id;
+            listApps();
         } else { // 未登录
             naguLogout();
         }
@@ -15,7 +16,7 @@ $(function () {
 
     $('#btnClearStorage').btnCleanStorage();
 
-    listApps();
+    
 
     // 初始化“创建App”对话框
     $("#dlgNewApp").modal({
