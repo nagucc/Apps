@@ -1,4 +1,4 @@
-﻿var curUser, curConcept;
+﻿var curUser, curConcept, dtdMe;
 var host = "";
 var addTypeDialog, addValueDialog, createConceptDialog, cdp,  dlgSearchDialog, dlgArticleShow;
 var dlgLogin, dlgSelectDialog;
@@ -25,10 +25,10 @@ $(function () {
     
 
     // 检查用户是否已登录
-    Nagu.MM.getMe().done(function (me) {
+    dtdMe = Nagu.MM.getMe();
+    $.when(dtdMe).done(function (me) {
         if (me.ret == 0) { // 已登录
             afterNaguLogin(me);
-            curUser = me.Id;
         } else { // 未登录
             naguLogout();
         }
@@ -379,32 +379,34 @@ function showRemarkItem(i, fs) {
         });
 
         // 显示操作
-        if(curUser === undefined) return;
-        var td3 = tr.children().eq(2);
-        Nagu.SayM.status(fs.StatementId).done(function (status) {
-            if (status.HasSaid) {
-                B.button().text('不再有用').attr('href', 'javascript://void(0)')
-                    .appendTo(td3).click(function () {
-                        if (window.confirm('确实不再有用了吗？')) {
-                            Nagu.SayM.dontSay(fs.StatementId).done(function (data) {
-                                tr.remove();
-                            });
-                        }
-                    });
-            } else {
-                var bg = B.divBtnGroup().appendTo(td3);
-                B.button().text('有用')//.attr('href', '#')
-                    .appendTo(bg).click(function () {
-                        Nagu.SayM.said(fs.StatementId).done(function () {
-                            tr.remove();
-                            showRemarkItem(i, fs);
+        $.when(dtdMe).then(function (me) {
+            if (me.ret != 0) return;
+            var td3 = tr.children().eq(2);
+            Nagu.SayM.status(fs.StatementId).done(function (status) {
+                if (status.HasSaid) {
+                    B.button().text('不再有用').attr('href', 'javascript://void(0)')
+                        .appendTo(td3).click(function () {
+                            if (window.confirm('确实不再有用了吗？')) {
+                                Nagu.SayM.dontSay(fs.StatementId).done(function (data) {
+                                    tr.remove();
+                                });
+                            }
                         });
-                    });
-                B.button().text('没用')//.attr('href', '#')
-                    .appendTo(bg).click(function () {
-                        //todo
-                    });
-            }
+                } else {
+                    var bg = B.divBtnGroup().appendTo(td3);
+                    B.button().text('有用')//.attr('href', '#')
+                        .appendTo(bg).click(function () {
+                            Nagu.SayM.said(fs.StatementId).done(function () {
+                                tr.remove();
+                                showRemarkItem(i, fs);
+                            });
+                        });
+                    B.button().text('没用')//.attr('href', '#')
+                        .appendTo(bg).click(function () {
+                            //todo
+                        });
+                }
+            });
         });
     }
 }

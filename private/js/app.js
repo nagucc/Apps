@@ -119,8 +119,8 @@ function showKeyInfo(key) {
     $('#keyDesc').text(key.Desc);
     $('#keyAuth').text(key.Auth);
     
-    var date = new Date(parseInt(key.Expire))
-    $('#keyExpire').text(date.toLocaleString());
+    //var date = new Date(parseInt(key.Expire))
+    $('#keyExpire').text(formatJSONDate(key.Expire, 'yyyy-MM-dd hh:mm:ss'));
     
     $('#btnDeleteKey').unbind().click(function () {
         deleteKey(key.Id);
