@@ -3,7 +3,7 @@
 <html>
     <head>
         <meta charset="UTF-8" />
-        <title>联系人</title>
+        <title>纳谷通讯录</title>
         <link href="../../Content/lib/jqtouch/css/apple.css" rel="stylesheet" />
         <link rel=”icon” href=”/favicon.ico” mce_href=”/favicon.ico” type=”image/x-icon”>
         <style type="text/css" media="screen">
@@ -49,17 +49,72 @@
                 overflow-x:hidden
             }
 
+            #jqt .backbutton
+            {
+                left: 6px;
+                right: auto;
+
+                max-width: 60px;
+                margin-left: 15px;
+                overflow: visible;
+                padding-left: 5px;
+            }
+
+            #jqt .backbutton:after, #jqt .backbutton:before {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  top: 1px;
+  left: 1px;
+  -webkit-transform: rotate(45deg) translate3d(0.2px, 0, 0);
+  transform: rotate(45deg) translate3d(0.2px, 0, 0);
+  -webkit-transform-origin: 0 0;
+  transform-origin: 0 0;
+  background-image: none;
+  background-color: #50709a;
+  background-image: -webkit-gradient(linear, 0% 0%, 100% 100%, color-stop(0%, #7c97bb), color-stop(50%, #5a7caa), color-stop(51%, #50709a), color-stop(100%, #476489));
+  background-image: -webkit-linear-gradient(top left, #7c97bb, #5a7caa 50%, #50709a 51%, #476489);
+  background-image: linear-gradient(top left, #7c97bb, #5a7caa 50%, #50709a 51%, #476489);
+  background-size: 100% 98%;
+  -webkit-border-radius: 0 0 0 2px;
+  border-radius: 0 0 0 2px;
+  -webkit-mask-image: -webkit-linear-gradient(45deg, black, black 15px, rgba(0, 0, 0, 0) 15px);
+  -webkit-mask-image: -webkit-gradient(linear, left bottom, right top, from(black), color-stop(50%, black), color-stop(50%, rgba(0, 0, 0, 0)), to(rgba(0, 0, 0, 0)));
+  -webkit-mask-clip: border-box;
+  -webkit-background-clip: content-box;
+}
+            /* line 149, ../scss/include/_skeleton.scss */
+            #jqt .backbutton:after {
+              -webkit-box-shadow: rgba(0, 0, 0, 0.2) 1px 0 0 inset, rgba(0, 0, 0, 0.2) 0 -1px 0 inset;
+              box-shadow: rgba(0, 0, 0, 0.2) 1px 0 0 inset, rgba(0, 0, 0, 0.2) 0 -1px 0 inset;
+            }
+            /* line 152, ../scss/include/_skeleton.scss */
+            #jqt .backbutton:before {
+              margin-left: -1px;
+              background: #243346 none;
+            }
+            /* line 157, ../scss/include/_skeleton.scss */
+            #jqt .backbutton.active:after {
+              background-image: none;
+              background-color: #476489;
+              background-image: -webkit-gradient(linear, 0% 0%, 100% 100%, color-stop(0%, #6b89b2), color-stop(50%, #50709a), color-stop(51%, #476489), color-stop(100%, #3e5779));
+              background-image: -webkit-linear-gradient(left top, #6b89b2, #50709a 50%, #476489 51%, #3e5779);
+              background-image: linear-gradient(left top, #6b89b2, #50709a 50%, #476489 51%, #3e5779);
+            }
+            /* line 160, ../scss/include/_skeleton.scss */
+            #jqt .backbutton.active:before
+            {
+                background-color: #243346;
+            }
+
         </style>
     </head>
     <body>
         <div id="jqt">
-            <!-- 启动页 -->
-            <div id="startup" class="current">
-                <img src="images/startup.png" />
-            </div>
 
             <!-- 显示Contact列表 -->
-            <div id="home">
+            <div id="home" class="current">
                 <div class="toolbar">
                     <h1>我的联系人</h1>
                     <a class="button slideup nagu-logout" id="btnLogin" href="#" style="">登录</a>
@@ -87,7 +142,7 @@
             <div id="contact" >
                 <div class="toolbar">
                     <h1>联系人名称</h1>
-                    <a class="back" href="#home">返回</a>
+                    <a class="button backbutton" href="#" onclick="goBack(this);">返回</a>
                 </div>
 
                 <!-- 基本信息 -->
@@ -125,16 +180,21 @@
                     
                 </div>
                 <hr />
+
                 <!-- 下级联系人 -->
-                <h2>下级联系人</h2>
-                <div class="scroll" >
-                    <ul id="contact_subGroup" class="rounded"></ul>
+                
+                <div class="scroll" id="contact_sub">
+                    <h2>下级联系人</h2>
+                    <ul class="rounded"></ul>
+                    <hr />
                 </div>
                 <!--<h2>其他信息</h2>
                 <div class="scroll">
                     <ul class="rounded" id="otherItemList"></ul>
-                    <a target="_blank" id="btnGoConcept" class="whiteButton">查看完整信息</a>
                 </div>-->
+                
+                <!-- 其他操作 -->
+                <a target="_blank" id="btnGoConcept" class="greenButton">查看完整信息 &raquo;</a>
             </div>
 
             <div id="item">
@@ -222,7 +282,7 @@
 
 
         <script src="http://nagucdn.sinaapp.com/Content/bootstrap/js/assets/jquery-1.8.2.min.js" type="text/javascript"></script> 
-        <script src="http://nagucdn.sinaapp.com/Content/lib/jqtouch/jqtouch.min.js"></script>
+        <script src="http://nagucdn.sinaapp.com/Content/lib/jqtouch/jqtouch.js"></script>
         <script src="http://nagucdn.sinaapp.com/Content/lib/jqtouch/jqtouch-jquery.js"></script>
         
     

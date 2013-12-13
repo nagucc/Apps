@@ -11,6 +11,8 @@ var contactsMS = new Array();
 
 var dtdMe;
 
+var history = [];
+
 jQuery.fn.center = function () {
     this.css("position", "absolute");
     this.css("top", ($(window).height() - this.height()) / 2 + $(window).scrollTop() + "px");
@@ -18,20 +20,75 @@ jQuery.fn.center = function () {
     return this;
 }
 
+// 定义已知的AppId常量。
+var AppIds = {
+    YnuPublic: '944c4890-a848-44b0-b1d7-a50217cfd405' // 云南大学公众服务
+};
+var Keys = {
+    YnuPublic: '' //云南大学公众黄页只读Key
+};
+
+// 根据当前站点域名设置当前apps。
+var appsArray = [];
+//appsArray['nagu.cc'] = [AppIds.YnuPublic];
+var apps = '';
+if(appsArray[location.host]) apps = appsArray[location.host];
+
+// 根据当前站点域名设置可用的Keys
+var keysArray = [];
+//appsArray['nagu.cc'] = [Keys.YnuPublic];
+var keys = '';
+if (Keys[location.host]) keys = Keys[location.host];
+
+var defaultSiteSetting = {
+    title: '纳谷通讯录',
+    icon: 'http://nagu.cc/Content/Images/logo80.jpg',
+    icon4: 'http://nagu.cc/Content/Images/logo1065.png',
+    defaultOwnerId: '20b82ee0-decc-43c6-ac8f-11f008a6c2d1', // 当用户未登录时，显示BelongTo 此OwnerId的数据。
+    keys: [
+        '566fca71-fb13-4acc-86f1-6982114bfa46' // 云南大学公众黄页只读服务Key
+    ],
+    sortConcepts: function (a, b) {
+        return 0;
+    }
+}
+var siteSettings = [];
+siteSettings['nagu.cc'] = $.extend(defaultSiteSetting, {
+});
+var currentSiteSetting = defaultSiteSetting;
+if (siteSettings[location.host]) {
+    currentSiteSetting = siteSettings[location.host]
+}
 
 $(function () {
-
+    
+    document.title = currentSiteSetting.title;
     jQT = new $.jQTouch({
-        icon: 'jqtouch.png',
-        icon4: 'jqtouch4.png',
+        icon: currentSiteSetting.icon,
+        icon4: currentSiteSetting.icon4,
         addGlossToIcon: false,
-        startupScreen: 'jqt_startup.png',
-        statusBar: 'black-translucent',
-        preloadImages: ['images/startup.png']
+        startupScreen: 'images/startup.png',
+        statusBar: 'black-translucent'
     });
 
-    // 显示启动页面
-    $('#startup').center();
+    // 添加事件绑定
+    //$('#contact').on('pageAnimationEnd', function (e, data) {
+    //    // 处理进入事件
+    //    if (data.direction == 'in') {
+    //        if ($('#contact').data('conceptId')) {
+    //            showContact($('#contact').data('conceptId'));
+    //        } else {
+    //            jQT.goTo('#home');
+    //        }
+    //    }
+    //});
+
+    //$('#home').on('pageAnimationEnd', function (e, data) {
+    //    // 处理进入事件
+    //    if (data.direction == 'in') {
+    //        showContactList();
+    //    }
+    //});
 
     curContact = getRequest()['id'];
     wxmId = getRequest()['wxm'];
@@ -41,11 +98,11 @@ $(function () {
 
     // 如果指定了ContactId，则直接显示Contact
     if (curContact) {
-        //showGroup(curGroup);
-        showContact(curContact);
+        //$('#contact').data('conceptId', curContact);
+        $('.current').removeClass('current');
+        $('#contact').addClass('current');
     } else {
-        // 如果没有指定，则显示用户收藏（BelongTo）的联系人
-        showContactList();
+        location.hash = 'home';
     }
 
     $.when(dtdMe).then(function (me) {
@@ -55,80 +112,65 @@ $(function () {
             $('#btnLogin').show();
         }
     });
+
+    // 初始化首页
+    showContactList();
 });
 
 function showContactList() {
-    // 切换div显示
-    $('.current').removeClass('current');
-    $('#home').addClass('current');
 
     $.when(dtdMe).then(function (me) {
-        if (me.ret != 0) return;
+        var gid = currentSiteSetting.defaultOwnerId;
+        if (me.ret == 0) gid = me.Id;
 
-        var gid = me.Id;
         // 显示当前用户收藏的联系人
-        Nagu.SM.findByPO(Nagu.Contact.BelongsTo, gid).done(function (fss) {
+        Nagu.SM.findByPO(Nagu.Contact.BelongsTo, gid, Nagu.MType.Concept, {
+            keys: currentSiteSetting.keys
+        }).done(function (fss) {
             if (bHidePublic) {
                 fss = $.grep(fss, function (fs, i) {
                     return fs.AppId != Nagu.App.Public;
                 });
             }
-            $('#contactList').statementList(fss, {
-                clearBefore: true,
-                renderItem: function (fs, li) {
-                    li.addClass('forward').appendMorpheme(fs.Subject);
-                    li.find('a').attr('href', '?id=' + fs.Subject.ConceptId)
-                        .unbind('click').click(function () {
-                            location = '?id=' + fs.Subject.ConceptId;
+            var cIds = [];
+            $.each(fss, function (i, fs) {
+                cIds.push(fs.Subject.ConceptId);
+            });
+
+            Nagu.CM.bulkGet(cIds.distinct(), {
+                keys: currentSiteSetting.keys
+            }).done(function (cs) {
+                cs.sort(currentSiteSetting.sortConcepts);
+                $('#contactList').conceptList(cs, {
+                    clearBefore: true,
+                    renderItem: function (c, li) {
+                        li.addClass('forward').appendMorpheme(c);
+                        li.find('a').attr('href', '#contact');
+
+                        li.find('a').unbind('click').click(function () {
+                            // 另外打开一个页面可以获取准确的URL地址，但影响性能。
+                            //location = '?id=' + fs.Subject.ConceptId;
+                            showContact(c.ConceptId);
+
+                            //设置数据
+                            //$('#contact').data('conceptId', c.ConceptId);
                         });
-                }
-            });
-        });
-    });
-    
-}
-
-function showGroup(gid) {
-    $('#home h1').appendConcept(gid, { container: $('#home h1') });
-
-    // 显示组内联系人
-    Nagu.SM.findByPO(Nagu.Contact.BelongsTo, gid).done(function (fss) {
-        if (bHidePublic) {
-            fss = $.grep(fss, function (fs, i) {
-                return fs.AppId != Nagu.App.Public;
-            });
-        }
-        $('#contactList').statementList(fss, {
-            clearBefore: true,
-            renderItem: function (fs, li) {
-                li.addClass('forward').appendMorpheme(fs.Subject);
-                li.find('a').attr('href', '#contact').click(function () {
-                    showContact(fs.Subject.ConceptId);
+                    }
                 });
-            }
+            });
         });
     });
     
 }
 
 function showContact(cid) {
-    // 切换div显示
-    $('.current').removeClass('current');
-    $('#contact').addClass('current');
 
     // 显示标题
     $('#contact h1').appendConcept(cid, { container: $('#contact h1') });
+    //Nagu.CM.get(cid).done(function (c) {
+    //    document.title = c.FriendlyNames[0] + '@纳谷通讯录';
+    //});
 
-    // 设置“返回”按钮
-    // 如果不存在主从关系，则设置返回“群组”首页。
-    //if (contactsMS[cid] === undefined) {
-    //    $('#contact .back').unbind().attr('href', '#home');
-    //} else {
-    //    $('#contact .back').unbind().attr('href', '#contact').click(function () {
-    //        showContact(contactsMS[cid]);
-    //    });
-    //}
-    
     // 清除各个固定字段的值
     var as = $('#itemList li a').size();
     $.each($('#itemList li a'),function(i,a){
@@ -136,7 +178,6 @@ function showContact(cid) {
     });
 
     // 初始化显示样式
-    //$('#contactFixedInfo').hide();
     $('#itemList').find('li').hide();
     $('#itemList').find('.nagu-loading').show();
 
@@ -171,23 +212,29 @@ function showContact(cid) {
     });
 
     // 显示“下级联系人”列表
-    $('#contact_subGroup').hide();
-    $('#contact_subGroup').find('ul').empty();
+    $('#contact_sub').hide();
+    $('#contact_sub').find('ul').empty();
     Nagu.SM.findByPO(Nagu.Contact.BelongsTo, cid, Nagu.MType.Concept).done(function (fss) {
         if (fss.length == 0) return;
 
-        // 维护"联系人"主从关系表
-        $.each(fss, function (i, fs) {
-            contactsMS[fs.Subject.ConceptId] = cid;
-        });
-        $('#contact_subGroup').show().statementList(fss, {
-            clearBefore: true,
-            renderItem: function (fs, li) {
-                li.addClass('forward').appendMorpheme(fs.Subject);
-                li.find('a').attr('href', '#contact').click(function () {
-                    showContact(fs.Subject.ConceptId);
-                });
-            }
+        $('#contact_sub').show();
+        var cIds = [];
+        for (var i = 0; i < fss.length; i++) {
+            cIds.push(fss[i].Subject.ConceptId);
+        }
+        Nagu.CM.bulkGet(cIds.distinct()).done(function (cs) {
+            cs.sort(currentSiteSetting.sortConcepts);
+            $('#contact_sub ul').conceptList(cs, {
+                clearBefore: true,
+                renderItem: function (c, li) {
+                    li.addClass('forward').appendMorpheme(c);
+                    li.find('a').attr('href', '#contact')
+                        .unbind('click').click(function () {
+                        history.push(cid);
+                        showContact(c.ConceptId);
+                    });
+                }
+            });
         });
     });
     // 显示“其他信息”
@@ -214,4 +261,12 @@ function showItem(propertyId, pv, cid) {
         var starImg = B.img().attr('src', '/Content/Images/glyphicons/glyphicons_048_dislikes.png');
         div.append(B.a().append(starImg));
     });
+}
+
+function goBack() {
+    if (history.length) {
+        showContact(history.pop());
+    } else {
+        jQT.goBack('#home');
+    }
 }
