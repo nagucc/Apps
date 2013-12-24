@@ -56,8 +56,8 @@ function initClassN(fatherId, target, $this) {
         return;
     }
 
-    // 通过“上级直属区划”属性搜索
-    var propertyId = '27fb2392-cebe-4ef6-9018-655c7c08b84c';
+    // 通过“BelongTo”属性搜索
+    var propertyId = '1ea23591-6d15-4dfb-b32d-3314f60a0a0b';
     B.option().text('加载中...').val('').appendTo(target);
     Nagu.SM.findByPO(propertyId, fatherId, Nagu.MType.Concept).done(function (fss) {
         if (fss.length == 0) {
