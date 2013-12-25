@@ -10,10 +10,6 @@ var renderValues;
 $(function () {
     curConcept = getRequest()['id'];
     if (curConcept === undefined || curConcept == '') return;
-
-    var mode = getRequest()['mode'];
-    if (mode == 'debug') $('#divDebug').show();
-
     
 
     dlgArticleShow = new ArticleShowDialog();
@@ -47,9 +43,7 @@ function showConcept() {
     Nagu.CM.get(curConcept).done(function (concept) {
         $('#fn').text(concept.FriendlyNames[0]);
 
-        try{ // 下面语句在IE下异常。
-            $('title').text(concept.FriendlyNames[0] + ' - 纳谷概念云');
-        } catch (e) { }
+        document.title = concept.FriendlyNames[0] + ' - 纳谷概念云';
         $('#desc').text(concept.Descriptions[0]);
 
         // 显示类型下拉列表
@@ -302,30 +296,30 @@ function renderMyFavoriteGroups() {
 }
 
 // 当QQ登录成功之后：
-function afterQCLogin(reqData, opts) {
-    QC.api("get_user_info").success(function (s) {
-        var span = $("#qqLoginBtn");
-        var spanF = newSpan().append(newImg(s.data.figureurl));
-        var spanN = newSpan().text(s.data.nickname);
-        var spanL = newSpan().append(newA("#").text("退出").click(function () { QQLogout(); }));
+//function afterQCLogin(reqData, opts) {
+//    QC.api("get_user_info").success(function (s) {
+//        var span = $("#qqLoginBtn");
+//        var spanF = newSpan().append(newImg(s.data.figureurl));
+//        var spanN = newSpan().text(s.data.nickname);
+//        var spanL = newSpan().append(newA("#").text("退出").click(function () { QQLogout(); }));
 
-        span.empty();
-        span.append(spanF).append(spanN).append(spanL);
-    });
+//        span.empty();
+//        span.append(spanF).append(spanN).append(spanL);
+//    });
 
-    Nagu.MM.getMe().fail(function () {
-        // 使用当前QC的凭据登录nagu
-        QC.Login.getMe(function (openId, accessToken) {
-            Nagu.MM.loginFromQC(openId, accessToken).done(function (data) {
-                if (data.Status == "OK") {
-                    console.log("用户登录成功");
-                    afterNaguLogin();
-                }
-            });
-        });
-    });
+//    Nagu.MM.getMe().fail(function () {
+//        // 使用当前QC的凭据登录nagu
+//        QC.Login.getMe(function (openId, accessToken) {
+//            Nagu.MM.loginFromQC(openId, accessToken).done(function (data) {
+//                if (data.Status == "OK") {
+//                    console.log("用户登录成功");
+//                    afterNaguLogin();
+//                }
+//            });
+//        });
+//    });
     
-}
+//}
 
 function QQLogout() {
     QC.Login.signOut();

@@ -184,6 +184,7 @@ $(function () {
         if (curContact) {
             $('.current').removeClass('current');
             $('#contact').addClass('current');
+            showContact(curContact);
         } else {
             location.hash = 'home';
         }
@@ -265,9 +266,16 @@ function showContact(cid) {
                     .unbind().click(function () {
                         showItem(pv.Key, pv, cid);
                     });
+
+                // 设置拨号按钮
                 if (pv.Key == Nagu.Contact.CellPhoneNum
                     || pv.Key == Nagu.Contact.OfficeNum) {
                     li.find('a').eq(1).attr('href', 'tel:' + pv.Value[0].Object.Value);
+                }
+
+                // 设置短信按钮
+                if (pv.Key == Nagu.Contact.CellPhoneNum) {
+                    li.find('a').eq(2).attr('href', 'sms:' + pv.Value[0].Object.Value);
                 }
             }
         });
@@ -283,6 +291,7 @@ function showContact(cid) {
     currentSiteSetting.showDependentContact(cid, currentSiteSetting);
 
     // 显示“其他信息”
+    //$('#btnShare').attr('href', 'sms:1555555?body=hello');
     $('#btnGoConcept').attr('href', 'http://nagu.cc/apps/public/concept.html?id=' + cid);
 }
 
@@ -312,7 +321,11 @@ function goBack() {
     if (history.length) {
         showContact(history.pop());
     } else {
-        jQT.goBack('#home');
+        try{
+            jQT.goBack('#home');
+        } catch(e){
+            location.hash = 'home';
+        }
     }
 }
 

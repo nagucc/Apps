@@ -3,27 +3,34 @@ var host = "";
 var addTypeDialog, addValueDialog, createConceptDialog, cdp, dlgSelectDialog;
  
 // 全局变量
-var CM, SM, N, MM;
-var renderValues;
+var renderValues, dtdMe;
 
 
 
 $(document).ready(function () {
-    // 全局变量
-    CM = new ConceptManager();
-    SM = new StatementManager();
-    MM = new MemberManager();
-    N = Nagu;
+
     curConcept = getRequest()['id'];
 
     $('#addInfo').attr('href', '/apps/public/concept.html?id=' + curConcept);
 
-    $.when(showPerson()).done(
-    QC.Login({
-        btnId: "qqLoginBtn",
-        scope: "all",
-        size: "A_M"
-    }, afterQCLogin));
+    dtdMe = Nagu.MM.getMe();
+    $.when(dtdMe).then(function (me) {
+        if (me.ret == 0) { // 已登录
+            afterNaguLogin(me);
+        } else { // 未登录
+            naguLogout();
+        }
+    });
+
+
+    dlgArticleShow = new ArticleShowDialog();
+    dlgSearchDialog = new SearchConceptDialog();
+    dlgSelectDialog = new SelectConceptDialog();
+
+    // 显示二维码
+    generateQr(location.href);
+
+    showPerson();
 });
 
 
@@ -46,6 +53,7 @@ function showPerson() {
 
         // 显示左侧属性列表
         var cdp = new ConceptDetailPanel(curConcept, {
+            showDetail: false,
             renderProperty: ConceptDetailPanel.renderProperty4
         });
         cdp.show($('#conceptDetail'));
@@ -57,60 +65,70 @@ function showPerson() {
     });
 
 
-
-    $("#qrcode").empty().qrcode({
-        width: 150,
-        height: 150,
-        text: "http://nagu.cc/apps/jiapu/person.html?id=" + curConcept
-    });
     return dtd.promise();
 }
 
-/********************************************************************************************************************************/
-// 当QQ登录成功之后：
-function afterQCLogin(reqData, opts) {
-    var dtd = $.Deferred();
+///********************************************************************************************************************************/
+//// 当QQ登录成功之后：
+//function afterQCLogin(reqData, opts) {
+//    var dtd = $.Deferred();
 
-    // 获取用户信息并显示：
-    QC.api("get_user_info").success(function (s) {
-        var span = $("#qqLoginBtn");
+//    // 获取用户信息并显示：
+//    QC.api("get_user_info").success(function (s) {
+//        var span = $("#qqLoginBtn");
 
-        var spanF = newSpan().append(newImg(s.data.figureurl));
-        var spanN = newSpan().text(s.data.nickname);
-        var spanL = newSpan().append(newA("#").text("退出").click(function () {
-            QQLogout();
-        }));
-        $(".logged").show("slow", function () {
-            $('.nagu-said-status').each(function (i, s) {
-                var sm = new SayManager();
-                sm.status($(s).attr('statementid')).done(function (hasSaid) {
-                    initSaidStatus($(s).attr('statementid'), hasSaid);
+//        var spanF = newSpan().append(newImg(s.data.figureurl));
+//        var spanN = newSpan().text(s.data.nickname);
+//        var spanL = newSpan().append(newA("#").text("退出").click(function () {
+//            QQLogout();
+//        }));
+//        $(".logged").show("slow", function () {
+//            $('.nagu-said-status').each(function (i, s) {
+//                var sm = new SayManager();
+//                sm.status($(s).attr('statementid')).done(function (hasSaid) {
+//                    initSaidStatus($(s).attr('statementid'), hasSaid);
                     
-                });
-            });
-            initBtnSaidStatus(function () {
-                if ($('.nagu-said-status-toggler').text() == '加注星标') $('.concept-list-item.active').prependTo($('#myfamilies'));
-                else $('.concept-list-item.active').prependTo($('#families'));
-            });
-        });
-        span.empty();
-        span.append(spanF).append(spanN).append(spanL);
-    });
+//                });
+//            });
+//            initBtnSaidStatus(function () {
+//                if ($('.nagu-said-status-toggler').text() == '加注星标') $('.concept-list-item.active').prependTo($('#myfamilies'));
+//                else $('.concept-list-item.active').prependTo($('#families'));
+//            });
+//        });
+//        span.empty();
+//        span.append(spanF).append(spanN).append(spanL);
+//    });
 
-    // 登录服务器端
-    QC.Login.getMe(function (openId, accessToken) {
-        $.getJSON("/MemberApi/QQBack/" + openId + "?accessToken=" + accessToken, function (data) {
-            if (data.Status == "OK") {
-                console.log("创建用户成功");
-                dtd.resolve();
-            }
-        });
+//    // 登录服务器端
+//    QC.Login.getMe(function (openId, accessToken) {
+//        $.getJSON("/MemberApi/QQBack/" + openId + "?accessToken=" + accessToken, function (data) {
+//            if (data.Status == "OK") {
+//                console.log("创建用户成功");
+//                dtd.resolve();
+//            }
+//        });
+//    });
+//    return dtd.promise();
+//}
+
+
+function generateQr(url) {
+    Nagu.F.shortenUrl(url).done(function (data) {
+        var img = B.img().attr('src', data.shortUrl + '.qr');
+        $("#qrcode").empty().append(img);
+    }).fail(function () {
+        // 在客户端生成二维码
+        try {
+            $("#qrcode").empty().qrcode({
+                width: 150,
+                height: 150,
+                text: url
+            });
+        } catch (e) {
+            $('#qrcode').text('当前浏览器不支持生成二维码');
+        }
     });
-    return dtd.promise();
 }
-
-
-
 
 
 

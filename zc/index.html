@@ -1,0 +1,447 @@
+﻿<!--
+    jQuery Mobile Portfolio
+    Author: Sam Deering (samdeering.com)
+    Article: jquery4u.com/mobile/jquery-mobile-portfolio/
+    Demo: jquery4u.com/demos/mobileportfoliosite/
+-->
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <title>纳谷固定资产助手</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="keywords" content="mobile portfolio, mobile portfolio site">
+        <meta name="author" content="sam deering">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <script src="http://cdn.ynu.edu.cn/lib/jquery-mobile-portfolio/js/jquery-1.8.3.min.js"></script>
+        <script src="http://cdn.ynu.edu.cn/lib/jquery-mobile-portfolio/js/jquery.mobile-1.2.0.js"></script>
+        <link href="http://cdn.ynu.edu.cn/lib/jquery-mobile-portfolio/css/jquery.mobile.structure-1.2.0.min.css" rel="stylesheet">
+        <link href="http://cdn.ynu.edu.cn/lib/jquery-mobile-portfolio/css/jquery.mobile.theme-1.2.0.min.css" rel="stylesheet">
+        <link href="http://cdn.ynu.edu.cn/lib/jquery-mobile-portfolio/css/jquery.mobile-1.2.0.min.css" rel="stylesheet">
+        <link href="http://cdn.ynu.edu.cn/lib/jquery-mobile-portfolio/css/style.css" rel="stylesheet">
+        <script src="http://cdn.ynu.edu.cn/lib/jquery-mobile-portfolio/js/klass.min.js"></script>
+    </head>
+
+    <body>
+
+        
+
+        
+
+        <!-- 资产详细信息 -->
+        <div data-role="page" id="home" data-title="名称">
+            <div data-role="header">
+                <h1>#title</h1>
+                <a class="nagu-logged"
+                    data-role="button" href="#zcList" data-transition="flip" data-icon="home" data-corners="false">列表</a>
+            </div>
+            <div data-role="content">
+
+                <!-- 资产图片 -->
+                <img id="zcPic" src="" alt="还没有该物品的图片" />
+
+                <div data-role="collapsible-set" id="typeList">
+
+                    <!-- 基本信息 -->
+                    <div data-role="collapsible" data-corners="false" class="ui-corner-none" data-collapsed="false">
+                        <h2 class="ui-collapsible-heading">
+                            <a class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-left ui-btn-up-d"
+                                href="#" data-corners="false" data-shadow="false" data-iconshadow="true" data-icon="plus"
+                                data-iconpos="left" data-theme="d">
+                                <span class="ui-btn-text">基本信息</span>
+                            </a>
+
+                        </h2>
+        <div class="ui-body ui-body-d ui-textalign-left">
+
+            <!-- profile fields -->
+            <div class="tablerow">
+                <div class="left-table">标签号:</div>
+                <div class="right-table" vc4p="9080c5f4-2eb7-444b-8c5e-eb81b68b7ea9">正在加载中...</div>
+            </div>
+            <div class="tablerow">
+                <div class="left-table">购置日期:</div>
+                <div class="right-table" vc4p="5f61c37e-8cfb-447d-84ee-ab81c35aca3d"></div>
+            </div>
+            <div class="tablerow">
+                <div class="left-table">规格:</div>
+                <div class="right-table" vc4p="ba5b04a7-47a2-4624-9708-4b0c79593390"></div>
+            </div>
+            <div class="tablerow">
+                <div class="left-table">型号:</div>
+                <div class="right-table" vc4p="b7e744b4-c69c-423a-967c-6710690693a9"></div>
+            </div>
+            <div class="tablerow">
+                <div class="left-table">单价:</div>
+                <div class="right-table" vc4p="87de68c5-e7b4-453b-9305-eb9834696961"></div>
+            </div>
+            <div class="tablerow">
+                <div class="left-table">数量:</div>
+                <div class="right-table" vc4p="a0054203-7a99-46a1-ac1c-d99b72856a99"></div>
+            </div>
+            <div class="tablerow">
+                <div class="left-table">总价:</div>
+                <div class="right-table" vc4p="c4ce1ec6-3d35-4896-9d4f-bee1263c7202"></div>
+            </div>
+            <div class="tablerow">
+                <div class="left-table">领用人:</div>
+                <div class="right-table" vc4p="2d502a3e-c30d-4392-aff7-8c2301c8df55"></div>
+            </div>
+            <div class="tablerow">
+                <div class="left-table">管理人:</div>
+                <div class="right-table" vc4p="9fdade80-c4a2-4e8c-9d05-a47bf608ae0f"></div>
+            </div>
+            <div class="tablerow">
+                <div class="left-table">存放地点:</div>
+                <div class="right-table" vc4p="9046c121-43e8-4573-a031-680e78170184"></div>
+            </div>
+            <div class="tablerow">
+                <div class="left-table">所属部门:</div>
+                <div class="right-table" vc4p="eff3baf0-a911-456a-9b95-f7c01f6cb6af"></div>
+            </div>
+        </div>
+    </div>
+
+                    <!-- 资产从属关系 -->
+                    <div data-role="collapsible" data-corners="false" class="ui-corner-none">
+                        <h2 class="ui-collapsible-heading ui-collapsible-heading-collapsed">
+                            <a class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-left ui-btn-up-d"
+                                href="#" data-corners="false" data-shadow="false" data-iconshadow="true" data-icon="plus" data-iconpos="left" data-theme="d">
+                            <span class="ui-btn-text">包含 & 附属关系</span>
+                        </a></h2>
+                        <div class="ui-body ui-body-d ui-textalign-left">
+                            <div class="tablerow">
+                                <div class="left-table">包含资产:</div>
+                                <div class="right-table" vc4p="32da0816-a12b-49fd-98b0-158f1ef61f62"></div>
+                            </div>
+                            <div class="tablerow">
+                                <div class="left-table">附属于:</div>
+                                <div class="right-table" vc4p="43296bf8-e83f-45fe-8b3c-ec031e2e9b9c"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 其他类型 -->
+                    <div data-role="collapsible"
+                        data-corners="false"
+                        class=" ui-corner-none zc-type-template ui-screen-hidden">
+                        <h2 class="ui-collapsible-heading ui-collapsible-heading-collapsed">
+                            <a class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-left ui-btn-up-d"
+                                href="#"
+                                data-corners="false"
+                                data-shadow="false"
+                                data-iconshadow="true"
+                                data-icon="plus"
+                                data-iconpos="left"
+                                data-theme="d">
+                                <span class="ui-btn-text zc-type-name">类型名称</span>
+                            </a>
+
+                        </h2>
+                        <div class="ui-body ui-body-d ui-textalign-left zc-plist">
+                        </div>
+                    </div>
+
+                    <!-- 其他类型2 -->
+                    <div data-role="collapsible"
+                        data-corners="false"
+                        class=" ui-corner-none zc-type-template ui-screen-hidden">
+                        <h2 class="ui-collapsible-heading ui-collapsible-heading-collapsed">
+                            <a class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-left ui-btn-up-d"
+                                href="#"
+                                data-corners="false"
+                                data-shadow="false"
+                                data-iconshadow="true"
+                                data-icon="plus"
+                                data-iconpos="left"
+                                data-theme="d">
+                                <span class="ui-btn-text zc-type-name">类型名称</span>
+                            </a>
+
+                        </h2>
+                        <div class="ui-body ui-body-d ui-textalign-left zc-plist">
+                        </div>
+                    </div>
+
+                    <!-- 其他类型3 -->
+                    <div data-role="collapsible"
+                        data-corners="false"
+                        class=" ui-corner-none zc-type-template ui-screen-hidden">
+                        <h2 class="ui-collapsible-heading ui-collapsible-heading-collapsed">
+                            <a class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-left ui-btn-up-d"
+                                href="#"
+                                data-corners="false"
+                                data-shadow="false"
+                                data-iconshadow="true"
+                                data-icon="plus"
+                                data-iconpos="left"
+                                data-theme="d">
+                                <span class="ui-btn-text zc-type-name">类型名称</span>
+                            </a>
+
+                        </h2>
+                        <div class="ui-body ui-body-d ui-textalign-left zc-plist">
+                        </div>
+                    </div>
+
+                    <!-- 其他类型4 -->
+                    <div data-role="collapsible"
+                        data-corners="false"
+                        class=" ui-corner-none zc-type-template ui-screen-hidden">
+                        <h2 class="ui-collapsible-heading ui-collapsible-heading-collapsed">
+                            <a class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-left ui-btn-up-d"
+                                href="#"
+                                data-corners="false"
+                                data-shadow="false"
+                                data-iconshadow="true"
+                                data-icon="plus"
+                                data-iconpos="left"
+                                data-theme="d">
+                                <span class="ui-btn-text zc-type-name">类型名称</span>
+                            </a>
+
+                        </h2>
+                        <div class="ui-body ui-body-d ui-textalign-left zc-plist">
+                        </div>
+                    </div>
+
+                    <!-- 其他类型5 -->
+                    <div data-role="collapsible"
+                        data-corners="false"
+                        class=" ui-corner-none zc-type-template ui-screen-hidden">
+                        <h2 class="ui-collapsible-heading ui-collapsible-heading-collapsed">
+                            <a class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-left ui-btn-up-d"
+                                href="#"
+                                data-corners="false"
+                                data-shadow="false"
+                                data-iconshadow="true"
+                                data-icon="plus"
+                                data-iconpos="left"
+                                data-theme="d">
+                                <span class="ui-btn-text zc-type-name">类型名称</span>
+                            </a>
+
+                        </h2>
+                        <div class="ui-body ui-body-d ui-textalign-left zc-plist">
+                        </div>
+                    </div>
+
+                    <!-- 其他类型6 -->
+                    <div data-role="collapsible"
+                        data-corners="false"
+                        class=" ui-corner-none zc-type-template ui-screen-hidden">
+                        <h2 class="ui-collapsible-heading ui-collapsible-heading-collapsed">
+                            <a class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-left ui-btn-up-d"
+                                href="#"
+                                data-corners="false"
+                                data-shadow="false"
+                                data-iconshadow="true"
+                                data-icon="plus"
+                                data-iconpos="left"
+                                data-theme="d">
+                                <span class="ui-btn-text zc-type-name">类型名称</span>
+                            </a>
+
+                        </h2>
+                        <div class="ui-body ui-body-d ui-textalign-left zc-plist">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ui-body"
+                    style="
+                        padding-left: 0px;
+                        padding-right: 0px;
+                    ">
+                    <a class="previous-btn ui-btn ui-shadow ui-btn-inline ui-btn-icon-left ui-btn-hover-c ui-btn-up-c" 
+                        data-theme="c" data-corners="false" data-role="button" data-inline="true" data-icon="arrow-l" 
+                        href="javascript://void(0)" 
+                        onclick="addLy()"
+                        data-shadow="true" data-iconshadow="true" 
+                        data-wrapperels="span">
+                        <span class="ui-btn-inner"><span class="ui-btn-text">
+                        领用
+                    </span><span class="ui-icon ui-icon-arrow-l ui-icon-shadow">&nbsp;</span></span>
+                    </a>
+
+                    <!-- next page link -->
+                    <a id="A1" class="next-btn ui-btn ui-shadow ui-btn-inline ui-btn-icon-right ui-btn-up-c" 
+                        data-theme="c" data-corners="false" data-role="button" data-inline="true" 
+                        data-icon="arrow-r" data-iconpos="right" href="#social" data-shadow="true" 
+                        data-iconshadow="true" data-wrapperels="span">
+                        <span class="ui-btn-inner"><span class="ui-btn-text">
+                        加入管理
+                    </span><span class="ui-icon ui-icon-arrow-r ui-icon-shadow">&nbsp;</span></span></a>
+                </div>
+
+                <div class="ui-body" 
+                    style="
+                        padding-left: 0px;
+                        padding-right: 0px;
+                    ">
+                    <a class="previous-btn ui-btn ui-shadow ui-btn-inline ui-btn-icon-left ui-btn-hover-c ui-btn-up-c" 
+                        data-theme="c" data-corners="false" data-role="button" data-inline="true" data-icon="arrow-l" 
+                        href="#login" data-shadow="true" data-iconshadow="true" 
+                        data-wrapperels="span">
+                        <span class="ui-btn-inner"><span class="ui-btn-text">
+                        <img src="images/icons/round/64x64/profile.png" alt="rss" style="display: block; margin: 0 auto">
+                        帐户
+                    </span><span class="ui-icon ui-icon-arrow-l ui-icon-shadow">&nbsp;</span></span>
+                    </a>
+
+                    <!-- next page link -->
+                    <a id="naguLink" class="next-btn ui-btn ui-shadow ui-btn-inline ui-btn-icon-right ui-btn-up-c" 
+                        data-theme="c" data-corners="false" data-role="button" data-inline="true" 
+                        data-icon="arrow-r" data-iconpos="right" href="#social" data-shadow="true" 
+                        data-iconshadow="true" data-wrapperels="span">
+                        <span class="ui-btn-inner"><span class="ui-btn-text">
+                        <img src="images/icons/round/64x64/update.jpg" alt="rss" style="display: block; margin: 0 auto">
+                        详情
+                    </span><span class="ui-icon ui-icon-arrow-r ui-icon-shadow">&nbsp;</span></span></a>
+                </div>
+
+                
+
+            </div>
+            <div data-role="footer">
+                <h2>云南大学网络与信息中心</h2>
+                <p class="copyright">&copy; Copyright 2013</p>
+            </div>
+        </div>
+
+        <!-- 登录页 -->
+        <div data-role="page" id="login" data-title="Login">
+            <div data-role="header">
+                <h1>第三方帐号登录</h1>
+                <a data-role="button" href="#home" data-transition="flip"
+                data-icon="home" data-corners="false">Home</a>
+            </div>
+            <div data-role="content">
+
+                <div id="login-links" class="pt-menu">
+                    <a data-theme="d" data-corners="false" data-role="button" href="#qq" id="btnQqLogin">
+                        <img src="images/icons/round/64x64/qq.jpg" alt="使用QQ登录" style="display: block; margin: 0 auto">
+                        QQ
+                    </a>
+                    <a data-theme="d" data-corners="false" data-role="button" href="#weibo" id="btnWeiboLogins">
+                        <img src="images/icons/round/64x64/weibo.png" alt="使用微博帐号登录" style="display: block; margin: 0 auto">
+                        微博
+                    </a>
+                </div>
+
+                <div>
+                    <!-- previous page link -->
+                    <a class="previous-btn" data-theme="c" data-corners="false" data-role="button" data-inline="true" data-icon="arrow-l" href="#portfolio">
+                        <img src="images/icons/round/64x64/portfolio.png" alt="rss" style="display: block; margin: 0 auto">
+                        Portfolio
+                    </a>
+
+                    <!-- next page link -->
+                    <a class="next-btn" data-theme="c" data-corners="false" data-role="button" data-inline="true" data-icon="arrow-r" data-iconpos="right" href="#contact">
+                        <img src="images/icons/round/64x64/mail.png" alt="rss" style="display: block; margin: 0 auto">
+                        Contact
+                    </a>
+                </div>
+
+            </div>
+            <div data-role="footer">
+                <h2>Mobile Portfolio</h2>
+                <p class="copyright">&copy; Copyright 2013</p>
+            </div>
+        </div>
+
+        <!-- 用户固定资产列表 -->
+        <div class="nagu-logged"
+            data-role="page" id="zcList" data-title="zcList">
+            
+            <div data-role="header">
+                <h1>我管理的资产</h1>
+            </div>
+            <div data-role="content">
+                <ul id="ulItems"
+                    data-inset="true" data-role="listview" class="ui-listview ui-listview-inset ui-corner-all ui-shadow ui-corner-none">
+
+                    <!-- item 1 -->
+                    <li id="itemTemplate" style="display: none"
+                        data-corners="false" 
+                        data-shadow="false" 
+                        data-iconshadow="true" 
+                        data-wrapperels="div" 
+                        data-icon="false"
+                        data-iconpos="right" 
+                        data-theme="c"
+                        class="portfolio-item ui-btn ui-btn-icon-right ui-li ui-li-has-alt ui-li-has-thumb ui-first-child ui-btn-up-c ui-corner-none">
+                        <div class="ui-btn-inner ui-li ui-li-has-alt">
+                            <div class="ui-btn-text">
+                                <a href="#" class="ui-link-inherit ui-corner-none">
+                                    <img src="images/portfolio/1/thumb/1_1.jpg" class="ui-li-thumb ui-corner-none">
+                                    <h3 class="ui-li-heading">Item 1</h3>
+                                    <p class="ui-li-desc">item example.</p>
+                                </a>
+                            </div>
+                        </div>
+                        <a href="#" title="查看详情"
+                            class="ui-li-link-alt ui-btn ui-btn-icon-notext ui-btn-up-c" data-corners="false"
+                            data-shadow="false" data-iconshadow="true" data-wrapperels="span" data-icon="false"
+                            data-iconpos="notext" data-theme="c">
+                            <span class="ui-btn-inner">
+                                <span class="ui-btn-text"></span>
+                                <span data-corners="true" data-shadow="true" data-iconshadow="true"
+                                    data-wrapperels="span" data-icon="arrow-r" data-iconpos="notext"
+                                    data-theme="b" title="" class="ui-btn ui-btn-up-d ui-shadow ui-btn-corner-all ui-btn-icon-notext">
+                                    <span class="ui-btn-inner"><span class="ui-btn-text"></span>
+                                        <span class="ui-icon ui-icon-arrow-r ui-icon-shadow">&nbsp;</span>
+                                    </span>
+                                </span>
+                            </span>
+                        </a>
+                    </li>
+                </ul>
+
+                
+                <div class="pt-menu">
+                        <a data-theme="d" data-corners="false" data-role="button" 
+                            href="javascript:void(0)" 
+                            onclick ="showManagedZc()"
+                            data-shadow="true" data-iconshadow="true" data-wrapperels="span" class="ui-btn ui-shadow ui-btn-hover-d ui-btn-up-d"><span class="ui-btn-inner"><span class="ui-btn-text">
+                            <img src="images/icons/round/64x64/profile.png" alt="rss" style="display: block; margin: 0 auto">
+                            我管理的
+                        </span></span></a>
+
+                        <a data-theme="d" data-corners="false" data-role="button" 
+                            href="javascript:void(0)"
+                            onclick ="showUsedZc()"
+                            data-shadow="true" data-iconshadow="true" data-wrapperels="span" class="ui-btn ui-shadow ui-btn-up-d"><span class="ui-btn-inner"><span class="ui-btn-text">
+                            <img src="images/icons/round/64x64/portfolio.png" alt="rss" style="display: block; margin: 0 auto">
+                            我使用的
+                        </span></span></a>
+                    </div>
+
+            </div>
+
+            <div data-role="footer">
+                <h2>云南大学网络与信息中心</h2>
+                <p class="copyright">&copy; Copyright 2013</p>
+            </div>
+        </div>
+
+        
+
+
+        <script src="http://nagu.cc/Content/lib/json2.js" type="text/javascript"></script>
+    <script src="http://nagu.cc/Content/lib/jStorage/jstorage.min.js" type="text/javascript"></script>
+
+    
+    <script src="http://nagu.cc/Content/js/js-helper.js" type="text/javascript"></script>
+    <script src="http://nagu.cc/Content/js/jquery-helper.js" type="text/javascript"></script>
+    <script src="http://nagu.cc/Content/js/bootstrap-helper.js" type="text/javascript"></script>
+    <script src="http://nagu.cc/Content/js/nagu-helper.js" type="text/javascript"></script>
+    <script src="http://nagu.cc/Content/js/apps-helper.js" type="text/javascript"></script>
+    <script src="http://nagu.cc/Content/js/bootstarp-dropdownmenu.js" type="text/javascript"></script>
+    <script src="http://nagu.cc/Content/js/nagu-bs-accordion.js" type="text/javascript"></script>
+    <script src="http://cdn.ynu.edu.cn/lib/jquery.jsonp-2.4.0.min.js"></script>
+    <script src="js/zc.js" type="text/javascript"></script>
+    </body>
+
+</html>
